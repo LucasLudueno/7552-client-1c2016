@@ -1,5 +1,7 @@
 package taller2.match_client;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,55 +23,34 @@ public class MainActivity extends AppCompatActivity {
     private int passwordButtonPressedNumber = 0;
     private Toolbar mainToolbar;
 
-    @Override
+    /* On create Activity */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
-        getSupportActionBar().setTitle("Magic Match");
     }
 
-    // when an user login, if the userName and the password are correct, the app activity is created.
+    /* When an user login, if the userName and the password are correct, the principal app activity is created. */
     public void loginOnClick(View v) {
         Button button = (Button) v;
-        TextView userMail = (TextView)findViewById(R.id.userMail);
-        TextView userPassword = (TextView)findViewById(R.id.userPassword);
+        TextView userMail = (TextView)findViewById(R.id.userNameLogin);
+        TextView userPassword = (TextView)findViewById(R.id.userPasswordLogin);
 
         // TODO: Chequear contraseña y usuario con Server
-        if(userMail.getEditableText().toString().compareTo("lucas") == 0 &
-                userPassword.getEditableText().toString().compareTo("crack") == 0) {
-            Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            startActivity(startAppActivity);
-        }
+        //if(userMail.getEditableText().toString().compareTo("lucas") == 0 &
+        //      userPassword.getEditableText().toString().compareTo("crack") == 0) {
+        Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+        startActivity(startAppActivity);
+        //}
     }
 
-    // when pressed the Register Free link, the register activity is created
+    /* When user register, the RegisterActivity is created */
     public void registerOnClick(View v) {
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
         startActivity(startRegisterActivity);
     }
 
-    // when clicked in mailIdButton, its content is deleted
-    public void mailOnClick(View v) {
-        EditText mail = (EditText) v;
-
-        if (mailButtonPressedNumber == 0) {
-            mail.setText("");
-            mailButtonPressedNumber++;
-        }
-    }
-
-    // when clicked in passwordIdButton, its content is deleted and change its mode to: password
-    public void passwordOnClick(View v) {
-        EditText password = (EditText) v;
-
-        if (passwordButtonPressedNumber == 0) {
-            password.setText("");
-            password.setTransformationMethod(new PasswordTransformationMethod());
-            passwordButtonPressedNumber++;
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

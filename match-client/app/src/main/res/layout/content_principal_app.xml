@@ -12,4 +12,36 @@
     tools:context="taller2.match_client.PrincipalAppActivity"
     tools:showIn="@layout/app_bar_principal_app">
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/chatIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:src="@android:drawable/sym_action_chat"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="false" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/likeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:src="@mipmap/ic_done_white_48dp"
+        app:backgroundTint="#0dc30a"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/chatIcon"
+        android:layout_toStartOf="@+id/chatIcon" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/dontLikeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:src="@mipmap/ic_clear_white_48dp"
+        app:backgroundTint="#c30b0d"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/likeIcon"
+        android:layout_toStartOf="@+id/likeIcon" />
+
 </RelativeLayout>
