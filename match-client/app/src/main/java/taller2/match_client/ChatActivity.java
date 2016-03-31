@@ -40,93 +40,36 @@ public class ChatActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendMensageToServer();
+                if (checkConection()) {
+                    sendMensageToServer();
+                }
             }
         });
     }
 
-    public void sendMensageToServer() {
+    private void sendMensageToServer() {
+        SendToServerTestTask conectionThread = new SendToServerTestTask();
+        conectionThread.execute("GET","http://192.168.0.5:8000","/testUri");
+    }
 
-        TextView chatWindows = (TextView) findViewById(R.id.chatWindows);
-
+    /* Check if the conection to internet is stable */
+    private boolean checkConection() {
         ConnectivityManager connectManager = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {         // I check status of conection
-
-            chatWindows.setText("Conexion posible");
-            InternetConectionThread conectionThread = new InternetConectionThread();
-            conectionThread.execute("http://192.168.0.5:8000");
-        } else {
-            chatWindows.setText("Conexion imposible");
+        if ((networkInfo != null && networkInfo.isConnected()) ) {        // Check if i have internet.
+            return true;
         }
-
+        return false;
     }
 
-    private class  InternetConectionThread extends AsyncTask<String, Integer, String> {
-
-        @Override
-        protected void onPreExecute(){
-            //Setup is done here
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try{
-                URL url = new URL(params[0]);
-                HttpURLConnection httpConection = (HttpURLConnection) url.openConnection();
-
-                if(httpConection.getResponseCode() != 200) {
-                    throw new Exception("Failed to connect");
-                }
-                InputStream inputStream = httpConection.getInputStream();
-                return letsDoThisAgain(inputStream);
-
-            }catch(Exception e){
-                Log.e("Image", "Failed to conect to Server", e);
-
-            } finally {
-               // httpConection.disconnect();
-            }
-            return "Error";
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... params) {
-            //Update a progress bar here, or ignore it, it's up to you
-        }
-
+    /* Test task */
+    private class SendToServerTestTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
             TextView chatWindows = (TextView) findViewById(R.id.chatWindows);
             chatWindows.setText(dataGetFromServer);
         }
-
-        @Override
-        protected void onCancelled(){
-            // Handle what you want to do if you cancel this task
-        }
-
-        public String letsDoThisAgain(InputStream streamFromServer){
-
-            InputStreamReader reader = new InputStreamReader(streamFromServer);
-            StringBuilder builder = new StringBuilder();
-            BufferedReader buffer = new BufferedReader(reader);
-            try {
-                String read = buffer.readLine();
-
-                while(read !=null){
-                    builder.append(read);
-                    read = buffer.readLine();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return builder.toString();
-        }
-
     }
 }

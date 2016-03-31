@@ -24,10 +24,10 @@ import java.util.List;
 
 public class ChatActivity2 extends AppCompatActivity {
 
+    /* Attributes */
     private ChatArrayAdapter chatArrayAdapter;
     private ListView listView;
     private boolean side = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +40,8 @@ public class ChatActivity2 extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button buttonSend = (Button) findViewById(R.id.send);
-
-        listView = (ListView) findViewById(R.id.msgview);
-
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.right_msg_chat);
-        listView.setAdapter(chatArrayAdapter);
+        listView = (ListView) findViewById(R.id.chatMsgList);
         listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         listView.setAdapter(chatArrayAdapter);
 
@@ -59,23 +55,23 @@ public class ChatActivity2 extends AppCompatActivity {
         });
     }
 
+    /* Send Chat message to Server */
     private boolean sendChatMessage(EditText chatText) {
         chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
-        chatText.setText("");
         side = !side;
         return true;
     }
 
+    /* When Send button is pressed, the content of the ChatText is send */
     public void onSendChatClick(View v) {
-        EditText chatMsg = (EditText) findViewById(R.id.userMsg);
+        EditText chatMsg = (EditText) findViewById(R.id.userChatMsg);
         sendChatMessage(chatMsg);
         chatMsg.setText("");
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (item.getItemId() == android.R.id.home) {
+        if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
             this.finish();
             return true;
         }

@@ -1,6 +1,9 @@
 package taller2.match_client;
 
+/* This class represent a Chat Message */
 public class ChatMessage {
+
+    /* Attributes */
     public boolean isUserCharMsg;
     public String message;
 

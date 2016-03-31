@@ -22,9 +22,10 @@ public class PrincipalAppActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal_app);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.principalAppToolbar);
         setSupportActionBar(toolbar);
 
+        // Chat Icon
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.chatIcon);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,28 +35,47 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
         });
 
+        // Like Icon
         FloatingActionButton likeIcon = (FloatingActionButton) findViewById(R.id.likeIcon);
         likeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(),
-                        "Button is clicked", Toast.LENGTH_LONG).show();
+                // TODAVIA NO HACE NADA
             }
         });
 
+        // Dont Like Icon
+        FloatingActionButton dontlikeIcon = (FloatingActionButton) findViewById(R.id.dontLikeIcon);
+        dontlikeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODAVIA NO HACE NADA
+            }
+        });
+
+        // Match Icon
+        FloatingActionButton matchIcon = (FloatingActionButton) findViewById(R.id.matchIcon);
+        dontlikeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODAVIA NO HACE NADA
+            }
+        });
+
+
+        // Drawer Layout
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        // Navigation View
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        toolbar.setTitle("Magical Match");
     }
 
-    // This create the Chat Activiry when the chatIcon is pressed
+    /* When chatIcon is pressed create the Chat Activity */
     public void createChatActivity() {
         Intent startAppActivity = new Intent(this, ChatActivity2.class);
         startActivity(startAppActivity);

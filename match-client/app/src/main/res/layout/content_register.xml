@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:weightSum="6"
+    android:layout_marginTop="?attr/actionBarSize"
     tools:context="taller2.match_client.RegisterActivity"
     tools:showIn="@layout/activity_register">
 
@@ -25,8 +26,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="?attr/actionBarSize">
+                android:layout_height="wrap_content">
                 <EditText
                     android:id="@+id/userRealName"
                     android:layout_width="match_parent"
@@ -47,8 +47,8 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:hint="@string/prompt_user_surname"
+                    android:inputType="textEmailAddress"
+                    android:hint="@string/prompt_user_mail"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
                     android:id="@+id/userSurname"
@@ -97,9 +97,9 @@
                     android:inputType="date"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
-                    android:id="@+id/userDate"
+                    android:id="@+id/userBirthdate"
                     android:layout_below="@+id/editText"
-                    android:hint="@string/prompt_user_date"
+                    android:hint="@string/prompt_user_birthdate"
                     android:textColor="#807d7d"
                     android:textColorHint="#5f5c5c" />
                 </android.support.design.widget.TextInputLayout>
@@ -130,7 +130,7 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/ContinueRegisterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
@@ -139,6 +139,7 @@
                 android:textColor="#ffffff"
                 android:background="@drawable/button"
                 android:text="Continue"
+                android:onClick="continueRegisterOnClick"
                 android:layout_gravity="right" />
 
         </LinearLayout>

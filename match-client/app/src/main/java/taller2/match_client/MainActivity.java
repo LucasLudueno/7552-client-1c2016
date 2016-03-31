@@ -19,21 +19,17 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private int mailButtonPressedNumber = 0;
-    private int passwordButtonPressedNumber = 0;
-    private Toolbar mainToolbar;
-
     /* On create Activity */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
     }
 
-    /* When an user login, if the userName and the password are correct, the principal app activity is created. */
+    /* When an user login, if the userName and the password are correct, PrincipalAppActivity is created. */
     public void loginOnClick(View v) {
-        Button button = (Button) v;
+        Button button = (Button) v; // TODO: BLOQUEAR BOTON AL PRESIONAR
         TextView userMail = (TextView)findViewById(R.id.userNameLogin);
         TextView userPassword = (TextView)findViewById(R.id.userPasswordLogin);
 
@@ -45,13 +41,14 @@ public class MainActivity extends AppCompatActivity {
         //}
     }
 
-    /* When user register, the RegisterActivity is created */
+    /* When user registers, RegisterActivity is created */
     public void registerOnClick(View v) {
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
         startActivity(startRegisterActivity);
     }
 
 
+    // TODO: DUDO QUE USE EL MENU EN LA PANTALLA PRINCIPAL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -70,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

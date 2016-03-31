@@ -10,7 +10,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
+/* This class represent a Chat Array that is taken by a ListView to show the Chat Messages */
+public class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
+    /* Attributes */
     private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
     private TextView chatText;
     private Context context;

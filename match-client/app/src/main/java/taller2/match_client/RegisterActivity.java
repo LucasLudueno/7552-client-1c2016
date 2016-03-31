@@ -10,22 +10,27 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class RegisterActivity extends AppCompatActivity {
-
-    private  Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        toolbar = (Toolbar) findViewById(R.id.registerToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.registerToolbar);
         setSupportActionBar(toolbar);
 
-        // TODO: TODAVIA NO SE PORQUE NO ANDA EL BACK ACTIVITY
+        // Add the back activity button in the toolbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
 
+    /* When user continue register, PrincipalAppActivity is created */
+    public void continueRegisterOnClick(View v) {
+        Button button = (Button) v; // TODO: BLOQUEAR BOTON AL PRESIONAR
+        Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+        startActivity(startAppActivity);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -34,16 +39,12 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    /*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+        if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
+            this.finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
-    }*/
-
+    }
 }
