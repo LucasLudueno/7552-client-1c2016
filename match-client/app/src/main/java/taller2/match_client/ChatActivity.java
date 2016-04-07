@@ -48,8 +48,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void sendMensageToServer() {
-        SendToServerTestTask conectionThread = new SendToServerTestTask();
-        conectionThread.execute("GET","http://192.168.0.5:8000","/testUri");
+        SendToServerTestTask cli = new SendToServerTestTask();
+        cli.execute("GET","http://192.168.0.5:8000","","");
     }
 
     /* Check if the conection to internet is stable */

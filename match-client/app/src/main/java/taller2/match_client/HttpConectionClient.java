@@ -1,6 +1,5 @@
 package taller2.match_client;
 
-import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,19 +13,19 @@ public class HttpConectionClient {
 
     /* Attributes */
     URL url;
-    HttpURLConnection httpConection;
+    HttpURLConnection httpConnection;
 
     /* Send GET request to Server. Throws ConectionExeption in case error */
     public String GETRequest(String urlString, String uriString) { //throws ConectionException{
         try{
             url = new URL(urlString + uriString);
-            httpConection = (HttpURLConnection) url.openConnection();
-            httpConection.setRequestMethod("GET");
-            if (httpConection.getResponseCode() != 200) {
-                httpConection.disconnect(); // TODO: Chequear si hace falta desconectarlo.
+            httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection.setRequestMethod("GET");
+            if (httpConnection.getResponseCode() != 200) {
+                httpConnection.disconnect(); // TODO: Chequear si hace falta desconectarlo.
                 // Error
             }
-            InputStream inputStream = httpConection.getInputStream();
+            InputStream inputStream = httpConnection.getInputStream();
             return InputStreamToString(inputStream);
 
         } catch (IOException e) {
@@ -35,30 +34,32 @@ public class HttpConectionClient {
             return null;
 
         } finally {
-            httpConection.disconnect();
+            httpConnection.disconnect();
         }
     }
 
     /* Send POST request to Server. Throws ConectionExeption in case error */
-    public String POSTRequest(String urlString, String data) { //throws ConectionException{
+    public String POSTRequest(String urlString, String uriString, String data) { //throws ConectionException{
         try{
-            url = new URL(urlString);
-            httpConection = (HttpURLConnection) url.openConnection();
-            httpConection.setRequestMethod("POST");
-            if (httpConection.getResponseCode() != 200) {
-                httpConection.disconnect(); // TODO: Chequear si hace falta desconectarlo.
-                // Error
-                // Log
-            }
-            httpConection.setDoInput(true);
-            httpConection.setDoOutput(true);
-            httpConection.connect();
+            url = new URL(urlString + uriString);
+            httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection.setRequestMethod("POST");
+            httpConnection.setRequestProperty("Accept-Language", "UTF-8");
+            httpConnection.setDoInput(true);
+            httpConnection.setDoOutput(true);
+            httpConnection.connect();
 
-            OutputStreamWriter httpWritter = new OutputStreamWriter(httpConection.getOutputStream());
+            OutputStreamWriter httpWritter = new OutputStreamWriter(httpConnection.getOutputStream());
             httpWritter.write(data);
             httpWritter.flush();
 
-            InputStream inputStream = httpConection.getInputStream();
+            if (httpConnection.getResponseCode() != 200) {
+                httpConnection.disconnect(); // TODO: Chequear si hace falta desconectarlo.
+                // Error
+                // Log
+            }
+
+            InputStream inputStream = httpConnection.getInputStream();
             return InputStreamToString(inputStream);
 
         } catch (IOException e) {
@@ -67,7 +68,7 @@ public class HttpConectionClient {
             return null;
 
         } finally {
-            httpConection.disconnect();
+            httpConnection.disconnect();
         }
     }
 

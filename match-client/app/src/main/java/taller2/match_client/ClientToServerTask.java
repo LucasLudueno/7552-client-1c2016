@@ -16,14 +16,15 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
     protected String doInBackground(String... params) {
         String requestType = params[0];
         String url = params[1];
-        String data = params[2];
+        String uri = params[2];
+        String data = params[3];
 
         String receiveString = "";
         HttpConectionClient httpConection = new HttpConectionClient();
         if (requestType.equals("GET") ) {
-            receiveString = httpConection.GETRequest(url, data);
+            receiveString = httpConection.GETRequest(url, uri);
         } else if (requestType.equals("POST") ) {
-            receiveString = httpConection.POSTRequest(url, data);
+            receiveString = httpConection.POSTRequest(url, uri, data);
         } else {
             // ERROR
             // Log

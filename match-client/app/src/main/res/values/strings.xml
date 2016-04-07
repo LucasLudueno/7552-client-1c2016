@@ -28,4 +28,9 @@
     <string name="title_activity_perfil">Edit Perfil</string>
     <string name="title_activity_chat2">Chat</string>
     <string name="title_activity_chat">Test Server Conection</string>
+
+    <!-- Protocol Strings -->
+    <string name="login_uri">/login</string>
+    <string name="register_uri">/register</string>
+    <string name="ok_response">ok</string>
 </resources>

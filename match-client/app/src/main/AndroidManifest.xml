@@ -19,6 +19,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,10 +31,12 @@
         <activity
             android:name=".RegisterActivity"
             android:label="@string/title_activity_register"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PrincipalAppActivity"
             android:label="@string/title_activity_principal_app"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".ChatActivity"
@@ -42,14 +45,17 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".PerfilActivity"
             android:label="@string/title_activity_perfil"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".ChatActivity2"
             android:label="@string/title_activity_chat2"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"></activity>
     </application>
 
