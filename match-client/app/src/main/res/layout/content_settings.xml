@@ -89,6 +89,12 @@
             </RelativeLayout>
 
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:background="@android:color/darker_gray"/>
 
 
             <TextView
@@ -96,7 +102,6 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Category: Outdoors"
-                android:layout_marginTop="40dp"
                 android:id="@+id/textOutDoors" />
 
             <RelativeLayout
@@ -158,7 +163,12 @@
             </RelativeLayout>
 
 
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:background="@android:color/darker_gray"/>
 
 
             <TextView
@@ -166,27 +176,33 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Show me: "
-                android:layout_marginTop="40dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/textSex" />
 
-            <RadioButton
+            <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Men"
-                android:id="@+id/radioMen" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/checkMen"
+                android:checked="false"/>
 
-            <RadioButton
+            <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Women"
-                android:id="@+id/radioWomen" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/checkWomen"
+                android:checked="false"/>
 
-            <RadioButton
+            <CheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Travas"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:id="@+id/radioTrava"
-                android:layout_marginBottom="22dp"/>
+                android:layout_marginBottom="22dp"
+                android:checked="false"/>
 
         </LinearLayout>
     </ScrollView>

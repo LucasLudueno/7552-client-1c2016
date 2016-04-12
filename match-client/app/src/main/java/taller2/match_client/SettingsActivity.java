@@ -9,8 +9,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -27,6 +29,10 @@ public class SettingsActivity extends AppCompatActivity {
     Button addOutdoor;
     EditText music_band_edit;
     EditText outdoor_edit;
+    Button removeMusic;
+    Button removeOutdoor;
+    CheckBox menSelected;
+    CheckBox womenSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +49,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Music List
         List<String> musicListItems = new ArrayList<String>();
-        musicListItems.add("");
-        musicListItems.add("Pink Floyd");
-        musicListItems.add("Beatles");
+        //musicListItems.add("Pink Floyd");
+        //musicListItems.add("Beatles");
         musicList = (Spinner)findViewById(R.id.music_band_list);
         listMusicAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, musicListItems);
         listMusicAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -53,7 +58,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Outdoors List
         List<String> outdoorsListItems = new ArrayList<String>();
-        outdoorsListItems.add("");
         outdoorsListItems.add("Running");
         outdoorsListItems.add("Swimming");
         outdoorsListItems.add("Nothing");
@@ -79,12 +83,34 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        // Remove Buttons
+        removeMusic = (Button)findViewById(R.id.RemoveMusicBandButton);
+        removeMusic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeMusicItem();
+            }
+        });
+
+        removeOutdoor = (Button)findViewById(R.id.RemoveOutdoorsButton);
+        removeOutdoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeOutdoorItem();
+            }
+        });
+
+        // Radio Buttons
+        menSelected = (CheckBox)findViewById(R.id.checkMen);
+        womenSelected = (CheckBox)findViewById(R.id.checkWomen);
+
         // Interest edit text
         music_band_edit = (EditText)findViewById(R.id.music_band_edit);
-        outdoor_edit = (EditText)findViewById(R.id.music_band_edit);
+        outdoor_edit = (EditText)findViewById(R.id.outdoors_edit);
 
     }
 
+    /* Add music item */
     void addMusicItem() {
         String music = music_band_edit.getText().toString();
         if (!music.isEmpty()) {
@@ -93,12 +119,25 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    /* Add outdoor item */
     void addOutdoorItem() {
         String outdoor = outdoor_edit.getText().toString();
         if (!outdoor.isEmpty()) {
             listOutdoorsAdapter.add(outdoor);
             outdoor_edit.setText("");
         }
+    }
+
+    /* Remove music item */
+    void removeMusicItem() {
+        listMusicAdapter.remove((String) musicList.getSelectedItem());
+        listMusicAdapter.notifyDataSetChanged();
+    }
+
+    /* Remove outdoor item */
+    void removeOutdoorItem() {
+        listOutdoorsAdapter.remove((String) outdoorsList.getSelectedItem());
+        listOutdoorsAdapter.notifyDataSetChanged();
     }
 
     @Override
