@@ -13,12 +13,12 @@
     tools:showIn="@layout/activity_register">
 
     <ScrollView
-        android:id="@+id/login_scroll"
+        android:id="@+id/register_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/login"
+            android:id="@+id/register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
