@@ -3,6 +3,7 @@ package taller2.match_client;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     EditText userPasswordView;
     Button login;
     Button register;
-    ProgressBar loading;
+    ProgressDialog loading;
 
     /* On create Activity */
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
-
-        // ProgressBar
-        loading = (ProgressBar)findViewById(R.id.progressBarLogin);
 
         // badLoginWindow
         badLoginWindow = new AlertDialog.Builder(this).create();
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             // ERROR
         }
-        loading.setVisibility(View.VISIBLE);
+        loading = ProgressDialog.show(MainActivity.this, "Please wait...", "Login processing", true);
         /*if ( checkConection() ){
             SendLoginTask checkLogin = new SendLoginTask();   //TODO: Checkear si no se puede tener como atribb
             checkLogin.execute("POST",url, uri, data.toString());   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
@@ -158,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Check login response from Server */
     private void checkLoginResponse(String response) {
-        loading.setVisibility(View.GONE);
+        loading.dismiss();
         if (response.equals("ok")) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);

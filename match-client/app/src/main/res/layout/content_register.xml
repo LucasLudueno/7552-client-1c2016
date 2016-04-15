@@ -127,14 +127,6 @@
 
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/progressBarRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                android:layout_gravity="center_horizontal"
-                android:visibility="gone" />
-
             <Button
                 android:id="@+id/ContinueRegisterButton"
                 android:layout_width="wrap_content"
