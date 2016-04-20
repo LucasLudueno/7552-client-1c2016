@@ -17,15 +17,15 @@ public class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     private TextView chatText;
     private Context context;
 
+    public ChatArrayAdapter(Context context, int textViewResourceId) {
+        super(context, textViewResourceId);
+        this.context = context;
+    }
+
     @Override
     public void add(ChatMessage chatMessage) {
         chatMessageList.add(chatMessage);
         super.add(chatMessage);
-    }
-
-    public ChatArrayAdapter(Context context, int textViewResourceId) {
-        super(context, textViewResourceId);
-        this.context = context;
     }
 
     public int getCount() {
@@ -35,7 +35,6 @@ public class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     public ChatMessage getItem(int index) {
         return this.chatMessageList.get(index);
     }
-
 
     /* Get a View that displays the data at the specified position in the data set. In this case a chatMsg
     *  LayoutInflater instantiates a layout XML file into its corresponding View */
@@ -48,7 +47,7 @@ public class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }else{
             chatMsgView = inflater.inflate(R.layout.left_msg_chat, parent, false);
         }
-        chatText = (TextView) chatMsgView.findViewById(R.id.msgr);
+        chatText = (TextView) chatMsgView.findViewById(R.id.chatMessage);
         chatText.setText(chatMessage.message);
         return chatMsgView;
     }

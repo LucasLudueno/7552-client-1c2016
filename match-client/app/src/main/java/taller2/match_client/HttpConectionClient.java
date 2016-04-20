@@ -12,13 +12,13 @@ import java.net.URL;
 public class HttpConectionClient {
 
     /* Attributes */
-    URL url;
-    HttpURLConnection httpConnection;
-    int responseOK = 201;
+    private URL url;
+    private HttpURLConnection httpConnection;
+    private int responseOK = 201;
 
-    /* Send GET request to Server. Throws ConectionExeption in case error */
+    /* Send GET request to Server. Throws ConectionExeption in case error */    // TODO: CREAR EXCEPCION...
     public String GETRequest(String urlString, String uriString) { //throws ConectionException{
-        try{
+        try {
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("GET");
@@ -41,7 +41,7 @@ public class HttpConectionClient {
 
     /* Send POST request to Server. Throws ConectionExeption in case error */
     public String POSTRequest(String urlString, String uriString, String data) { //throws ConectionException{
-        try{
+        try {
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("POST");
@@ -60,8 +60,7 @@ public class HttpConectionClient {
             httpWritter.close();
 
             if (httpConnection.getResponseCode() != responseOK) {
-                // Error
-                // Log
+                // EROOR - LOG
                 return "Error";
             }
 
@@ -86,14 +85,13 @@ public class HttpConectionClient {
         try {
             String read = buffer.readLine();
 
-            while(read !=null){
+            while(read !=null) {
                 builder.append(read);
                 read = buffer.readLine();
             }
         } catch (IOException e) {
-            return null;    // ERROR
+            return null;    // ERROR - LOG
         }
         return builder.toString();
     }
-
 }

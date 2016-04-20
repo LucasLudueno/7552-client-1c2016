@@ -1,75 +1,97 @@
 package taller2.match_client;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Button;
+import android.view.LayoutInflater;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
+    /* Attributes */
+    private ChatArrayAdapter chatArrayAdapter;
+    private ListView listView;
+    private Button sendChat;
+    private boolean side = false;
+
+    /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        // Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.send_server_msg);
-        fab.setOnClickListener(new View.OnClickListener() {
+        // Add back activity button in the toolbar
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Chat Array Adapter
+        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.right_msg_chat);
+        listView = (ListView) findViewById(R.id.chatMsgList);
+        listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        listView.setAdapter(chatArrayAdapter);
+
+        // To scroll the list view to bottom on data change
+        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
-            public void onClick(View view) {
-                if (checkConection()) {
-                    sendMensageToServer();
-                }
+            public void onChanged() {
+                super.onChanged();
+                listView.setSelection(chatArrayAdapter.getCount() - 1);
+            }
+        });
+
+        // Send Button
+        sendChat = (Button)findViewById(R.id.sendChatMsg);
+        sendChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSendChatClick(v);
             }
         });
     }
 
-    private void sendMensageToServer() {
-        SendToServerTestTask cli = new SendToServerTestTask();
-        cli.execute("GET","http://192.168.0.5:8000","","");
+    /* Send Chat message to Server */
+    private boolean sendChatMessage(EditText chatText) {
+        chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
+        side = !side;
+        return true;
     }
 
-    /* Check if the conection to internet is stable */
-    private boolean checkConection() {
-        ConnectivityManager connectManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+    /* When Send button is pressed, the content of the ChatText is send */
+    public void onSendChatClick(View v) {
+        EditText chatMsg = (EditText) findViewById(R.id.userChatMsg);
+        sendChatMessage(chatMsg);
+        chatMsg.setText("");
+    }
 
-        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {        // Check if i have internet.
+    /* Handle menu item click */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
+            this.finish();
             return true;
         }
-        return false;
-    }
-
-    /* Test task */
-    private class SendToServerTestTask extends ClientToServerTask {
-        @Override
-        protected void onPostExecute(String dataGetFromServer){
-            TextView chatWindows = (TextView) findViewById(R.id.chatWindows);
-            chatWindows.setText(dataGetFromServer);
-        }
+        return super.onOptionsItemSelected(item);
     }
 }
+
+

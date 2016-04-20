@@ -18,6 +18,8 @@ public class PerfilActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil);
+
+        // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.perfilToolbar);
         setSupportActionBar(toolbar);
 
@@ -26,7 +28,7 @@ public class PerfilActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Load Perfil
-
+        // .....
 
         // Perfil user photo. Set Size.
         Display display = getWindowManager().getDefaultDisplay();
@@ -38,10 +40,9 @@ public class PerfilActivity extends AppCompatActivity {
         ImageView posMatchPhoto = (ImageView)findViewById(R.id.userPerfilPhoto);
         posMatchPhoto.getLayoutParams().height = height / 2;
         posMatchPhoto.getLayoutParams().width = height / 2;
-
-
     }
 
+    /* Handle menu item click */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 

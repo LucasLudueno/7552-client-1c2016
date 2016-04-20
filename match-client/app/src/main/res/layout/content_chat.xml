@@ -1,18 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="taller2.match_client.ChatActivity"
+    tools:context="taller2.match_client.ChatActivity2"
     tools:showIn="@layout/activity_chat">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text=""
-        android:id="@+id/chatWindows" />
+    <ListView
+        android:id="@+id/chatMsgList"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@null"
+        android:divider="@null"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll">
+    </ListView>
 
-</android.support.v4.widget.NestedScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/border_textchat_desing2"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
+        android:weightSum="3">
+
+        <EditText
+            android:id="@+id/userChatMsg"
+            android:background="@drawable/apptheme_textfield_activated_holo_light"
+            android:hint="Write message"
+            android:textCursorDrawable="@null"
+            android:layout_marginLeft="2dp"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="2"
+            android:singleLine="false" />
+
+        <Button
+            android:id="@+id/sendChatMsg"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:text="Send"
+            android:background="@drawable/blue_button"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</LinearLayout>
+
+
+

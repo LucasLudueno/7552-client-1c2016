@@ -4,7 +4,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="fill_parent"
 android:layout_height="fill_parent"
-android:background="@drawable/wallpaper7"
+android:background="@drawable/wallpaper"
 android:fitsSystemWindows="true"
 tools:context="taller2.match_client.MainActivity">
 
@@ -13,13 +13,10 @@ tools:context="taller2.match_client.MainActivity">
     android:layout_height="wrap_content"
     android:theme="@style/AppTheme.AppBarOverlay">
 
-    <android.support.v7.widget.Toolbar
+    <include
         android:id="@+id/mainToolbar"
         android:title="Magical Match"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+        layout="@layout/standard_toolbar" />
 
 </android.support.design.widget.AppBarLayout>
 

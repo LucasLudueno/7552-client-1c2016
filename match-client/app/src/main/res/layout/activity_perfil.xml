@@ -12,13 +12,10 @@
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <include
             android:id="@+id/perfilToolbar"
             android:title="Edit Perfil"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            layout="@layout/standard_toolbar" />
 
     </android.support.design.widget.AppBarLayout>
 

@@ -29,36 +29,39 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
     /* Attributes */
-    AlertDialog badLoginWindow;
-    AlertDialog emptyFieldsWindow;
-    AlertDialog internetDisconnectWindow;
-    EditText userNameView;
-    EditText userPasswordView;
-    Button login;
-    Button register;
-    ProgressDialog loading;
+    private AlertDialog badLoginWindow;
+    private AlertDialog emptyFieldsWindow;
+    private AlertDialog internetDisconnectWindow;
+    private ProgressDialog loading;
+    private EditText userMailView;
+    private EditText userPasswordView;
+    private Button login;
+    private Button register;
 
     /* On create Activity */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Toolbar
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
 
         // badLoginWindow
         badLoginWindow = new AlertDialog.Builder(this).create();
         badLoginWindow.setTitle("Error while login");
-        badLoginWindow.setMessage("User Name or Password are incorrect");
+        badLoginWindow.setMessage("Mail or Password are incorrect");
 
         // emptyFieldsWindow
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
         emptyFieldsWindow.setTitle("Fields Empty");
-        emptyFieldsWindow.setMessage("Some fields are empty. Please complete the fields first before continue");
+        emptyFieldsWindow.setMessage("Some fields are empty. Please complete the fields before continue");
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle("Internet disconnect");
-        internetDisconnectWindow.setMessage("Please connect to internet to continue");
+        internetDisconnectWindow.setMessage("Please connect internet to continue");
 
         // Login Button
         login = (Button)findViewById(R.id.loginButton);
@@ -79,14 +82,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // TextViews
-        userNameView = (EditText)findViewById(R.id.userNameLogin);
+        userMailView = (EditText)findViewById(R.id.userMailLogin);
         userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
     }
 
-
     /* When an user login, if the userName and the password are correct, PrincipalAppActivity is created. */
-    public void loginOnClick(View v) {
-        String userName = userNameView.getText().toString();            // TODO: BLOQUEAR BOTON AL PRESIONAR
+    private void loginOnClick(View v) {
+        String userMail = userMailView.getText().toString();
         String userPassword = userPasswordView.getText().toString();
 
         /*if (userName.isEmpty() || userPassword.isEmpty()) {
@@ -98,10 +100,11 @@ public class MainActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
 
         try {
-            data.put("userName" , userName);
+            data.put("userMail" , userMail);
             data.put("userPassword", userPassword);
         } catch (JSONException e) {
             // ERROR
+            // LOG
         }
         loading = ProgressDialog.show(MainActivity.this, "Please wait...", "Login processing", true);
         /*if ( checkConection() ){
@@ -114,12 +117,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* When user registers, RegisterActivity is created */
-    public void registerOnClick(View v) {
+    private void registerOnClick(View v) {
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
         startActivity(startRegisterActivity);
     }
 
-    // TODO: DUDO QUE USE EL MENU EN LA PANTALLA PRINCIPAL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -127,14 +129,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /* Handle menu item click */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -142,13 +141,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /* Check if the conection to internet is stable */
+    /* Check internet connection */
     private boolean checkConection() {
         ConnectivityManager connectManager = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {        // Check if i have internet.
+        if ((networkInfo != null && networkInfo.isConnected()) ) {
             return true;
         }
         return false;
@@ -173,3 +172,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
+// REFACTOR
+// TODO: EVALUAR QUÉ MENUES VAN DENTRO DE LAS ACTIVITIES. SI NO VAN: BORRAR DESDE MENU Y DESDE ACTIVITY
+// TODO: ELEGIR UN DISEÑO DE CHAT, EL OTRO BORRARLO.
+// TODO: VAUALIZAR LOS MARGENES DE SETTINGS SI CONSERVAMOS EL LAYOUT
+// TODO: VALUALIZAR MARGENES EN GENERAL DE LOS CONTENT LAYOUT SI CONSERVAMOS LOS MISMOS
+// TODO: ELIMINAR IMPORTS NO USADOS
+// TODO: ELIMINAR STRINGS HARDCODEADOS EN XML
+// TODO: ORGANIZAR CLASES
+
+// DUDAS
+// TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO
+// TODO: AGRUPAR RIGHT Y LEFT MSG ??
+// TODO: FONDO DE PANTALLA A CHAT ??
+// TODO: AGRUPAR PERFIL Y REGISTER ??
+// TODO: MAX HEIGHT EN CUADRO PARA ESCRIBIR CHAT ??
+
+
+// NECESARIO
+// TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS
+// TODO: MANEJAR TIPOS DE RESPONSE CODE

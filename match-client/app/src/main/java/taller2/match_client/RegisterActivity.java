@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,46 +34,44 @@ import org.json.JSONObject;
 public class RegisterActivity extends AppCompatActivity {
 
     /* Attributes */
-    AlertDialog wrongFieldsWindow;
-    AlertDialog userMailExistWindow;
-    AlertDialog internetDisconnectWindow;
-    AlertDialog gpsDisconnectedWindow;
-    ProgressDialog connectingToServerWindow;
-    EditText userNameView;
-    EditText userMailView;
-    EditText userRealNameView;
-    EditText userPasswordView;
-    EditText userBirthdayView;
-    CheckBox userFemaleView;
-    CheckBox userMaleView;
-    Button continueRegButton;
-    ProgressBar loading;
+    private AlertDialog wrongFieldsWindow;
+    private AlertDialog userMailExistWindow;
+    private AlertDialog internetDisconnectWindow;
+    private ProgressDialog connectingToServerWindow;
+    private EditText userNameView;
+    private EditText userMailView;
+    private EditText userRealNameView;
+    private EditText userPasswordView;
+    private EditText userBirthdayView;
+    private CheckBox userFemaleView;
+    private CheckBox userMaleView;
+    private Button continueRegButton;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
-    int minTimeToRefresh = 5000;
+    private int minTimeToRefresh = 5000;
 
-    String userName;
-    String userPassword;
-    String userRealName;
-    String userMail;
-    String userBirthday;
-    String latitude = "";
-    String longitude = "";
+    private String userName;
+    private String userPassword;
+    private String userRealName;
+    private String userMail;
+    private String userBirthday;
+    private String latitude = "";
+    private String longitude = "";
 
+    /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.registerToolbar);
         setSupportActionBar(toolbar);
 
         // Add the back activity button in the toolbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // ProgressBar
-        loading = (ProgressBar) findViewById(R.id.progressBarRegister);
 
         // wrongFieldsWindow
         wrongFieldsWindow = new AlertDialog.Builder(this).create();
@@ -82,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle("Internet disconnect");
-        internetDisconnectWindow.setMessage("Please connect to internet to continue");
+        internetDisconnectWindow.setMessage("Please connect internet to continue");
 
         // userNameExistWindow
         userMailExistWindow= new AlertDialog.Builder(this).create();
@@ -90,9 +89,9 @@ public class RegisterActivity extends AppCompatActivity {
         userMailExistWindow.setMessage("The Mail you choose already exists. Please choose other");
 
         // gpsDisconnected
-        gpsDisconnectedWindow = new AlertDialog.Builder(this).create();
+        /*gpsDisconnectedWindow = new AlertDialog.Builder(this).create();
         gpsDisconnectedWindow.setTitle("GPS is disconnected");
-        gpsDisconnectedWindow.setMessage("Please connect the GPS");
+        gpsDisconnectedWindow.setMessage("Please connect the GPS");*/
 
         // Continue Button
         continueRegButton = (Button) findViewById(R.id.ContinueRegisterButton);
@@ -158,22 +157,22 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTimeToRefresh, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
         } catch (SecurityException e) {
-            gpsDisconnectedWindow.show();
+            internetDisconnectWindow.show();
             // LOG - ERROR
         }
     }
 
-    /* When user register, PrincipalAppActivity is created */
+    /* When user got register, PrincipalAppActivity is created */
     public void continueRegisterOnClick(View v) {
-        if (!checkFormatFields()) {                     // TODO: BLOQUEAR BOTON AL PRESIONAR
+        if (!checkFormatFields()) {
             wrongFieldsWindow.show();
             return;
         }
 
-        if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {
-            gpsDisconnectedWindow.show();               // TODO: Refactor
+        if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
+            internetDisconnectWindow.show();
             return;
         }
 
@@ -184,8 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
             userSex = "Male";
         }
 
-        String url = "http://192.168.0.5:8000";
-        //String url = "http://181.26.16.245:8000";
+        String url =  getResources().getString(R.string.server_ip);;
         String uri = getResources().getString(R.string.register_uri);
         JSONObject data = new JSONObject();
 
@@ -199,22 +197,22 @@ public class RegisterActivity extends AppCompatActivity {
             data.put("latitude",latitude);
             data.put("longitude",longitude);
         } catch (JSONException e) {
-            // ERROR
+            // ERROR -LOG
         }
 
         if ( checkConection() ){
             connectingToServerWindow = ProgressDialog.show(RegisterActivity.this, "Please wait...", "Registration processing", true);
-            SendRegisterTask checkLogin = new SendRegisterTask();   //CON ESTAS LINEAS MANDAS AL SERVER EL REGISTER
+            SendRegisterTask checkLogin = new SendRegisterTask();
             checkLogin.execute("POST",url, uri, String.valueOf(data));
         } else {
             internetDisconnectWindow.show();
         }
-
         //checkRegisterResponse("ok");
     }
 
+    /* Check if the format fields is correct to continue */
     boolean checkFormatFields() {
-        userName = userNameView.getText().toString();            // TODO: BLOQUEAR BOTON AL PRESIONAR
+        userName = userNameView.getText().toString();
         userPassword = userPasswordView.getText().toString();
         userRealName = userRealNameView.getText().toString();
         userMail = userMailView.getText().toString();
@@ -227,13 +225,13 @@ public class RegisterActivity extends AppCompatActivity {
                 userBirthday.isEmpty() ||
                 (!userFemaleView.isChecked() && !userMaleView.isChecked()) ) {
 
-            //TODO: CHECKEAR LOS FORMATOS
+            //TODO: CHECKEAR LOS FORMATOS COMPLETOS
             return false;
         }
         return true;
     }
 
-    // TODO: DUDO QUE USE EL MENU EN LA PANTALLA
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_register, menu);
@@ -249,13 +247,13 @@ public class RegisterActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /* Check if the conection to internet is stable */
+    /* Check internet connection */
     private boolean checkConection() {
         ConnectivityManager connectManager = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {        // Check if i have internet.
+        if ((networkInfo != null && networkInfo.isConnected()) ) {
             return true;
         }
         return false;
@@ -268,7 +266,7 @@ public class RegisterActivity extends AppCompatActivity {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
         } else {
-            userMailExistWindow.setTitle(response);
+            userMailExistWindow.setTitle(response); // Only for now...
             userMailExistWindow.show();
         }
     }

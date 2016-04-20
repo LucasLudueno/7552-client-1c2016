@@ -8,45 +8,38 @@
     tools:context="taller2.match_client.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ProgressBar
-        android:id="@+id/progressBarLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:visibility="gone" />
-
     <EditText
+        android:id="@+id/userMailLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/text_design_login"
         android:inputType="textPersonName"
-        android:hint="@string/prompt_user_name_login"
-        android:id="@+id/userNameLogin"
+        android:hint="@string/prompt_user_mail_login"
         android:textColor="#706d6d"
-        android:background="@drawable/text_design"
+        android:textCursorDrawable="@null"
         android:layout_above="@+id/userPasswordLogin"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"/>
 
     <EditText
+        android:id="@+id/userPasswordLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/text_design_login"
         android:inputType="textPassword"
         android:hint="@string/prompt_user_password_login"
-        android:id="@+id/userPasswordLogin"
         android:textColor="#706d6d"
-        android:background="@drawable/text_design"
+        android:textCursorDrawable="@null"
         android:layout_above="@+id/loginButton"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp" />
 
     <Button
+        android:id="@+id/loginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/login_button"
         android:text="Login"
-        android:id="@+id/loginButton"
-        android:background="@drawable/button"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="7dp"
@@ -54,13 +47,15 @@
         android:layout_above="@+id/registerButton" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Register Free"
         android:id="@+id/registerButton"
-        android:background="@drawable/button_design_2"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:text="Register Now"
+        android:textColor="#267055"
+        android:background="@drawable/register_button"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:textColor="#0a6815" />
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" />
 
 </RelativeLayout>

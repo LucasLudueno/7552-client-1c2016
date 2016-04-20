@@ -11,8 +11,12 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
         //Setup is done here
     }
 
+    /* Send to Server GET and POST request.
+     * param[0] = requestType (GET or POST)
+     * param[1] = url
+     * param[2] = uri
+     * param[3] = data (for POST request) */
     @Override
-    /* Send to Server GET and POST request */
     protected String doInBackground(String... params) {
         String requestType = params[0];
         String url = params[1];
@@ -26,15 +30,14 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
         } else if (requestType.equals("POST") ) {
             receiveString = httpConection.POSTRequest(url, uri, data);
         } else {
-            // ERROR
-            // Log
+            // ERROR - LOG
         }
         return receiveString;
     }
 
     @Override
     protected void onProgressUpdate(Integer... params) {
-        //Update a progress bar here, or ignore it, it's up to you
+        //Update a progress bar here, or ignore it...
     }
 
     @Override

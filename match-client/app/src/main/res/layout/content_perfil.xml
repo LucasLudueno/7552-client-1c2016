@@ -11,147 +11,111 @@
     tools:showIn="@layout/activity_perfil">
 
     <ScrollView
-        android:id="@+id/login_scrollPerfil"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/loginPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_margin="@dimen/content_register_margin"
             android:descendantFocusability="beforeDescendants"
-            android:focusableInTouchMode="true"
-            android:layout_margin="16dp">
+            android:focusableInTouchMode="true">
 
             <ImageView
+                android:id="@+id/userPerfilPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/no_match"
-                android:id="@+id/userPerfilPhoto"
                 android:layout_gravity="center_horizontal"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:textColorHint="#807d7d"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
                 <EditText
                     android:id="@+id/userRealNamePerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
                     android:hint="@string/prompt_real_name"
                     android:inputType="textPersonName"
                     android:maxLines="1"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_marginLeft="@dimen/text_margin"
+                    android:layout_marginRight="@dimen/text_margin"
                     android:singleLine="true"
                     android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"/>
+                    android:textCursorDrawable="@null"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:textColorHint="#807d7d"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
                 <EditText
+                    android:id="@+id/userNamePerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:hint="@string/prompt_user_mail"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:id="@+id/userMailPerfil"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c" />
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
                     android:inputType="text"
                     android:hint="@string/prompt_user_name"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:id="@+id/userNamePerfil"
+                    android:layout_marginLeft="@dimen/text_margin"
+                    android:layout_marginRight="@dimen/text_margin"
                     android:layout_below="@+id/userName"
                     android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c" />
+                    android:textCursorDrawable="@null"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:textColorHint="#807d7d"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
                 <EditText
+                    android:id="@+id/userPasswordPerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:hint="@string/prompt_user_password"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:id="@+id/userPasswordPerfil"
+                    android:layout_marginLeft="@dimen/text_margin"
+                    android:layout_marginRight="@dimen/text_margin"
                     android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c" />
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:textCursorDrawable="@null" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:textColorHint="#807d7d"
+                app:hintTextAppearance="@style/TextAppearance.AppCompat">
                 <EditText
+                    android:id="@+id/userBirthdatePerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="date"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:id="@+id/userBirthdatePerfil"
+                    android:layout_marginLeft="@dimen/text_margin"
+                    android:layout_marginRight="@dimen/text_margin"
                     android:hint="@string/prompt_user_birthdate"
                     android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c" />
+                    android:textColorHint="#5f5c5c"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:textCursorDrawable="@null"/>
             </android.support.design.widget.TextInputLayout>
 
-            <LinearLayout
-                android:id="@+id/maleFemale"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Male"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:id="@+id/userIsMalePerfil"
-                    android:checked="false" />
-
-                <CheckBox
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Female"
-                    android:id="@+id/userIsFemalePerfil"
-                    android:checked="false"
-                    android:layout_marginLeft="40dp" />
-
-            </LinearLayout>
-
-            <ProgressBar
-                android:id="@+id/progressBarRegister"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                android:layout_gravity="center_horizontal"
-                android:visibility="gone" />
-
             <Button
-                android:id="@+id/ContinueRegisterButton"
+                android:id="@+id/savePerfilButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_height="40dp"
+                android:paddingLeft="@dimen/button_med_padding_margin"
+                android:paddingRight="@dimen/button_med_padding_margin"
+                android:layout_marginTop="@dimen/text_margin"
+                android:layout_marginRight="@dimen/text_margin"
                 android:layout_marginBottom="20dp"
                 android:textColor="#ffffff"
-                android:background="@drawable/button"
+                android:background="@drawable/blue_button"
                 android:text="Save changes"
                 android:layout_gravity="right" />
 
