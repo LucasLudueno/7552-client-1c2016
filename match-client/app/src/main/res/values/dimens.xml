@@ -5,6 +5,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="activity_general_margin">16dp</dimen>
+    <dimen name="little_object_top_separation">5dp</dimen>
+    <dimen name="medium_object_top_separation">20dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
@@ -16,6 +19,10 @@
     <!-- Button medium margin -->
     <dimen name="button_med_padding_margin">16dp</dimen>
     <dimen name="button_med_height_margin">36dp</dimen>
+
+    <!-- Button medium-hight margin -->
+    <dimen name="button_med_hight_padding_margin">16dp</dimen>
+    <dimen name="button_med_hight_height_margin">40dp</dimen>
 
 
 </resources>

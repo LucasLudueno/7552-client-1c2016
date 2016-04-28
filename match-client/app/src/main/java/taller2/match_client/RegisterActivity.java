@@ -31,10 +31,18 @@ import android.widget.ProgressBar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RegisterActivity extends AppCompatActivity {
 
     /* Attributes */
-    private AlertDialog wrongFieldsWindow;
+    private AlertDialog wrongBirthdayWindow;
+    private AlertDialog wrongMailWindow;
+    private AlertDialog emptyFieldsWindow;
     private AlertDialog userMailExistWindow;
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog connectingToServerWindow;
@@ -74,24 +82,29 @@ public class RegisterActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // wrongFieldsWindow
-        wrongFieldsWindow = new AlertDialog.Builder(this).create();
-        wrongFieldsWindow.setTitle("Wrong Fields");
-        wrongFieldsWindow.setMessage("Fields have not right format or are empty. Please complete right the fields before continue");
+        wrongBirthdayWindow = new AlertDialog.Builder(this).create();
+        wrongBirthdayWindow.setTitle(getResources().getString(R.string.birthdate_wrong_format_error_title_en));
+        wrongBirthdayWindow.setMessage(getResources().getString(R.string.birthdate_wrong_format_error_en));
+
+        // emailWrongFormatWindow
+        wrongMailWindow = new AlertDialog.Builder(this).create();
+        wrongMailWindow.setTitle(getResources().getString(R.string.mail_wrong_format_error_title_en));
+        wrongMailWindow.setMessage(getResources().getString(R.string.mail_wrong_format_error_en));
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle("Internet disconnect");
-        internetDisconnectWindow.setMessage("Please connect internet to continue");
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
 
         // userNameExistWindow
         userMailExistWindow= new AlertDialog.Builder(this).create();
-        userMailExistWindow.setTitle("Mail already exist");
-        userMailExistWindow.setMessage("The Mail you choose already exists. Please choose other");
+        userMailExistWindow.setTitle(getResources().getString(R.string.mail_exist_error_title_en));
+        userMailExistWindow.setMessage(getResources().getString(R.string.mail_exist_error_en));
 
-        // gpsDisconnected
-        /*gpsDisconnectedWindow = new AlertDialog.Builder(this).create();
-        gpsDisconnectedWindow.setTitle("GPS is disconnected");
-        gpsDisconnectedWindow.setMessage("Please connect the GPS");*/
+        // emptyFieldsWindow
+        emptyFieldsWindow = new AlertDialog.Builder(this).create();
+        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
 
         // Continue Button
         continueRegButton = (Button) findViewById(R.id.ContinueRegisterButton);
@@ -111,8 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (userMaleView.isChecked()) {
                     userMaleView.setChecked(false);
-                }
-                ;
+                };
             }
         });
         userMaleView.setOnClickListener(new View.OnClickListener() {
@@ -120,8 +132,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (userFemaleView.isChecked()) {
                     userFemaleView.setChecked(false);
-                }
-                ;
+                };
             }
         });
 
@@ -159,28 +170,27 @@ public class RegisterActivity extends AppCompatActivity {
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
         } catch (SecurityException e) {
-            internetDisconnectWindow.show();
             // LOG - ERROR
         }
     }
 
-    /* When user got register, PrincipalAppActivity is created */
+    /* This function check fields format and if its ok, send the register information to Server to check it.
+        If its ok again and the user not exists, PrincipalAppActivity is created. */
     public void continueRegisterOnClick(View v) {
         if (!checkFormatFields()) {
-            wrongFieldsWindow.show();
             return;
         }
 
         if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
-            internetDisconnectWindow.show();
+            //internetDisconnectWindow.show();
             return;
         }
 
         String userSex = "";
         if (userFemaleView.isChecked()) {
-            userSex = "Female";
+            userSex = getResources().getString(R.string.female_en);
         } else {
-            userSex = "Male";
+            userSex = getResources().getString(R.string.male_en);
         }
 
         String url =  getResources().getString(R.string.server_ip);;
@@ -188,12 +198,12 @@ public class RegisterActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
 
         try {
-            data.put("userName", userName);
-            data.put("userPassword", userPassword);
-            data.put("userRealName", userRealName);
-            data.put("userMail", userMail);
-            data.put("userBirthday", userBirthday);
-            data.put("userSex", userSex);
+            data.put("alias", userName);
+            data.put("password", userPassword);
+            data.put("name", userRealName);
+            data.put("email", userMail);
+            data.put("birthday", userBirthday);
+            data.put("sex", userSex);
             data.put("latitude",latitude);
             data.put("longitude",longitude);
         } catch (JSONException e) {
@@ -201,13 +211,15 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if ( checkConection() ){
-            connectingToServerWindow = ProgressDialog.show(RegisterActivity.this, "Please wait...", "Registration processing", true);
+            connectingToServerWindow = ProgressDialog.show(RegisterActivity.this,
+                                                            getResources().getString(R.string.please_wait_en),
+                                                            getResources().getString(R.string.reg_processing_en), true);
             SendRegisterTask checkLogin = new SendRegisterTask();
             checkLogin.execute("POST",url, uri, String.valueOf(data));
         } else {
             internetDisconnectWindow.show();
         }
-        //checkRegisterResponse("ok");
+        //checkRegisterResponse("201:ok");
     }
 
     /* Check if the format fields is correct to continue */
@@ -225,7 +237,15 @@ public class RegisterActivity extends AppCompatActivity {
                 userBirthday.isEmpty() ||
                 (!userFemaleView.isChecked() && !userMaleView.isChecked()) ) {
 
-            //TODO: CHECKEAR LOS FORMATOS COMPLETOS
+            emptyFieldsWindow.show();
+            return false;
+        }
+        if (!checkEmailFormat(userMail)) {
+            wrongMailWindow.show();
+            return false;
+        }
+        if (!checkDateFormat(userBirthday)) {
+            wrongBirthdayWindow.show();
             return false;
         }
         return true;
@@ -259,19 +279,42 @@ public class RegisterActivity extends AppCompatActivity {
         return false;
     }
 
-    /* Check register response from Server */
+    /* Check register response from Server. Response includes responseCode and responseMessage*/
     private void checkRegisterResponse(String response) {
         connectingToServerWindow.dismiss();
-        if (response.equals("ok")) {
+        String responseCode = response.split(":")[0];
+        String responseMessage = response.split(":")[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code))) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
         } else {
-            userMailExistWindow.setTitle(response); // Only for now...
+            userMailExistWindow.setTitle(response); // TODO: Only for now...
             userMailExistWindow.show();
         }
     }
 
-    /* Send Register to Server */
+    /* Return true if the date format is correct (dd/mm/yyyy) */
+    public static boolean checkDateFormat(String date) {
+        try {
+            SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            formatoFecha.setLenient(false);
+            formatoFecha.parse(date);
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /* Return true if the mail format is correct */
+    public static boolean checkEmailFormat (String email) {
+        String format = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        Pattern pattern = Pattern.compile(format);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    /* This class send the register to Server */
     private class SendRegisterTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){

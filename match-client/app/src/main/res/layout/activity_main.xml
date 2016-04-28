@@ -15,7 +15,7 @@ tools:context="taller2.match_client.MainActivity">
 
     <include
         android:id="@+id/mainToolbar"
-        android:title="Magical Match"
+        android:title="@string/app_name"
         layout="@layout/standard_toolbar" />
 
 </android.support.design.widget.AppBarLayout>

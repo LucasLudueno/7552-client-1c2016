@@ -13,12 +13,14 @@
     <ScrollView
         android:id="@+id/settings_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
+            android:layout_margin="@dimen/content_register_margin"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 
@@ -26,471 +28,154 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Music/Band"
-                android:id="@+id/textMusicBand" />
+                android:text="@string/choose_category_title_en"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="@dimen/little_object_top_separation"
+                android:layout_weight=".28"
+                android:background="@drawable/category_list_background"
+                android:orientation="horizontal">
 
                 <Spinner
+                    android:id="@+id/categoriesList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/music_band_list" />
+                    android:src="@drawable/drop_down"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/medium_object_top_separation"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/add_interest_title_en"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/little_object_top_separation">
+
+                <RelativeLayout
+                    android:id="@+id/interestLayoutList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/button_med_hight_height_margin"
+                    android:layout_weight=".28"
+                    android:background="@drawable/category_list_background"
+                    android:orientation="horizontal"
+                    android:layout_toLeftOf="@+id/RemoveInterestButton"
+                    android:layout_toStartOf="@+id/RemoveInterestButton">>
+
+                    <Spinner
+                        android:id="@+id/interestList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:hint="No interest added"
+                        android:gravity="center"
+                        android:spinnerMode="dropdown" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/button_med_hight_height_margin"
+                        android:layout_gravity="right"
+                        android:src="@drawable/drop_down"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+                </RelativeLayout>
 
                 <Button
-                    android:id="@+id/RemoveMusicBandButton"
+                    android:id="@+id/RemoveInterestButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_med_hight_height_margin"
+                    android:background="#9aa4d7"
+                    android:text="@string/remove_button_en"
                     android:padding="10dp"
                     android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
                     android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignTop="@+id/interestLayoutList" />
             </RelativeLayout>
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="@dimen/medium_object_top_separation">
 
                 <EditText
-                    android:id="@+id/music_band_edit"
+                    android:id="@+id/interestEdit"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_med_hight_height_margin"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
                     android:hint="@string/prompt_enter_category_interest"
+                    android:textCursorDrawable="@null"
                     android:inputType="textPersonName"
                     android:maxLines="1"
                     android:singleLine="true"
                     android:textColor="#807d7d"
                     android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddMusicBandButton"
-                    android:layout_toStartOf="@+id/AddMusicBandButton" />
+                    android:layout_alignParentTop="true"
+                    android:layout_toLeftOf="@+id/AddInterestButton"
+                    android:layout_toStartOf="@+id/AddInterestButton" />
 
                 <Button
-                    android:id="@+id/AddMusicBandButton"
+                    android:id="@+id/AddInterestButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/button_med_hight_height_margin"
                     android:padding="10dp"
                     android:textColor="#ffffff"
                     android:background="#9aa4d7"
-                    android:text="Add"
+                    android:text="@string/add_button_en"
                     android:layout_gravity="right"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true" />
 
             </RelativeLayout>
-
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
 
             <TextView
+                android:id="@+id/textSex"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/medium_object_top_separation"
+                android:layout_marginBottom="@dimen/little_object_top_separation"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Music"
-                android:id="@+id/textMusic" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/music_list" />
-
-                <Button
-                    android:id="@+id/RemoveMusicButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <EditText
-                    android:id="@+id/music_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_enter_category_interest"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddMusicButton"
-                    android:layout_toStartOf="@+id/AddMusicButton" />
-
-                <Button
-                    android:id="@+id/AddMusicButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Add"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Outdoors"
-                android:id="@+id/textOutDoors" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/outdoors_list" />
-
-                <Button
-                    android:id="@+id/RemoveOutdoorsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <EditText
-                    android:id="@+id/outdoors_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_enter_category_interest"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddOutdoorsButton"
-                    android:layout_toStartOf="@+id/AddOutdoorsButton" />
-
-                <Button
-                    android:id="@+id/AddOutdoorsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Add"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-
-            </RelativeLayout>
-
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Sports"
-                android:id="@+id/textSports" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/sports_list" />
-
-                <Button
-                    android:id="@+id/RemoveSportsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <EditText
-                    android:id="@+id/sports_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_enter_category_interest"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddSportsButton"
-                    android:layout_toStartOf="@+id/AddSportsButton" />
-
-                <Button
-                    android:id="@+id/AddSportsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Add"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-
-            </RelativeLayout>
-
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Travel"
-                android:id="@+id/textTravel" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/travel_list" />
-
-                <Button
-                    android:id="@+id/RemoveTravelButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <EditText
-                    android:id="@+id/travel_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_enter_category_interest"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddTravelButton"
-                    android:layout_toStartOf="@+id/AddTravelButton" />
-
-                <Button
-                    android:id="@+id/AddTravelButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Add"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-
-            </RelativeLayout>
-
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Category: Food"
-                android:id="@+id/textFood" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/food_list" />
-
-                <Button
-                    android:id="@+id/RemoveFoodButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Remove"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <EditText
-                    android:id="@+id/food_edit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_enter_category_interest"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:layout_alignParentBottom="true"
-                    android:layout_toLeftOf="@+id/AddFoodButton"
-                    android:layout_toStartOf="@+id/AddFoodButton" />
-
-                <Button
-                    android:id="@+id/AddFoodButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:textColor="#ffffff"
-                    android:background="#9aa4d7"
-                    android:text="Add"
-                    android:layout_gravity="right"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="30dp"
-                android:background="@android:color/darker_gray"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Show me: "
-                android:layout_marginBottom="10dp"
-                android:id="@+id/textSex" />
+                android:text="@string/show_sex_title_en" />
 
             <CheckBox
+                android:id="@+id/checkMen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Men"
+                android:text="@string/men_en"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/checkMen"
                 android:checked="false"/>
 
             <CheckBox
+                android:id="@+id/checkWomen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Women"
+                android:text="@string/women_en"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/checkWomen"
                 android:checked="false"
                 android:layout_marginBottom="30dp" />
 

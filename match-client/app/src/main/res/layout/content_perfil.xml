@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/apptheme_edit_text_holo_light"
-                    android:hint="@string/prompt_real_name"
+                    android:hint="@string/prompt_real_name_en"
                     android:inputType="textPersonName"
                     android:maxLines="1"
                     android:layout_marginLeft="@dimen/text_margin"
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/apptheme_edit_text_holo_light"
                     android:inputType="text"
-                    android:hint="@string/prompt_user_name"
+                    android:hint="@string/prompt_user_name_en"
                     android:layout_marginLeft="@dimen/text_margin"
                     android:layout_marginRight="@dimen/text_margin"
                     android:layout_below="@+id/userName"
@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:hint="@string/prompt_user_password"
+                    android:hint="@string/prompt_user_password_en"
                     android:layout_marginLeft="@dimen/text_margin"
                     android:layout_marginRight="@dimen/text_margin"
                     android:textColor="#807d7d"
@@ -98,7 +98,7 @@
                     android:inputType="date"
                     android:layout_marginLeft="@dimen/text_margin"
                     android:layout_marginRight="@dimen/text_margin"
-                    android:hint="@string/prompt_user_birthdate"
+                    android:hint="@string/prompt_user_birthdate_en"
                     android:textColor="#807d7d"
                     android:textColorHint="#5f5c5c"
                     android:background="@drawable/apptheme_edit_text_holo_light"
@@ -108,7 +108,7 @@
             <Button
                 android:id="@+id/savePerfilButton"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="@dimen/button_med_hight_height_margin"
                 android:paddingLeft="@dimen/button_med_padding_margin"
                 android:paddingRight="@dimen/button_med_padding_margin"
                 android:layout_marginTop="@dimen/text_margin"
@@ -116,7 +116,7 @@
                 android:layout_marginBottom="20dp"
                 android:textColor="#ffffff"
                 android:background="@drawable/blue_button"
-                android:text="Save changes"
+                android:text="@string/save_changes_button_en"
                 android:layout_gravity="right" />
 
         </LinearLayout>

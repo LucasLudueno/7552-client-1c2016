@@ -3,7 +3,7 @@ package taller2.match_client;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-/* This class represent a task where the Client send to Server something */
+/* This class represent a background task where the Client send to Server GET and POST request. */
 public class ClientToServerTask extends AsyncTask<String, Integer, String> {
 
     @Override

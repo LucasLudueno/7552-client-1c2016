@@ -5,6 +5,8 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:weightSum="6"
@@ -22,7 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_margin="@dimen/content_register_margin"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true" >
 
@@ -35,13 +36,11 @@
                     android:id="@+id/userRealName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_real_name"
+                    android:hint="@string/prompt_real_name_en"
                     android:inputType="textPersonName"
                     android:background="@drawable/apptheme_edit_text_holo_light"
                     android:textCursorDrawable="@null"
                     android:maxLines="1"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
                     android:singleLine="true"
                     android:textColor="#807d7d"
                     />
@@ -57,9 +56,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:hint="@string/prompt_user_mail"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
+                    android:hint="@string/prompt_user_mail_en"
                     android:textColor="#807d7d"
                     android:textColorHint="#5f5c5c"
                     android:background="@drawable/apptheme_edit_text_holo_light"
@@ -76,9 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:hint="@string/prompt_user_name"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
+                    android:hint="@string/prompt_user_name_en"
                     android:textColor="#807d7d"
                     android:background="@drawable/apptheme_edit_text_holo_light"
                     android:textCursorDrawable="@null"     />
@@ -94,9 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:hint="@string/prompt_user_password"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
+                    android:hint="@string/prompt_user_password_en"
                     android:textColor="#807d7d"
                     android:textColorHint="#5f5c5c"
                     android:background="@drawable/apptheme_edit_text_holo_light"
@@ -113,10 +106,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="date"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
                     android:backgroundTint="@color/colorPrimary"
-                    android:hint="@string/prompt_user_birthdate"
+                    android:hint="@string/prompt_user_birthdate_en"
                     android:textColor="#807d7d"
                     android:background="@drawable/apptheme_edit_text_holo_light"
                     android:textCursorDrawable="@null"     />
@@ -126,22 +117,21 @@
                 android:id="@+id/maleFemale"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/little_object_top_separation"
                 android:orientation="horizontal">
 
                 <CheckBox
                     android:id="@+id/userIsMale"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Male"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
+                    android:text="@string/male_en"
                     android:checked="false" />
 
                 <CheckBox
                     android:id="@+id/userIsFemale"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Female"
+                    android:text="@string/female_en"
                     android:layout_marginLeft="40dp"
                     android:checked="false" />
 
@@ -150,14 +140,14 @@
             <Button
                 android:id="@+id/ContinueRegisterButton"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/button_med_height_margin"
+                android:layout_height="@dimen/button_med_hight_height_margin"
                 android:paddingLeft="@dimen/button_med_padding_margin"
                 android:paddingRight="@dimen/button_med_padding_margin"
                 android:layout_marginTop="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="6dp"
                 android:textColor="#ffffff"
-                android:text="Continue"
+                android:text="@string/continue_button_en"
                 android:layout_gravity="right"
                 android:background="@drawable/blue_button" />
 

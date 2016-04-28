@@ -22,17 +22,18 @@ public class HttpConectionClient {
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("GET");
-            if (httpConnection.getResponseCode() != responseOK) {
+            int responseCode = httpConnection.getResponseCode();
+            if ( responseCode != responseOK)  {
                 // Error
-                return "Error";
+                return String.valueOf(responseCode) + ":" + "Error";
             }
             InputStream inputStream = httpConnection.getInputStream();
-            return InputStreamToString(inputStream);
+            return String.valueOf(responseCode )+ ":" + InputStreamToString(inputStream);
 
         } catch (Exception e) {
             //throw new ConectionException("Failed to connect");
             //Log.e("Error", "Failed to conect to Server", e);
-            return "Error";
+            return "404:Error"; // TODO: POR AHORA
 
         } finally {
             httpConnection.disconnect();
@@ -59,18 +60,19 @@ public class HttpConectionClient {
             httpWritter.flush();
             httpWritter.close();
 
-            if (httpConnection.getResponseCode() != responseOK) {
-                // EROOR - LOG
-                return "Error";
+            int responseCode = httpConnection.getResponseCode();
+            if ( responseCode != responseOK)  {
+                // Error
+                return String.valueOf(responseCode) + ":" + "Error";
             }
 
             InputStream inputStream = httpConnection.getInputStream();
-            return InputStreamToString(inputStream);
+            return String.valueOf(responseCode )+ ":" + InputStreamToString(inputStream);
 
         } catch (Exception e) {
             //throw new ConectionException("Failed to connect");
             //Log.e("Error", "Failed to conect to Server", e);
-            return "Error";
+            return "404:Error";
 
         } finally {
             httpConnection.disconnect();

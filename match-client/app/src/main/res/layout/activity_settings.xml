@@ -14,7 +14,7 @@
 
         <include
             android:id="@+id/settingsToolbar"
-            android:title="Settings"
+            android:title="@string/title_activity_settings"
             layout="@layout/standard_toolbar" />
 
     </android.support.design.widget.AppBarLayout>

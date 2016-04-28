@@ -14,7 +14,7 @@ tools:context="taller2.match_client.RegisterActivity">
 
     <include
         android:id="@+id/registerToolbar"
-        android:title="Register"
+        android:title="@string/title_activity_register"
         layout="@layout/standard_toolbar" />
 
 </android.support.design.widget.AppBarLayout>

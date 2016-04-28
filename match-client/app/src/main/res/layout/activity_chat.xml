@@ -14,7 +14,7 @@
 
         <include
             android:id="@+id/chatToolbar"
-            android:title="Chat"
+            android:title="@string/title_activity_chat"
             layout="@layout/standard_toolbar" />
 
     </android.support.design.widget.AppBarLayout>

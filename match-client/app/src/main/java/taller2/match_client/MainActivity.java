@@ -26,17 +26,24 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/* MainActivity manage the Login. When the user login, check with the server login information */
 public class MainActivity extends AppCompatActivity {
 
     /* Attributes */
     private AlertDialog badLoginWindow;
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
+    private AlertDialog wrongMailWindow;
     private ProgressDialog loading;
     private EditText userMailView;
     private EditText userPasswordView;
     private Button login;
     private Button register;
+    private String userMail;
+    private String userPassword;
 
     /* On create Activity */
     @Override
@@ -48,20 +55,25 @@ public class MainActivity extends AppCompatActivity {
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
 
+        // emailWrongFormatWindow
+        wrongMailWindow = new AlertDialog.Builder(this).create();
+        wrongMailWindow.setTitle(getResources().getString(R.string.mail_wrong_format_error_title_en));
+        wrongMailWindow.setMessage(getResources().getString(R.string.mail_wrong_format_error_en));
+
         // badLoginWindow
         badLoginWindow = new AlertDialog.Builder(this).create();
-        badLoginWindow.setTitle("Error while login");
-        badLoginWindow.setMessage("Mail or Password are incorrect");
+        badLoginWindow.setTitle(getResources().getString(R.string.fields_incorrect_error_title_en));
+        badLoginWindow.setMessage(getResources().getString(R.string.fields_incorrect_error_en));
 
         // emptyFieldsWindow
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
-        emptyFieldsWindow.setTitle("Fields Empty");
-        emptyFieldsWindow.setMessage("Some fields are empty. Please complete the fields before continue");
+        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle("Internet disconnect");
-        internetDisconnectWindow.setMessage("Please connect internet to continue");
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
 
         // Login Button
         login = (Button)findViewById(R.id.loginButton);
@@ -86,34 +98,36 @@ public class MainActivity extends AppCompatActivity {
         userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
     }
 
-    /* When an user login, if the userName and the password are correct, PrincipalAppActivity is created. */
+    /* When an user login, if the userName and the password are correct (that is checked with Server) PrincipalAppActivity is created. */
     private void loginOnClick(View v) {
-        String userMail = userMailView.getText().toString();
-        String userPassword = userPasswordView.getText().toString();
+        userMail = userMailView.getText().toString();
+        userPassword = userPasswordView.getText().toString();
 
-        /*if (userName.isEmpty() || userPassword.isEmpty()) {
-            emptyFieldsWindow.show();
+        if (!checkFormatFields()) {
             return;
-        }*/
-        String url = "http://192.168.0.5:8000";
+        }
+
+        String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.login_uri);
-        JSONObject data = new JSONObject();
+        JSONObject data = new JSONObject();                         //Creamos el Json que mandaremos al Server
 
         try {
-            data.put("userMail" , userMail);
-            data.put("userPassword", userPassword);
+            data.put("email" , userMail);
+            data.put("password", userPassword);
         } catch (JSONException e) {
             // ERROR
             // LOG
         }
-        loading = ProgressDialog.show(MainActivity.this, "Please wait...", "Login processing", true);
+        loading = ProgressDialog.show(MainActivity.this,
+                                        getResources().getString(R.string.please_wait_en),
+                                        getResources().getString(R.string.log_processing_en), true);
         /*if ( checkConection() ){
-            SendLoginTask checkLogin = new SendLoginTask();   //TODO: Checkear si no se puede tener como atribb
+            SendLoginTask checkLogin = new SendLoginTask();
             checkLogin.execute("POST",url, uri, data.toString());   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
         } else {
             internetDisconnectWindow.show();
         }*/
-        checkLoginResponse("ok");
+        checkLoginResponse("201:ok");
     }
 
     /* When user registers, RegisterActivity is created */
@@ -140,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     /* Check internet connection */
     private boolean checkConection() {
         ConnectivityManager connectManager = (ConnectivityManager)
@@ -153,10 +166,33 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private boolean checkFormatFields() {
+        if (userMail.isEmpty() || userPassword.isEmpty()) {
+            emptyFieldsWindow.show();
+            return false;
+        }
+        if (!checkEmailFormat(userMail)) {
+            wrongMailWindow.show();
+            return false;
+        }
+        return true;
+    }
+
+    /* Return true if the mail format is correct */
+    public static boolean checkEmailFormat (String email) {
+        String format = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        Pattern pattern = Pattern.compile(format);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
     /* Check login response from Server */
     private void checkLoginResponse(String response) {
         loading.dismiss();
-        if (response.equals("ok")) {
+        String responseCode = response.split(":")[0];
+        String responseMessage = response.split(":")[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code))) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
         } else {
@@ -175,12 +211,12 @@ public class MainActivity extends AppCompatActivity {
 
 // REFACTOR
 // TODO: EVALUAR QUÉ MENUES VAN DENTRO DE LAS ACTIVITIES. SI NO VAN: BORRAR DESDE MENU Y DESDE ACTIVITY
-// TODO: ELEGIR UN DISEÑO DE CHAT, EL OTRO BORRARLO.
 // TODO: VAUALIZAR LOS MARGENES DE SETTINGS SI CONSERVAMOS EL LAYOUT
 // TODO: VALUALIZAR MARGENES EN GENERAL DE LOS CONTENT LAYOUT SI CONSERVAMOS LOS MISMOS
 // TODO: ELIMINAR IMPORTS NO USADOS
 // TODO: ELIMINAR STRINGS HARDCODEADOS EN XML
 // TODO: ORGANIZAR CLASES
+// TODO: SEND LOGIS TASK COMO ATRIBUTO
 
 // DUDAS
 // TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO

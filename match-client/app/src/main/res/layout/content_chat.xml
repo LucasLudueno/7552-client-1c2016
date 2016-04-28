@@ -32,12 +32,13 @@
         <EditText
             android:id="@+id/userChatMsg"
             android:background="@drawable/apptheme_textfield_activated_holo_light"
-            android:hint="Write message"
+            android:hint="@string/write_message_text_en"
             android:textCursorDrawable="@null"
             android:layout_marginLeft="2dp"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="2"
+            android:maxLines="3"
             android:singleLine="false" />
 
         <Button
@@ -45,7 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:text="Send"
+            android:text="@string/send_message_button_en"
             android:background="@drawable/blue_button"
             android:textColor="#FFFFFF" />
 

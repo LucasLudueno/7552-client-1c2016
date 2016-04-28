@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+/* Perfil Activity has user perfil fields. User can change its and save changes (the fields with new values are
+   send to Server) */
 public class PerfilActivity extends AppCompatActivity {
 
     @Override

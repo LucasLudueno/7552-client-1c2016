@@ -22,6 +22,8 @@ import android.view.LayoutInflater;
 import java.util.ArrayList;
 import java.util.List;
 
+/* Chat Activity have a chat conversation between user and a match. It send to Server every message
+ * that the user send and request ask for match messages. */
 public class ChatActivity extends AppCompatActivity {
 
     /* Attributes */
@@ -70,10 +72,9 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     /* Send Chat message to Server */
-    private boolean sendChatMessage(EditText chatText) {
+    private void sendChatMessage(EditText chatText) {
         chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
         side = !side;
-        return true;
     }
 
     /* When Send button is pressed, the content of the ChatText is send */

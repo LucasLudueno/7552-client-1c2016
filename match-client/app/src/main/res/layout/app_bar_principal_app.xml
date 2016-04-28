@@ -14,7 +14,7 @@
 
         <include
             android:id="@+id/principalAppToolbar"
-            android:title="Magical Match"
+            android:title="@string/title_activity_principal_app"
             layout="@layout/standard_toolbar" />
 
     </android.support.design.widget.AppBarLayout>
