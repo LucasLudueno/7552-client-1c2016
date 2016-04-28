@@ -198,12 +198,12 @@ public class RegisterActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
 
         try {
-            data.put("alias", userName);
-            data.put("password", userPassword);
-            data.put("name", userRealName);
-            data.put("email", userMail);
-            data.put("birthday", userBirthday);
-            data.put("sex", userSex);
+            data.put("userName", userName);
+            data.put("userPassword", userPassword);
+            data.put("userRealName", userRealName);
+            data.put("userMail", userMail);
+            data.put("userBirthday", userBirthday);
+            data.put("userSex", userSex);
             data.put("latitude",latitude);
             data.put("longitude",longitude);
         } catch (JSONException e) {
