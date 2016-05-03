@@ -15,10 +15,13 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -27,14 +30,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class MatchActivity extends ListActivity {
+public class MatchActivity extends AppCompatActivity {
     private String[] listview_names =  {"Milito","Licha", "Saja","Aued" };
     private static int[] listview_images = { R.drawable.no_match,R.drawable.no_match,R.drawable.no_match,R.drawable.no_match};
 
-    static Context mcontext;
+    private MatchListAdapter matchListAdapter;
     private ListView matchListView;
     private static ArrayList<String> match_names_sort;
     private static ArrayList<Integer> image_sort;
+    static Context mcontext;
 
     /* On create Activity */
     @Override
@@ -43,17 +47,25 @@ public class MatchActivity extends ListActivity {
         setContentView(R.layout.activity_match);
 
         // Toolbar
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
-        setSupportActionBar(toolbar);*/
+        Toolbar toolbar = (Toolbar) findViewById(R.id.matchToolbar);
+        setSupportActionBar(toolbar);
 
-        matchListView = (ListView) findViewById(android.R.id.list);
+        // Add back activity button in the toolbar
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Generate the match list
         match_names_sort = new ArrayList<String> (Arrays.asList(listview_names));
         image_sort = new ArrayList<Integer>();
         for (int index = 0; index < listview_images.length; index++) {
             image_sort.add(listview_images[index]);
         }
-        setListAdapter(new matchListAdapter(this));
 
+        // MatchList
+        matchListAdapter = new MatchListAdapter(this);
+        matchListView = (ListView) findViewById(R.id.listamatch);
+        matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        matchListView.setAdapter(matchListAdapter);
         matchListView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 createChat();
@@ -67,9 +79,19 @@ public class MatchActivity extends ListActivity {
         startActivity(startChatActivity);
     }
 
-    public static class matchListAdapter extends BaseAdapter {
+    /* Handle menu item click */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
+            this.finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public static class MatchListAdapter extends BaseAdapter {
         Activity cntx;
-        public matchListAdapter(Activity context) {
+        public MatchListAdapter(Activity context) {
             this.cntx=context;
         }
 

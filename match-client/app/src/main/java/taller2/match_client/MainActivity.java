@@ -103,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
         userMail = userMailView.getText().toString();
         userPassword = userPasswordView.getText().toString();
 
-        if (!checkFormatFields()) {
+        /*if (!checkFormatFields()) {
             return;
-        }
+        }*/
 
         String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.login_uri);
