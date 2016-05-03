@@ -16,7 +16,8 @@
     <string name="server_ip">http://192.168.0.5:8000</string>
     <string name="login_uri">/login</string>
     <string name="register_uri">/register</string>
-    <string name="ok_response_code">201</string>
+    <string name="ok_response_code_register">201</string>
+    <string name="ok_response_code_login">200</string>
 
     <!-- General Activity strings-->
     <string name="male_en">Male</string>

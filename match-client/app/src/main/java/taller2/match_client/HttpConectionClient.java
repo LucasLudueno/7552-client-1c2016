@@ -14,7 +14,6 @@ public class HttpConectionClient {
     /* Attributes */
     private URL url;
     private HttpURLConnection httpConnection;
-    private int responseOK = 201;
 
     /* Send GET request to Server. Throws ConectionExeption in case error */    // TODO: CREAR EXCEPCION...
     public String GETRequest(String urlString, String uriString) { //throws ConectionException{
@@ -22,13 +21,9 @@ public class HttpConectionClient {
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("GET");
-            int responseCode = httpConnection.getResponseCode();
-            if ( responseCode != responseOK)  {
-                // Error
-                return String.valueOf(responseCode) + ":" + "Error";
-            }
-            InputStream inputStream = httpConnection.getInputStream();
-            return String.valueOf(responseCode )+ ":" + InputStreamToString(inputStream);
+            String responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
+            InputStream inputStream = httpConnection.getInputStream();              // Get response
+            return responseCode + ":" + InputStreamToString(inputStream);
 
         } catch (Exception e) {
             //throw new ConectionException("Failed to connect");
@@ -60,14 +55,9 @@ public class HttpConectionClient {
             httpWritter.flush();
             httpWritter.close();
 
-            int responseCode = httpConnection.getResponseCode();
-            if ( responseCode != responseOK)  {
-                // Error
-                return String.valueOf(responseCode) + ":" + "Error";
-            }
-
-            InputStream inputStream = httpConnection.getInputStream();
-            return String.valueOf(responseCode )+ ":" + InputStreamToString(inputStream);
+            String responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
+            InputStream inputStream = httpConnection.getInputStream();              // Get response
+            return responseCode + ":" + InputStreamToString(inputStream);
 
         } catch (Exception e) {
             //throw new ConectionException("Failed to connect");

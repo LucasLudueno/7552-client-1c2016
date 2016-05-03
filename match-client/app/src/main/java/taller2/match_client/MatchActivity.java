@@ -63,9 +63,11 @@ public class MatchActivity extends AppCompatActivity {
 
         // MatchList
         matchListAdapter = new MatchListAdapter(this);
-        matchListView = (ListView) findViewById(R.id.listamatch);
+        matchListView = (ListView) findViewById(R.id.matchList);
         matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         matchListView.setAdapter(matchListAdapter);
+
+        // When some match is clicked, its chat activity is created
         matchListView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 createChat();

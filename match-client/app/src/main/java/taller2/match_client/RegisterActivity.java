@@ -285,7 +285,7 @@ public class RegisterActivity extends AppCompatActivity {
         String responseCode = response.split(":")[0];
         String responseMessage = response.split(":")[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code))) {
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
         } else {
