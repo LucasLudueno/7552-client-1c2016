@@ -16,8 +16,21 @@
     <string name="server_ip">http://192.168.0.5:8000</string>
     <string name="login_uri">/login</string>
     <string name="register_uri">/register</string>
+    <string name="profile_uri">/profile</string>
     <string name="ok_response_code_register">201</string>
     <string name="ok_response_code_login">200</string>
+
+    <string name="userName">name</string>   <!-- Json data Strings -->
+    <string name="alias">alias</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="birthday">birthday</string>
+    <string name="photoProfile">photo_profile</string>
+    <string name="interest">interest</string>
+    <string name="latitude">latitude</string>
+    <string name="longitude">longitude</string>
+    <string name="sex">sex</string>
+    <string name="profilePhoto">photo_profile</string>
 
     <!-- General Activity strings-->
     <string name="male_en">Male</string>

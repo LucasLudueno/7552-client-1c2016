@@ -198,14 +198,14 @@ public class RegisterActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
 
         try {
-            data.put("userName", userName);
-            data.put("userPassword", userPassword);
-            data.put("userRealName", userRealName);
-            data.put("userMail", userMail);
-            data.put("userBirthday", userBirthday);
-            data.put("userSex", userSex);
-            data.put("latitude",latitude);
-            data.put("longitude",longitude);
+            data.put(getResources().getString(R.string.alias), userName);
+            data.put(getResources().getString(R.string.password), userPassword);
+            data.put(getResources().getString(R.string.userName), userRealName);
+            data.put(getResources().getString(R.string.email), userMail);
+            data.put(getResources().getString(R.string.birthday), userBirthday);
+            data.put(getResources().getString(R.string.sex), userSex);
+            data.put(getResources().getString(R.string.latitude),latitude);
+            data.put(getResources().getString(R.string.longitude),longitude);
         } catch (JSONException e) {
             // ERROR -LOG
         }

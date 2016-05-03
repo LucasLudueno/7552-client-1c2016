@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();                         //Creamos el Json que mandaremos al Server
 
         try {
-            data.put("email" , userMail);
-            data.put("password", userPassword);
+            data.put(getResources().getString(R.string.password), userPassword);
+            data.put(getResources().getString(R.string.email), userMail);
         } catch (JSONException e) {
             // ERROR
             // LOG
@@ -217,17 +217,17 @@ public class MainActivity extends AppCompatActivity {
 // TODO: ELIMINAR STRINGS HARDCODEADOS EN XML
 // TODO: ORGANIZAR CLASES
 // TODO: SEND LOGIS TASK COMO ATRIBUTO
+// TODO: METOOD ON POST EXECUTE - REFACTOR
+// TODO: ELIMINAR FUNCION CHECK-CONECTION REPETIDA
 
 // DUDAS
 // TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO
 // TODO: AGRUPAR RIGHT Y LEFT MSG ??
 // TODO: FONDO DE PANTALLA A CHAT ??
 // TODO: AGRUPAR PERFIL Y REGISTER ??
-// TODO: MAX HEIGHT EN CUADRO PARA ESCRIBIR CHAT ??
 
 
 // NECESARIO
 // TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS
 // TODO: MANEJAR TIPOS DE RESPONSE CODE
-// TODO: CORREGIR FORMATO FECHA: "^((?:19|20)\\d\\d)/(0?[1-9]|1[012])/([12][0-9]|3[01]|0?[1-9])$";
 // TODO: ENCAPSULAMIENTO DE METODOS

@@ -1,10 +1,17 @@
 package taller2.match_client;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,20 +20,38 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /* Perfil Activity has user perfil fields. User can change its and save changes (the fields with new values are
    send to Server) */
 public class PerfilActivity extends AppCompatActivity {
 
+    private TextView userNameView;
+    private TextView userRealNameView;
+    private AlertDialog emptyFieldsWindow;
+    private AlertDialog internetDisconnectWindow;
+    private ProgressDialog loading;
     private ImageView userPhoto;
+    private Button saveChangesButton;
     private static final int SELECT_PICTURE = 1;
+    private String userName;
+    private String userRealName;
+
+    /* On Create */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +65,16 @@ public class PerfilActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // emptyFieldsWindow
+        emptyFieldsWindow = new AlertDialog.Builder(this).create();
+        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
+
+        // internetDisconnectWindows
+        internetDisconnectWindow = new AlertDialog.Builder(this).create();
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+
         // When the image is clicked, the gallery is open and user can choose other profile photo
         userPhoto = (ImageView)findViewById(R.id.userPerfilPhoto);
         userPhoto.setOnClickListener(new View.OnClickListener() {
@@ -48,16 +83,36 @@ public class PerfilActivity extends AppCompatActivity {
                 changeProfilePhoto();
             }
         });
+
+        // Save changes button
+        // Continue Button
+        saveChangesButton = (Button) findViewById(R.id.savePerfilButton);
+        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateProfileOnClick(v);
+            }
+        });
+
+        // TextViews
+        userNameView = (EditText)findViewById(R.id.userNamePerfil);
+        userRealNameView = (EditText)findViewById(R.id.userRealNamePerfil);
     }
 
+    /*  */
     private void changeProfilePhoto() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+        startActivityForResult(Intent.createChooser(intent, "Select Profile Picture"), SELECT_PICTURE);
     }
 
+    /*  */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) {
+            return;
+            // LOG
+        }
         Uri imageUri = data.getData();
         String imagePath = getPath(imageUri);
 
@@ -87,6 +142,110 @@ public class PerfilActivity extends AppCompatActivity {
             return cursor.getString(column_index);
         }
         return imageUri.getPath();
+    }
+
+    private void updateProfileOnClick(View v) {
+        userName = userNameView.getText().toString();
+        userRealName = userRealNameView.getText().toString();
+
+        if (!checkFormatFields()) {
+            return;
+        }
+
+        // profile photo ---> base64
+        BitmapDrawable drawable = (BitmapDrawable) userPhoto.getDrawable();
+        Bitmap bitmapProfilePhoto = drawable.getBitmap();
+        String profilePhotoBase64 = bitmapToBase64(bitmapProfilePhoto);
+
+        String userPassword = "";   // TODO: RECUPERAR VALORES DE BASE DE DATOS
+        String userMail = "";
+        String userBirthday = "";
+        String userSex = "";
+        String longitude = "";
+        String latitude = "";
+
+        // Json Data
+        String url = getResources().getString(R.string.server_ip);
+        String uri = getResources().getString(R.string.profile_uri);
+        JSONObject data = new JSONObject();
+
+        try {
+            data.put(getResources().getString(R.string.alias), userName);
+            data.put(getResources().getString(R.string.password), userPassword);
+            data.put(getResources().getString(R.string.userName), userRealName);
+            data.put(getResources().getString(R.string.email), userMail);
+            data.put(getResources().getString(R.string.birthday), userBirthday);
+            data.put(getResources().getString(R.string.sex), userSex);
+            data.put(getResources().getString(R.string.latitude),latitude);
+            data.put(getResources().getString(R.string.longitude),longitude);
+            data.put(getResources().getString(R.string.profilePhoto),profilePhotoBase64);
+        } catch (JSONException e) {
+            // ERROR
+            // LOG
+        }
+
+        // Sending json data to Server
+        loading = ProgressDialog.show(PerfilActivity.this,
+                getResources().getString(R.string.please_wait_en),
+                getResources().getString(R.string.log_processing_en), true);
+        if ( checkConection() ){
+            SendProfileTask checkLogin = new SendProfileTask();
+            checkLogin.execute("POST",url, uri, data.toString());
+        } else {
+            internetDisconnectWindow.show();
+        }
+        checkProfileResponse("200:ok");
+    }
+
+    /*  */
+    private String bitmapToBase64(Bitmap bitmap) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
+    /* Check internet connection */
+    private boolean checkConection() {
+        ConnectivityManager connectManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
+        if ((networkInfo != null && networkInfo.isConnected()) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Return true if format of fields is correct */
+    private boolean checkFormatFields() {
+        if (userName.isEmpty() || userRealName.isEmpty()) {
+            emptyFieldsWindow.show();
+            return false;
+        }
+        return true;
+    }
+
+    /* Check profile response from Server */
+    private void checkProfileResponse(String response) {
+        loading.dismiss();
+        String responseCode = response.split(":")[0];
+        String responseMessage = response.split(":")[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            Toast.makeText(getApplicationContext(), "Profile Loaded",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            // ERROR
+        }
+    }
+
+    /* Send Login to Server */
+    private class SendProfileTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkProfileResponse(dataGetFromServer);
+        }
     }
 
     /* Handle menu item click */
