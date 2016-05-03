@@ -18,16 +18,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_margin="@dimen/content_register_margin"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
+
 
             <ImageView
                 android:id="@+id/userPerfilPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/no_match"
-                android:layout_gravity="center_horizontal"/>
+                android:src="@drawable/no_match"
+                android:layout_gravity="center_horizontal"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -65,43 +67,6 @@
                     android:layout_marginRight="@dimen/text_margin"
                     android:layout_below="@+id/userName"
                     android:textColor="#807d7d"
-                    android:textCursorDrawable="@null"/>
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColorHint="#807d7d"
-                app:hintTextAppearance="@style/TextAppearance.AppCompat">
-                <EditText
-                    android:id="@+id/userPasswordPerfil"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:hint="@string/prompt_user_password_en"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
-                    android:textColor="#807d7d"
-                    android:background="@drawable/apptheme_edit_text_holo_light"
-                    android:textCursorDrawable="@null" />
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColorHint="#807d7d"
-                app:hintTextAppearance="@style/TextAppearance.AppCompat">
-                <EditText
-                    android:id="@+id/userBirthdatePerfil"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="date"
-                    android:layout_marginLeft="@dimen/text_margin"
-                    android:layout_marginRight="@dimen/text_margin"
-                    android:hint="@string/prompt_user_birthdate_en"
-                    android:textColor="#807d7d"
-                    android:textColorHint="#5f5c5c"
-                    android:background="@drawable/apptheme_edit_text_holo_light"
                     android:textCursorDrawable="@null"/>
             </android.support.design.widget.TextInputLayout>
 

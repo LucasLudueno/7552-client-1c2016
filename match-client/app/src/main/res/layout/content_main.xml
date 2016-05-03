@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/text_design_login"
-        android:inputType="textPersonName"
+        android:inputType="textEmailAddress"
         android:hint="@string/prompt_user_mail_login_en"
         android:textColor="#706d6d"
         android:textCursorDrawable="@null"

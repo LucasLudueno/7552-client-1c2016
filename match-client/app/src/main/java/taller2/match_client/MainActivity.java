@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             internetDisconnectWindow.show();
         }*/
-        checkLoginResponse("201:ok");
+        checkLoginResponse("200:ok");
     }
 
     /* When user registers, RegisterActivity is created */

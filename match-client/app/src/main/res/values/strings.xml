@@ -25,8 +25,10 @@
     <string name="please_wait_en">Please wait...</string>
 
     <!-- MainActivity messages -->
+    <string name="prompt_user_mail_login_en">Email</string>
+    <string name="prompt_user_password_login_en">Password</string>
     <string name="fields_incorrect_error_title_en">Error while login</string>
-    <string name="fields_incorrect_error_en">Mail or Password are incorrect</string>
+    <string name="fields_incorrect_error_en">Email or Password are incorrect</string>
     <string name="fields_empty_error_title_en">Fields Empty</string>
     <string name="fields_empty_error_en">Some fields are empty. Please complete the fields before continue</string>
     <string name="internet_disconnect_error_title_en">Internet disconnect</string>
@@ -54,9 +56,6 @@
     <string name="write_message_text_en">Write message</string>
     <string name="send_message_button_en">Send</string>
 
-    <!-- Strings in LoginActivity --> <!-- Prompt is for a dynamic hint in EditText -->
-    <string name="prompt_user_mail_login_en">Mail</string>
-    <string name="prompt_user_password_login_en">Password</string>
 
     <!-- PerfilActivity messages -->
     <string name="save_changes_button_en">SAVE CHANGES</string>
