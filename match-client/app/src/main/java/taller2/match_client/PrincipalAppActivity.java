@@ -155,8 +155,8 @@ public class PrincipalAppActivity extends AppCompatActivity
             startActivity(startAppActivity);
 
         } else if (id == R.id.nav_chat) {
-            Intent startAppActivity = new Intent(this, ChatActivity.class);
-            startActivity(startAppActivity);
+            Intent startMatchActivity = new Intent(this, MatchActivity.class);
+            startActivity(startMatchActivity);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
