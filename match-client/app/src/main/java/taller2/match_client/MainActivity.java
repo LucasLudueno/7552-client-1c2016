@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private String userMail;
     private String userPassword;
 
+    private int CLOSE_ACTIVITY = 1;
+
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /* Return true if the format of fields is correct */
     private boolean checkFormatFields() {
         if (userMail.isEmpty() || userPassword.isEmpty()) {
             emptyFieldsWindow.show();
@@ -195,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
+            this.finish();
         } else {
             badLoginWindow.show();
         }

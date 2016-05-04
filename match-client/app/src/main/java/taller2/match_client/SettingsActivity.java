@@ -3,6 +3,7 @@ package taller2.match_client;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -306,9 +307,16 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == android.R.id.home) {
-            this.finish();
+            onBackPressed();;
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /* When back button is pressed, PrincipalAppActivity is bring to front */
+    public void onBackPressed () {
+        Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+        startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(startAppActivity);
     }
 }

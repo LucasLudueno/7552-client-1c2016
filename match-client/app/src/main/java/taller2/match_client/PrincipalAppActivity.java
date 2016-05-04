@@ -113,10 +113,19 @@ public class PrincipalAppActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            finishAplication();
+            //super.onBackPressed();
         }
     }
 
+    /* This method finish all activities and aplication */
+    public void finishAplication() {
+        this.finish();
+        Intent finishAplication = new Intent(Intent.ACTION_MAIN);
+        finishAplication.addCategory(Intent.CATEGORY_HOME);
+        finishAplication.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(finishAplication);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -145,21 +154,23 @@ public class PrincipalAppActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_settings) {
-            Intent startAppActivity = new Intent(this, SettingsActivity.class);
-            startActivity(startAppActivity);
-
+            Intent startSettingActivity = new Intent(this, SettingsActivity.class);
+            startSettingActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(startSettingActivity);
         } else if (id == R.id.nav_information) {
 
         } else if (id == R.id.nav_perfil) {
-            Intent startAppActivity = new Intent(this, PerfilActivity.class);
-            //startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(startAppActivity);
+            Intent startProfileActivity = new Intent(this, PerfilActivity.class);
+            startProfileActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(startProfileActivity);
         } else if (id == R.id.nav_chat) {
             Intent startMatchActivity = new Intent(this, MatchActivity.class);
+            startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startMatchActivity);
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

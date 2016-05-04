@@ -67,6 +67,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String latitude = "";
     private String longitude = "";
 
+    private int CLOSE_ACTIVITY = 1;
+
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -287,7 +289,21 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+            /*startAppActivity.setAction(Intent.ACTION_MAIN);
+            startAppActivity.addCategory(Intent.CATEGORY_HOME);*/
+            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(startAppActivity);
+
+            // Finish Main activity
+            /*Intent finishMainActivity = new Intent(this, MainActivity.class);
+            finishMainActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivityForResult(finishMainActivity, CLOSE_ACTIVITY);*/
+
+            // Finish actual activity
+            this.finish();
         } else {
             userMailExistWindow.setTitle(response); // TODO: Only for now...
             userMailExistWindow.show();
