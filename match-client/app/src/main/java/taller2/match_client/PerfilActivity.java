@@ -85,7 +85,6 @@ public class PerfilActivity extends AppCompatActivity {
         });
 
         // Save changes button
-        // Continue Button
         saveChangesButton = (Button) findViewById(R.id.savePerfilButton);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,7 +169,7 @@ public class PerfilActivity extends AppCompatActivity {
         JSONObject data = new JSONObject();
 
         try {
-            data.put(getResources().getString(R.string.alias), userName);
+            data.put(getResources().getString(R.string.alias), userName);   // TODO: INTERESES ??
             data.put(getResources().getString(R.string.password), userPassword);
             data.put(getResources().getString(R.string.userName), userRealName);
             data.put(getResources().getString(R.string.email), userMail);
@@ -232,8 +231,8 @@ public class PerfilActivity extends AppCompatActivity {
         String responseCode = response.split(":")[0];
         String responseMessage = response.split(":")[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
-            Toast.makeText(getApplicationContext(), "Profile Loaded",
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {   //TODO: DEFINIR MEJOR NOMBRE
+            Toast.makeText(getApplicationContext(), "Profile Uploaded",
                     Toast.LENGTH_LONG).show();
         } else {
             // ERROR
@@ -253,9 +252,16 @@ public class PerfilActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == android.R.id.home) {
-            this.finish();
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /* When back button is pressed, PrincipalAppActivity is bring to front */
+    public void onBackPressed () {
+        Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+        startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(startAppActivity);
     }
 }

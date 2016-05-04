@@ -152,8 +152,8 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_perfil) {
             Intent startAppActivity = new Intent(this, PerfilActivity.class);
+            //startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startAppActivity);
-
         } else if (id == R.id.nav_chat) {
             Intent startMatchActivity = new Intent(this, MatchActivity.class);
             startActivity(startMatchActivity);

@@ -179,6 +179,19 @@
                 android:checked="false"
                 android:layout_marginBottom="30dp" />
 
+            <Button
+                android:id="@+id/saveSettingButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_med_hight_height_margin"
+                android:paddingLeft="@dimen/button_med_padding_margin"
+                android:paddingRight="@dimen/button_med_padding_margin"
+                android:layout_marginTop="@dimen/text_margin"
+                android:layout_marginBottom="20dp"
+                android:textColor="#ffffff"
+                android:background="@drawable/blue_button"
+                android:text="@string/save_changes_button_en"
+                android:layout_gravity="right" />
         </LinearLayout>
+
     </ScrollView>
 </LinearLayout>

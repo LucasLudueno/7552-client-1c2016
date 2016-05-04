@@ -1,11 +1,17 @@
 package taller2.match_client;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,6 +22,11 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +49,13 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Button addInterest;
     private Button removeInterest;
+    private Button saveChangesButton;
     private EditText interest_edit;
     private CheckBox menSelected;
     private CheckBox womenSelected;
+
+    private AlertDialog internetDisconnectWindow;
+    private ProgressDialog loading;
 
     /* On create Activity */
     @Override
@@ -55,6 +70,11 @@ public class SettingsActivity extends AppCompatActivity {
         // Add the back activity button in the toolbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // internetDisconnectWindows
+        internetDisconnectWindow = new AlertDialog.Builder(this).create();
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
 
         // Category List
         categoryList = (Spinner)findViewById(R.id.categoriesList);
@@ -110,6 +130,15 @@ public class SettingsActivity extends AppCompatActivity {
         removeInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { removeInterest(); }
+        });
+
+        // Save changes button
+        saveChangesButton = (Button) findViewById(R.id.saveSettingButton);
+        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateInterestOnClick();
+            }
         });
 
         // CheckBoxs
@@ -185,6 +214,91 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
         return adapter;
+    }
+
+
+    /*  */
+    private void updateInterestOnClick() {
+        // Json Data
+        String url = getResources().getString(R.string.server_ip);
+        String uri = getResources().getString(R.string.interest_uri);
+        JSONObject data = new JSONObject();
+
+        try {
+            JSONArray interestArray = new JSONArray();
+            addInterestInJsonArray("MusicBand", listMusicBandAdapter, interestArray);
+            addInterestInJsonArray("Outdoors", listOutdoorsAdapter, interestArray);    //TODO
+            addInterestInJsonArray("Music", listMusicAdapter, interestArray);
+            addInterestInJsonArray("Sport", listSportAdapter, interestArray);
+            addInterestInJsonArray("Food", listFoodAdapter, interestArray);
+            addInterestInJsonArray("Travel", listTravelAdapter, interestArray);
+
+            data.put("interests",interestArray);
+            Log.i("LogsAndroi", data.toString());
+        } catch (JSONException e) {
+            // ERROR
+            // LOG
+        }
+
+        // Sending json data to Server
+        loading = ProgressDialog.show(SettingsActivity.this,
+                getResources().getString(R.string.please_wait_en),
+                getResources().getString(R.string.log_processing_en), true);
+        if ( checkConection() ){
+            SendInterestTask checkLogin = new SendInterestTask();
+            checkLogin.execute("POST",url, uri, data.toString());
+        } else {
+            internetDisconnectWindow.show();
+        }
+        checkSettingResponse("200:ok");
+    }
+
+    private void addInterestInJsonArray(String category, ArrayAdapter<String> interests, JSONArray data) {
+        for(int i=0 ; i < listMusicBandAdapter.getCount() ; i++){
+            String interest = listMusicBandAdapter.getItem(i);
+            JSONObject jsonInterest = new JSONObject();
+            try {
+                jsonInterest.put("category", category);
+                jsonInterest.put("value", interest);
+                data.put(jsonInterest);
+            } catch (JSONException e) {
+                //e.printStackTrace();
+            }
+        }
+    }
+
+    /* Check internet connection */
+    private boolean checkConection() {
+        ConnectivityManager connectManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
+        if ((networkInfo != null && networkInfo.isConnected()) ) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Check profile response from Server */
+    private void checkSettingResponse(String response) {
+        loading.dismiss();
+        String responseCode = response.split(":")[0];
+        String responseMessage = response.split(":")[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) { //TODO: DEFINIR MEJOR NOMBRE
+            Toast.makeText(getApplicationContext(), "Interests Uploaded",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            // ERROR
+        }
+    }
+
+    /* Send Login to Server */
+    private class SendInterestTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkSettingResponse(dataGetFromServer);
+        }
     }
 
     /* Handle menu item click */

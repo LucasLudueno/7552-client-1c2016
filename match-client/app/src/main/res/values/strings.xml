@@ -17,8 +17,9 @@
     <string name="login_uri">/login</string>
     <string name="register_uri">/register</string>
     <string name="profile_uri">/profile</string>
+    <string name="interest_uri">/interest</string>
     <string name="ok_response_code_register">201</string>
-    <string name="ok_response_code_login">200</string>
+    <string name="ok_response_code_login">200</string>     <!-- Definir mejores nombres -->
 
     <string name="userName">name</string>   <!-- Json data Strings -->
     <string name="alias">alias</string>
