@@ -1,5 +1,6 @@
 package taller2.match_client;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -16,6 +17,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class PrincipalAppActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,22 +40,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.principalAppToolbar);
         setSupportActionBar(toolbar);
-
-        // Chat Icon
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.chatIcon);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) { createChatActivity();}
-        });
-
-        <android.support.design.widget.FloatingActionButton
-        android:id="@+id/chatIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/sym_action_chat"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
-        */
 
         // Like Icon
         FloatingActionButton likeIcon = (FloatingActionButton) findViewById(R.id.likeIcon);
@@ -99,12 +91,30 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         possibleMatchCard = (CardView)findViewById(R.id.card_view);
         possibleMatchCard.getLayoutParams().height = (6 * height) / 10;
-    }
 
-    /* When chatIcon is pressed create the Chat Activity */
-    public void createChatActivity() {
-        Intent startAppActivity = new Intent(this, ChatActivity.class);
-        startActivity(startAppActivity);
+
+
+
+
+        try {
+            FileInputStream profileData = openFileInput("profile.json");
+            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(profileData));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line = "";
+            while ((line = bufferReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            String profileString = stringBuilder.toString();
+
+            TextView description = (TextView)findViewById(R.id.possibleMatchDescription);
+            description.setText(profileString);
+
+            profileData.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override /* Close drawer if its open */

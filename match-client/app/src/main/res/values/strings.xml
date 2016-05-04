@@ -3,6 +3,7 @@
     <string name="app_name">Magical Match</string>
     <string name="action_settings">Settings</string>
     <string name="user_id">userId</string>
+    <string name="profile_filename">profile.json</string>
 
     <!-- Activity's titles -->
     <string name="title_activity_principal_app">Magical Match</string>

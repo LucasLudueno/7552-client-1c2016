@@ -28,9 +28,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -67,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String latitude = "";
     private String longitude = "";
 
-    private int CLOSE_ACTIVITY = 1;
+    private JSONObject registerData;
 
     /* On create Activity */
     @Override
@@ -179,15 +181,24 @@ public class RegisterActivity extends AppCompatActivity {
     /* This function check fields format and if its ok, send the register information to Server to check it.
         If its ok again and the user not exists, PrincipalAppActivity is created. */
     public void continueRegisterOnClick(View v) {
+        userName = userNameView.getText().toString();
+        userPassword = userPasswordView.getText().toString();
+        userRealName = userRealNameView.getText().toString();
+        userMail = userMailView.getText().toString();
+        userBirthday = userBirthdayView.getText().toString();
+
+        // check format fields
         if (!checkFormatFields()) {
             return;
         }
 
+        // check latitude and longitude
         if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
             //internetDisconnectWindow.show();
             return;
         }
 
+        // check sex
         String userSex = "";
         if (userFemaleView.isChecked()) {
             userSex = getResources().getString(R.string.female_en);
@@ -195,29 +206,40 @@ public class RegisterActivity extends AppCompatActivity {
             userSex = getResources().getString(R.string.male_en);
         }
 
+        // construct registerData
         String url =  getResources().getString(R.string.server_ip);;
         String uri = getResources().getString(R.string.register_uri);
-        JSONObject data = new JSONObject();
+        registerData = new JSONObject();
 
         try {
-            data.put(getResources().getString(R.string.alias), userName);
-            data.put(getResources().getString(R.string.password), userPassword);
-            data.put(getResources().getString(R.string.userName), userRealName);
-            data.put(getResources().getString(R.string.email), userMail);
-            data.put(getResources().getString(R.string.birthday), userBirthday);
-            data.put(getResources().getString(R.string.sex), userSex);
-            data.put(getResources().getString(R.string.latitude),latitude);
-            data.put(getResources().getString(R.string.longitude),longitude);
+            // register fields
+            registerData.put(getResources().getString(R.string.alias), userName);
+            registerData.put(getResources().getString(R.string.password), userPassword);
+            registerData.put(getResources().getString(R.string.userName), userRealName);
+            registerData.put(getResources().getString(R.string.email), userMail);
+            registerData.put(getResources().getString(R.string.birthday), userBirthday);
+            registerData.put(getResources().getString(R.string.sex), userSex);
+
+            // location
+            JSONObject location = new JSONObject();
+            location.put(getResources().getString(R.string.latitude),latitude);
+            location.put(getResources().getString(R.string.longitude), longitude);
+            registerData.put("location",location);
+
+            // interests
+            JSONArray interestEmptyList = new JSONArray();
+            registerData.put("interests",interestEmptyList);
         } catch (JSONException e) {
             // ERROR -LOG
         }
 
+        // send registerData
         if ( checkConection() ){
             connectingToServerWindow = ProgressDialog.show(RegisterActivity.this,
                                                             getResources().getString(R.string.please_wait_en),
                                                             getResources().getString(R.string.reg_processing_en), true);
             SendRegisterTask checkLogin = new SendRegisterTask();
-            checkLogin.execute("POST",url, uri, String.valueOf(data));
+            checkLogin.execute("POST",url, uri, String.valueOf(registerData));
         } else {
             internetDisconnectWindow.show();
         }
@@ -226,12 +248,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     /* Check if the format fields is correct to continue */
     boolean checkFormatFields() {
-        userName = userNameView.getText().toString();
-        userPassword = userPasswordView.getText().toString();
-        userRealName = userRealNameView.getText().toString();
-        userMail = userMailView.getText().toString();
-        userBirthday = userBirthdayView.getText().toString();
-
         if (userName.isEmpty() ||
                 userPassword.isEmpty() ||
                 userRealName.isEmpty() ||
@@ -288,19 +304,18 @@ public class RegisterActivity extends AppCompatActivity {
         String responseMessage = response.split(":")[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
+            // save registerdata in file
+            writeRegisterInFile();
+
+            // start principal activity
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            /*startAppActivity.setAction(Intent.ACTION_MAIN);
-            startAppActivity.addCategory(Intent.CATEGORY_HOME);*/
+            startAppActivity.setAction(Intent.ACTION_MAIN);
+            startAppActivity.addCategory(Intent.CATEGORY_HOME);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(startAppActivity);
-
-            // Finish Main activity
-            /*Intent finishMainActivity = new Intent(this, MainActivity.class);
-            finishMainActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivityForResult(finishMainActivity, CLOSE_ACTIVITY);*/
 
             // Finish actual activity
             this.finish();
@@ -332,5 +347,21 @@ public class RegisterActivity extends AppCompatActivity {
         protected void onPostExecute(String dataGetFromServer){
             checkRegisterResponse(dataGetFromServer);
         }
+    }
+
+    /* Write registerData into file. Return True if it could be saved. */
+    private boolean writeRegisterInFile() {
+        try {
+            registerData.put("photo_profile", "ninguna_por_ahora");     // profile photo
+            String data = String.valueOf(registerData);
+
+            FileOutputStream outputStream = openFileOutput(getResources().getString(R.string.profile_filename), Context.MODE_PRIVATE);
+            outputStream.write(data.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            return false;
+            //LOG - ERROR
+        }
+        return true;
     }
 }

@@ -26,6 +26,9 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,13 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private String userMail;
     private String userPassword;
 
-    private int CLOSE_ACTIVITY = 1;
-
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Create internal files
+        File file = new File(this.getFilesDir(), getResources().getString(R.string.profile_filename));
 
         // Toolbar
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
@@ -196,11 +200,24 @@ public class MainActivity extends AppCompatActivity {
         String responseMessage = response.split(":")[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            writeRegisterInFile(responseMessage);
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
             this.finish();
         } else {
             badLoginWindow.show();
+        }
+    }
+
+    /*  */
+    private void writeRegisterInFile(String profileData) {
+        profileData = "{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{\"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"photo_profile\":\"ninguna\",\"password\":\"contraseña\"}";
+        try {
+            FileOutputStream outputStream = openFileOutput(getResources().getString(R.string.profile_filename), Context.MODE_PRIVATE);
+            outputStream.write(profileData.getBytes());
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -223,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
 // TODO: SEND LOGIS TASK COMO ATRIBUTO
 // TODO: METOOD ON POST EXECUTE - REFACTOR
 // TODO: ELIMINAR FUNCION CHECK-CONECTION REPETIDA
+// TODO: MANEJAR TIPOS DE RESPONSE CODE
 
 // DUDAS
 // TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO
@@ -233,5 +251,5 @@ public class MainActivity extends AppCompatActivity {
 
 // NECESARIO
 // TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS
-// TODO: MANEJAR TIPOS DE RESPONSE CODE
 // TODO: ENCAPSULAMIENTO DE METODOS
+// TODO: STACK DE CHAT ACTIVITY

@@ -38,7 +38,7 @@ tools:showIn="@layout/app_bar_principal_app">
 
                 <TextView
                     android:id="@+id/title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="Rogelio Marco Aurelio"
@@ -48,7 +48,8 @@ tools:showIn="@layout/app_bar_principal_app">
                     android:maxLines="3" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/possibleMatchDescription"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:text="@string/description"
