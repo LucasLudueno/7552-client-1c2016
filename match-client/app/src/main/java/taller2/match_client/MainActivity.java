@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
     private AlertDialog wrongMailWindow;
-    private ProgressDialog loading;
+    private ProgressDialog loadingWindow;
     private EditText userMailView;
     private EditText userPasswordView;
     private Button login;
@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
         internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+
+        // loadingWindow
+        loadingWindow = new ProgressDialog(this);
+        loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
+        loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
 
         // Login Button
         login = (Button)findViewById(R.id.loginButton);
@@ -124,9 +129,7 @@ public class MainActivity extends AppCompatActivity {
             // ERROR
             // LOG
         }
-        loading = ProgressDialog.show(MainActivity.this,
-                                        getResources().getString(R.string.please_wait_en),
-                                        getResources().getString(R.string.log_processing_en), true);
+        loadingWindow.show();
         /*if ( checkConection() ){
             SendLoginTask checkLogin = new SendLoginTask();
             checkLogin.execute("POST",url, uri, data.toString());   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
@@ -195,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Check login response from Server */
     private void checkLoginResponse(String response) {
-        loading.dismiss();
+        loadingWindow.dismiss();
         String responseCode = response.split(":")[0];
         String responseMessage = response.split(":")[1];
 
@@ -211,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
     /*  */
     private void writeRegisterInFile(String profileData) {
-        profileData = "{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{\"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"photo_profile\":\"ninguna\",\"password\":\"contraseña\"}";
+        profileData = "{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"photo_profile\":\"ninguna\",\"password\":\"contraseña\"}";
         try {
             FileOutputStream outputStream = openFileOutput(getResources().getString(R.string.profile_filename), Context.MODE_PRIVATE);
             outputStream.write(profileData.getBytes());
@@ -253,3 +256,4 @@ public class MainActivity extends AppCompatActivity {
 // TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS
 // TODO: ENCAPSULAMIENTO DE METODOS
 // TODO: STACK DE CHAT ACTIVITY
+// TODO: TRY-CATCH ---> LOG

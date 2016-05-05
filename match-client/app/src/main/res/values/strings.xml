@@ -33,6 +33,8 @@
     <string name="longitude">longitude</string>
     <string name="sex">sex</string>
     <string name="profilePhoto">photo_profile</string>
+    <string name="location">location</string>
+    <string name="interests">interests</string>
 
     <!-- General Activity strings-->
     <string name="male_en">Male</string>
@@ -70,12 +72,14 @@
     <!-- ChatActivity messages -->
     <string name="write_message_text_en">Write message</string>
     <string name="send_message_button_en">Send</string>
-
+    <string name="select_picture_en">Select Profile Picture</string>
 
     <!-- PerfilActivity messages -->
     <string name="save_changes_button_en">SAVE CHANGES</string>
+    <string name="profile_uploaded_en">Profile Uploaded</string>
 
     <!-- SettingsActivity messages -->
+    <string name="interests_uploaded_en">Interests Uploaded</string>
     <string name="add_button_en">ADD</string>
     <string name="remove_button_en">REMOVE</string>
     <string name="choose_category_title_en">Choose Category:</string>

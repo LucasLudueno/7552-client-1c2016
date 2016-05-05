@@ -91,30 +91,6 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         possibleMatchCard = (CardView)findViewById(R.id.card_view);
         possibleMatchCard.getLayoutParams().height = (6 * height) / 10;
-
-
-
-
-
-        try {
-            FileInputStream profileData = openFileInput("profile.json");
-            BufferedReader bufferReader = new BufferedReader(new InputStreamReader(profileData));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line = "";
-            while ((line = bufferReader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
-            }
-            String profileString = stringBuilder.toString();
-
-            TextView description = (TextView)findViewById(R.id.possibleMatchDescription);
-            description.setText(profileString);
-
-            profileData.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override /* Close drawer if its open */

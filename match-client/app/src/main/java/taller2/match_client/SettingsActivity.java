@@ -58,6 +58,9 @@ public class SettingsActivity extends AppCompatActivity {
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog loading;
 
+    ProfileManager pf;
+    JSONObject profile;
+
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,11 @@ public class SettingsActivity extends AppCompatActivity {
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
         internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+
+        // loadingWindow
+        loading = new ProgressDialog(this);
+        loading.setTitle(getResources().getString(R.string.please_wait_en));
+        loading.setMessage(getResources().getString(R.string.log_processing_en));
 
         // Category List
         categoryList = (Spinner)findViewById(R.id.categoriesList);
@@ -223,31 +231,30 @@ public class SettingsActivity extends AppCompatActivity {
         // Json Data
         String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.interest_uri);
-        JSONObject data = new JSONObject();
+        pf = new ProfileManager(this);
+        profile = pf.getProfile();
 
         try {
             JSONArray interestArray = new JSONArray();
             addInterestInJsonArray("MusicBand", listMusicBandAdapter, interestArray);
-            addInterestInJsonArray("Outdoors", listOutdoorsAdapter, interestArray);    //TODO
+            addInterestInJsonArray("Outdoors", listOutdoorsAdapter, interestArray);
             addInterestInJsonArray("Music", listMusicAdapter, interestArray);
             addInterestInJsonArray("Sport", listSportAdapter, interestArray);
             addInterestInJsonArray("Food", listFoodAdapter, interestArray);
             addInterestInJsonArray("Travel", listTravelAdapter, interestArray);
 
-            data.put("interests",interestArray);
-            Log.i("LogsAndroi", data.toString());
+            profile.remove(getResources().getString(R.string.interests));
+            profile.put("interests",interestArray);
         } catch (JSONException e) {
             // ERROR
             // LOG
         }
 
         // Sending json data to Server
-        loading = ProgressDialog.show(SettingsActivity.this,
-                getResources().getString(R.string.please_wait_en),
-                getResources().getString(R.string.log_processing_en), true);
+        loading.show();
         if ( checkConection() ){
             SendInterestTask checkLogin = new SendInterestTask();
-            checkLogin.execute("POST",url, uri, data.toString());
+            checkLogin.execute("POST", url, uri, profile.toString());
         } else {
             internetDisconnectWindow.show();
         }
@@ -287,8 +294,10 @@ public class SettingsActivity extends AppCompatActivity {
         String responseMessage = response.split(":")[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) { //TODO: DEFINIR MEJOR NOMBRE
-            Toast.makeText(getApplicationContext(), "Interests Uploaded",
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.interests_uploaded_en),
                     Toast.LENGTH_LONG).show();
+            // Update Profile
+            pf.updateProfile(profile);
         } else {
             // ERROR
         }
@@ -307,7 +316,7 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();;
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);

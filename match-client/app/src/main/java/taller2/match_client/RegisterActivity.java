@@ -7,7 +7,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -109,6 +113,11 @@ public class RegisterActivity extends AppCompatActivity {
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
         emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
         emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
+
+        // loadingWindow
+        connectingToServerWindow = new ProgressDialog(this);
+        connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
+        connectingToServerWindow.setMessage(getResources().getString(R.string.reg_processing_en));
 
         // Continue Button
         continueRegButton = (Button) findViewById(R.id.ContinueRegisterButton);
@@ -235,9 +244,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // send registerData
         if ( checkConection() ){
-            connectingToServerWindow = ProgressDialog.show(RegisterActivity.this,
-                                                            getResources().getString(R.string.please_wait_en),
-                                                            getResources().getString(R.string.reg_processing_en), true);
+            connectingToServerWindow.show();
             SendRegisterTask checkLogin = new SendRegisterTask();
             checkLogin.execute("POST",url, uri, String.valueOf(registerData));
         } else {
@@ -305,7 +312,17 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
             // save registerdata in file
-            writeRegisterInFile();
+            try {
+                // convert default photo in base64
+                Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
+                Base64Converter bs64 = new Base64Converter();
+                String base64 = bs64.bitmapToBase64(photodefault);
+                registerData.put(getResources().getString(R.string.profilePhoto), base64);     // profile photo
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            ProfileManager pf = new ProfileManager(this);
+            pf.updateProfile(registerData);
 
             // start principal activity
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
@@ -347,21 +364,5 @@ public class RegisterActivity extends AppCompatActivity {
         protected void onPostExecute(String dataGetFromServer){
             checkRegisterResponse(dataGetFromServer);
         }
-    }
-
-    /* Write registerData into file. Return True if it could be saved. */
-    private boolean writeRegisterInFile() {
-        try {
-            registerData.put("photo_profile", "ninguna_por_ahora");     // profile photo
-            String data = String.valueOf(registerData);
-
-            FileOutputStream outputStream = openFileOutput(getResources().getString(R.string.profile_filename), Context.MODE_PRIVATE);
-            outputStream.write(data.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            return false;
-            //LOG - ERROR
-        }
-        return true;
     }
 }

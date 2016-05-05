@@ -33,8 +33,12 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /* Perfil Activity has user perfil fields. User can change its and save changes (the fields with new values are
    send to Server) */
@@ -44,12 +48,14 @@ public class PerfilActivity extends AppCompatActivity {
     private TextView userRealNameView;
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
-    private ProgressDialog loading;
+    private ProgressDialog loadingWindow;
     private ImageView userPhoto;
     private Button saveChangesButton;
     private static final int SELECT_PICTURE = 1;
     private String userName;
     private String userRealName;
+    ProfileManager pf;
+    JSONObject profile;
 
     /* On Create */
     @Override
@@ -70,10 +76,15 @@ public class PerfilActivity extends AppCompatActivity {
         emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
         emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
 
-        // internetDisconnectWindows
+        // internetDisconnectWindow
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
         internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+
+        // loadingWindow
+        loadingWindow = new ProgressDialog(this);
+        loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
+        loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
 
         // When the image is clicked, the gallery is open and user can choose other profile photo
         userPhoto = (ImageView)findViewById(R.id.userPerfilPhoto);
@@ -103,7 +114,7 @@ public class PerfilActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Profile Picture"), SELECT_PICTURE);
+        startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.select_picture_en)), SELECT_PICTURE);
     }
 
     /*  */
@@ -128,6 +139,7 @@ public class PerfilActivity extends AppCompatActivity {
         //userPhoto.setImageURI(imageUri);
     }
 
+    /* */
     private String getPath(Uri imageUri) {
         if (imageUri == null) {
             return null;
@@ -143,6 +155,7 @@ public class PerfilActivity extends AppCompatActivity {
         return imageUri.getPath();
     }
 
+    /*  */
     private void updateProfileOnClick(View v) {
         userName = userNameView.getText().toString();
         userRealName = userRealNameView.getText().toString();
@@ -154,54 +167,38 @@ public class PerfilActivity extends AppCompatActivity {
         // profile photo ---> base64
         BitmapDrawable drawable = (BitmapDrawable) userPhoto.getDrawable();
         Bitmap bitmapProfilePhoto = drawable.getBitmap();
-        String profilePhotoBase64 = bitmapToBase64(bitmapProfilePhoto);
+        Base64Converter bs64 = new Base64Converter();
+        String profilePhotoBase64 = bs64.bitmapToBase64(bitmapProfilePhoto);
 
-        String userPassword = "";   // TODO: RECUPERAR VALORES DE BASE DE DATOS
-        String userMail = "";
-        String userBirthday = "";
-        String userSex = "";
-        String longitude = "";
-        String latitude = "";
+        // get Profile
+        pf = new ProfileManager(this);
+        profile = pf.getProfile();
 
-        // Json Data
+        // construct Profile
         String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.profile_uri);
-        JSONObject data = new JSONObject();
 
         try {
-            data.put(getResources().getString(R.string.alias), userName);   // TODO: INTERESES ??
-            data.put(getResources().getString(R.string.password), userPassword);
-            data.put(getResources().getString(R.string.userName), userRealName);
-            data.put(getResources().getString(R.string.email), userMail);
-            data.put(getResources().getString(R.string.birthday), userBirthday);
-            data.put(getResources().getString(R.string.sex), userSex);
-            data.put(getResources().getString(R.string.latitude),latitude);
-            data.put(getResources().getString(R.string.longitude),longitude);
-            data.put(getResources().getString(R.string.profilePhoto),profilePhotoBase64);
+            profile.remove(getResources().getString(R.string.alias));
+            profile.put(getResources().getString(R.string.alias), userName);
+            profile.remove(getResources().getString(R.string.userName));
+            profile.put(getResources().getString(R.string.userName), userRealName);
+            profile.remove(getResources().getString(R.string.profilePhoto));
+            profile.put(getResources().getString(R.string.profilePhoto), profilePhotoBase64);
         } catch (JSONException e) {
             // ERROR
             // LOG
         }
 
         // Sending json data to Server
-        loading = ProgressDialog.show(PerfilActivity.this,
-                getResources().getString(R.string.please_wait_en),
-                getResources().getString(R.string.log_processing_en), true);
         if ( checkConection() ){
+            loadingWindow.show();
             SendProfileTask checkLogin = new SendProfileTask();
-            checkLogin.execute("POST",url, uri, data.toString());
+            checkLogin.execute("POST",url, uri, String.valueOf(profile));
         } else {
             internetDisconnectWindow.show();
         }
         checkProfileResponse("200:ok");
-    }
-
-    /*  */
-    private String bitmapToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
     /* Check internet connection */
@@ -227,13 +224,16 @@ public class PerfilActivity extends AppCompatActivity {
 
     /* Check profile response from Server */
     private void checkProfileResponse(String response) {
-        loading.dismiss();
+        loadingWindow.dismiss();
         String responseCode = response.split(":")[0];
         String responseMessage = response.split(":")[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {   //TODO: DEFINIR MEJOR NOMBRE
-            Toast.makeText(getApplicationContext(), "Profile Uploaded",
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en),
                     Toast.LENGTH_LONG).show();
+            // Update Profile
+            pf.updateProfile(profile);
+
         } else {
             // ERROR
         }
