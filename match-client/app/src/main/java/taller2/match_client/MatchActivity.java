@@ -2,6 +2,7 @@ package taller2.match_client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,15 +31,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MatchActivity extends AppCompatActivity {
     private String[] listview_names =  {"Milito","Licha", "Saja","Aued" };
-    private static int[] listview_images = { R.drawable.no_match,R.drawable.no_match,R.drawable.no_match,R.drawable.no_match};
+    private static int[] listview_images =  { R.drawable.no_match,R.drawable.no_match,R.drawable.no_match,R.drawable.no_match};
 
     private MatchListAdapter matchListAdapter;
     private ListView matchListView;
     private static ArrayList<String> match_names_sort;
-    private static ArrayList<Integer> image_sort;
+    //private static ArrayList<Integer> image_sort;
     static Context mcontext;
+
+    private MatchManager matchManager;
 
     /* On create Activity */
     @Override
@@ -56,10 +62,10 @@ public class MatchActivity extends AppCompatActivity {
 
         // Generate the match list
         match_names_sort = new ArrayList<String> (Arrays.asList(listview_names));
-        image_sort = new ArrayList<Integer>();
+        /*image_sort = new ArrayList<Integer>();
         for (int index = 0; index < listview_images.length; index++) {
             image_sort.add(listview_images[index]);
-        }
+        }*/
 
         // MatchList
         matchListAdapter = new MatchListAdapter(this);
@@ -73,11 +79,30 @@ public class MatchActivity extends AppCompatActivity {
                 createChat();
             }
         });
+
+        /***  Match Manager ***/
+        /*matchManager = MatchManager.getInstance();
+        List<JSONObject> matches = matchManager.getMatches();
+
+        for (int i = 0; i < matches.size(); i++) {
+            JSONObject match = matches.get(i);
+            try {
+                String alias = match.getString("alias");
+                String photo = match.getString("photo_profile");
+                Base64Converter bs64 = new Base64Converter();
+                Bitmap photoBitmap = bs64.Base64ToBitmap(photo);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }*/
+
     }
 
     /* When some match are taken, its chat is created */
     private void createChat() {
         Intent startChatActivity = new Intent(this, ChatActivity.class);
+        //startChatActivity.putExtra("email", String.valueOf("seba@gmail.com"));  // TODO: DEBERIAMOS RECONOCER EL EMAIL Y MANDARLO AL CHAT ASÍ
         startActivity(startChatActivity);
     }
 
@@ -94,7 +119,7 @@ public class MatchActivity extends AppCompatActivity {
     /* When back button is pressed, PrincipalAppActivity is bring to front */
     public void onBackPressed () {
         Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-        startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        //startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startAppActivity);
     }
 
@@ -124,7 +149,6 @@ public class MatchActivity extends AppCompatActivity {
             ImageView matchPhoto = (ImageView) row.findViewById(R.id.matchPhoto);
             matchName.setText(match_names_sort.get(position));                                          // Match Name
             matchPhoto.setImageBitmap(getRoundedShape(decodeFile(cntx, listview_images[position]),200));    //Match Photo
-
             return row;
         }
 

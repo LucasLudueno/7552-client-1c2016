@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -216,12 +217,9 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // construct registerData
-        String url =  getResources().getString(R.string.server_ip);;
-        String uri = getResources().getString(R.string.register_uri);
-        registerData = new JSONObject();
-
         try {
             // register fields
+            registerData = new JSONObject();
             registerData.put(getResources().getString(R.string.alias), userName);
             registerData.put(getResources().getString(R.string.password), userPassword);
             registerData.put(getResources().getString(R.string.userName), userRealName);
@@ -238,6 +236,12 @@ public class RegisterActivity extends AppCompatActivity {
             // interests
             JSONArray interestEmptyList = new JSONArray();
             registerData.put("interests",interestEmptyList);
+
+            // profile photo
+            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
+            Base64Converter bs64 = new Base64Converter();
+            String base64 = bs64.bitmapToBase64(photodefault);
+            registerData.put(getResources().getString(R.string.profilePhoto), base64);
         } catch (JSONException e) {
             // ERROR -LOG
         }
@@ -245,6 +249,8 @@ public class RegisterActivity extends AppCompatActivity {
         // send registerData
         if ( checkConection() ){
             connectingToServerWindow.show();
+            String url =  getResources().getString(R.string.server_ip);;
+            String uri = getResources().getString(R.string.register_uri);
             SendRegisterTask checkLogin = new SendRegisterTask();
             checkLogin.execute("POST",url, uri, String.valueOf(registerData));
         } else {
@@ -312,17 +318,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
             // save registerdata in file
+            FileManager fm = new FileManager(this);
             try {
-                // convert default photo in base64
-                Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
-                Base64Converter bs64 = new Base64Converter();
-                String base64 = bs64.bitmapToBase64(photodefault);
-                registerData.put(getResources().getString(R.string.profilePhoto), base64);     // profile photo
-            } catch (JSONException e) {
+                fm.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(registerData));
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            ProfileManager pf = new ProfileManager(this);
-            pf.updateProfile(registerData);
 
             // start principal activity
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);

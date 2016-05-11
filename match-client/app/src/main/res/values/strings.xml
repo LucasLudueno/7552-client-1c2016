@@ -17,8 +17,12 @@
     <string name="server_ip">http://192.168.0.5:8000</string>
     <string name="login_uri">/login</string>
     <string name="register_uri">/register</string>
-    <string name="profile_uri">/profile</string>
-    <string name="interest_uri">/interest</string>
+    <string name="update_profile_uri">/updateprofile</string>
+    <string name="get_conversation_uri">/getconversation</string>
+    <string name="get_matches_uri">/getmatches</string>
+    <string name="get_pos_matches_uri">/getpossiblematches</string>
+    <string name="like_uri">/like</string>
+    <string name="dont_like_uri">/dontlike</string>
     <string name="ok_response_code_register">201</string>
     <string name="ok_response_code_login">200</string>     <!-- Definir mejores nombres -->
 

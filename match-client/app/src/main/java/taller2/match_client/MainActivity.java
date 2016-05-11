@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -114,23 +116,24 @@ public class MainActivity extends AppCompatActivity {
         userMail = userMailView.getText().toString();
         userPassword = userPasswordView.getText().toString();
 
+        // check formats
         /*if (!checkFormatFields()) {
             return;
         }*/
 
-        String url = getResources().getString(R.string.server_ip);
-        String uri = getResources().getString(R.string.login_uri);
-        JSONObject data = new JSONObject();                         //Creamos el Json que mandaremos al Server
-
+        // construct json login
         try {
+            JSONObject data = new JSONObject();
             data.put(getResources().getString(R.string.password), userPassword);
             data.put(getResources().getString(R.string.email), userMail);
         } catch (JSONException e) {
             // ERROR
             // LOG
         }
-        loadingWindow.show();
         /*if ( checkConection() ){
+            loadingWindow.show();
+            String url = getResources().getString(R.string.server_ip);
+            String uri = getResources().getString(R.string.login_uri);
             SendLoginTask checkLogin = new SendLoginTask();
             checkLogin.execute("POST",url, uri, data.toString());   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
         } else {
@@ -203,24 +206,33 @@ public class MainActivity extends AppCompatActivity {
         String responseMessage = response.split(":")[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
-            writeRegisterInFile(responseMessage);
+            // update profile
+            try {
+                FileManager fm = new FileManager(this);
+                //JSONObject profile = new JSONObject(response);    //TODO: ESTO POR AHORA...
+                JSONObject profile = new JSONObject("{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
+                Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.wallpaper);
+                Base64Converter bs64 = new Base64Converter();
+                String base64 = bs64.bitmapToBase64(photodefault);
+                profile.put(getResources().getString(R.string.profilePhoto), base64);
+
+                String profileString = String.valueOf(profile);
+                try {
+                    fm.writeFile(getResources().getString(R.string.profile_filename), profileString);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //fm.writeFile("profile.json", responseMessage); // ESTA ES LA QUE VA
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            // start principal aplication
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startActivity(startAppActivity);
             this.finish();
         } else {
             badLoginWindow.show();
-        }
-    }
-
-    /*  */
-    private void writeRegisterInFile(String profileData) {
-        profileData = "{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"photo_profile\":\"ninguna\",\"password\":\"contraseña\"}";
-        try {
-            FileOutputStream outputStream = openFileOutput(getResources().getString(R.string.profile_filename), Context.MODE_PRIVATE);
-            outputStream.write(profileData.getBytes());
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -244,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
 // TODO: METOOD ON POST EXECUTE - REFACTOR
 // TODO: ELIMINAR FUNCION CHECK-CONECTION REPETIDA
 // TODO: MANEJAR TIPOS DE RESPONSE CODE
+// TODO: CHECKEAR ATRIBUTOS
 
 // DUDAS
 // TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO
@@ -257,3 +270,6 @@ public class MainActivity extends AppCompatActivity {
 // TODO: ENCAPSULAMIENTO DE METODOS
 // TODO: STACK DE CHAT ACTIVITY
 // TODO: TRY-CATCH ---> LOG
+// TODO: CHECK CONECTION --> CLASS
+// TODO: CHECK FORMAT --> CLASS
+// TODO: LOCATION MANAGER --> CLASS

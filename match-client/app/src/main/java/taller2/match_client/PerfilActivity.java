@@ -54,7 +54,7 @@ public class PerfilActivity extends AppCompatActivity {
     private static final int SELECT_PICTURE = 1;
     private String userName;
     private String userRealName;
-    ProfileManager pf;
+    FileManager fm;
     JSONObject profile;
 
     /* On Create */
@@ -107,6 +107,20 @@ public class PerfilActivity extends AppCompatActivity {
         // TextViews
         userNameView = (EditText)findViewById(R.id.userNamePerfil);
         userRealNameView = (EditText)findViewById(R.id.userRealNamePerfil);
+
+        /* Load Profile into Activity */
+        try {
+            Base64Converter b64conv = new Base64Converter();
+            fm = new FileManager(this);
+            JSONObject actualProfile = new JSONObject(fm.readFile(getResources().getString(R.string.profile_filename)));
+            userRealNameView.setText(actualProfile.getString(getResources().getString(R.string.userName)));
+            userNameView.setText(actualProfile.getString(getResources().getString(R.string.alias)));
+            userPhoto.setImageBitmap(b64conv.Base64ToBitmap(actualProfile.getString(getResources().getString(R.string.photoProfile))));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+
+        }
     }
 
     /*  */
@@ -124,7 +138,7 @@ public class PerfilActivity extends AppCompatActivity {
             // LOG
         }
         Uri imageUri = data.getData();
-        String imagePath = getPath(imageUri);
+        //String imagePath = getPath(imageUri);
 
         Bitmap bitmap = null;
         try {
@@ -153,13 +167,14 @@ public class PerfilActivity extends AppCompatActivity {
             return cursor.getString(column_index);
         }
         return imageUri.getPath();
-    }
+    }   // TODO: LO USAMOS AL FINAL?
 
     /*  */
     private void updateProfileOnClick(View v) {
         userName = userNameView.getText().toString();
         userRealName = userRealNameView.getText().toString();
 
+        // check format fields
         if (!checkFormatFields()) {
             return;
         }
@@ -170,15 +185,9 @@ public class PerfilActivity extends AppCompatActivity {
         Base64Converter bs64 = new Base64Converter();
         String profilePhotoBase64 = bs64.bitmapToBase64(bitmapProfilePhoto);
 
-        // get Profile
-        pf = new ProfileManager(this);
-        profile = pf.getProfile();
-
         // construct Profile
-        String url = getResources().getString(R.string.server_ip);
-        String uri = getResources().getString(R.string.profile_uri);
-
         try {
+            profile = new JSONObject(fm.readFile(getResources().getString(R.string.profile_filename)));
             profile.remove(getResources().getString(R.string.alias));
             profile.put(getResources().getString(R.string.alias), userName);
             profile.remove(getResources().getString(R.string.userName));
@@ -188,17 +197,21 @@ public class PerfilActivity extends AppCompatActivity {
         } catch (JSONException e) {
             // ERROR
             // LOG
+        } catch (IOException e) {
+
         }
 
         // Sending json data to Server
         if ( checkConection() ){
             loadingWindow.show();
+            String url = getResources().getString(R.string.server_ip);
+            String uri = getResources().getString(R.string.update_profile_uri);
             SendProfileTask checkLogin = new SendProfileTask();
             checkLogin.execute("POST",url, uri, String.valueOf(profile));
         } else {
             internetDisconnectWindow.show();
         }
-        checkProfileResponse("200:ok");
+        checkProfileResponse("200:ok"); //TODO: FOR NOW...
     }
 
     /* Check internet connection */
@@ -232,8 +245,11 @@ public class PerfilActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en),
                     Toast.LENGTH_LONG).show();
             // Update Profile
-            pf.updateProfile(profile);
-
+            try {
+                fm.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             // ERROR
         }

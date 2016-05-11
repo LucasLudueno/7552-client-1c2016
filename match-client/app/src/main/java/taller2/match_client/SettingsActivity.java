@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class SettingsActivity extends AppCompatActivity {
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog loading;
 
-    ProfileManager pf;
+    FileManager fm;
     JSONObject profile;
 
     /* On create Activity */
@@ -74,6 +75,9 @@ public class SettingsActivity extends AppCompatActivity {
         // Add the back activity button in the toolbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // File Manager
+        fm = new FileManager(this);
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
@@ -224,17 +228,14 @@ public class SettingsActivity extends AppCompatActivity {
         }
         return adapter;
     }
-
-
     /*  */
     private void updateInterestOnClick() {
         // Json Data
         String url = getResources().getString(R.string.server_ip);
-        String uri = getResources().getString(R.string.interest_uri);
-        pf = new ProfileManager(this);
-        profile = pf.getProfile();
+        String uri = getResources().getString(R.string.update_profile_uri);
 
         try {
+            profile = new JSONObject(fm.readFile(getResources().getString(R.string.profile_filename)));
             JSONArray interestArray = new JSONArray();
             addInterestInJsonArray("MusicBand", listMusicBandAdapter, interestArray);
             addInterestInJsonArray("Outdoors", listOutdoorsAdapter, interestArray);
@@ -244,10 +245,12 @@ public class SettingsActivity extends AppCompatActivity {
             addInterestInJsonArray("Travel", listTravelAdapter, interestArray);
 
             profile.remove(getResources().getString(R.string.interests));
-            profile.put("interests",interestArray);
+            profile.put(getResources().getString(R.string.interests),interestArray);
         } catch (JSONException e) {
             // ERROR
             // LOG
+        } catch (IOException e) {
+
         }
 
         // Sending json data to Server
@@ -261,9 +264,10 @@ public class SettingsActivity extends AppCompatActivity {
         checkSettingResponse("200:ok");
     }
 
-    private void addInterestInJsonArray(String category, ArrayAdapter<String> interests, JSONArray data) {
-        for(int i=0 ; i < listMusicBandAdapter.getCount() ; i++){
-            String interest = listMusicBandAdapter.getItem(i);
+    /*  */
+    private void addInterestInJsonArray(String category, ArrayAdapter<String> interestAdapter, JSONArray data) {
+        for(int i=0 ; i < interestAdapter.getCount() ; i++){
+            String interest = interestAdapter.getItem(i);
             JSONObject jsonInterest = new JSONObject();
             try {
                 jsonInterest.put("category", category);
@@ -297,7 +301,11 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.interests_uploaded_en),
                     Toast.LENGTH_LONG).show();
             // Update Profile
-            pf.updateProfile(profile);
+            try {
+                fm.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             // ERROR
         }

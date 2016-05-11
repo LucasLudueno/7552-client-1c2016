@@ -1,6 +1,7 @@
 package taller2.match_client;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.view.LayoutInflater;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,8 @@ import java.util.List;
 public class ChatActivity extends AppCompatActivity {
 
     /* Attributes */
-    private ChatArrayAdapter chatArrayAdapter;
+    private MatchManager matchManager;
+    private ChatConversation chatArrayAdapter;
     private ListView listView;
     private Button sendChat;
     private boolean side = false;
@@ -47,7 +50,7 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Chat Array Adapter
-        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.right_msg_chat);
+        chatArrayAdapter = new ChatConversation(getApplicationContext(), R.layout.right_msg_chat);
         listView = (ListView) findViewById(R.id.chatMsgList);
         listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         listView.setAdapter(chatArrayAdapter);
@@ -69,18 +72,33 @@ public class ChatActivity extends AppCompatActivity {
                 onSendChatClick(v);
             }
         });
+
+
+        /*** Match Manager ***/
+        /*matchManager = MatchManager.getInstance();
+        String matchEmail = "";
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            matchEmail = bundle.getString("email");
+        }
+        // Include conversation
+        chatArrayAdapter = matchManager.getConversation(matchEmail);
+        if (chatArrayAdapter == null) {
+            this.finish();
+        }
+        listView.setAdapter(chatArrayAdapter);*/
     }
 
     /* Send Chat message to Server */
-    private void sendChatMessage(EditText chatText) {
+    private void sendChatMessage(EditText chatText, boolean side) {
         chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
-        side = !side;
     }
 
     /* When Send button is pressed, the content of the ChatText is send */
     public void onSendChatClick(View v) {
         EditText chatMsg = (EditText) findViewById(R.id.userChatMsg);
-        sendChatMessage(chatMsg);
+        sendChatMessage(chatMsg, side);
+        side = !side;
         chatMsg.setText("");
     }
 

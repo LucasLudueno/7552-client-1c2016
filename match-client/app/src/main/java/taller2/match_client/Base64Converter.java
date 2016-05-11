@@ -1,13 +1,12 @@
 package taller2.match_client;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
-/**
- * Created by lucas on 05/05/16.
- */
+/*  */
 public class Base64Converter {
     /*  */
     public String bitmapToBase64(Bitmap bitmap) {
@@ -17,7 +16,9 @@ public class Base64Converter {
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
+    /*  */
     public Bitmap Base64ToBitmap(String base64) {
-        return null;
+        byte[] imageAsBytes = Base64.decode(base64.getBytes(),Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
     }
 }

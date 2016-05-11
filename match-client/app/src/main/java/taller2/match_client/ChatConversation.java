@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /* This class represent a Chat Array that is taken by a ListView to show the Chat Messages */
-public class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
+public class ChatConversation extends ArrayAdapter<ChatMessage> {
     /* Attributes */
     private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
     private TextView chatText;
-    private Context context;
+    //private Context context;
 
-    public ChatArrayAdapter(Context context, int textViewResourceId) {
+    public ChatConversation(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
-        this.context = context;
+        //this.context = context;
     }
 
     @Override

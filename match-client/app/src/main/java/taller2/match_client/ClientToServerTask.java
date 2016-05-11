@@ -6,6 +6,11 @@ import android.widget.TextView;
 /* This class represent a background task where the Client send to Server GET and POST request. */
 public class ClientToServerTask extends AsyncTask<String, Integer, String> {
 
+    /*private int call_code;
+    ClientToServerTask(int call_code) {
+        this.call_code = call_code;
+    }*/
+
     @Override
     protected void onPreExecute(){
         //Setup is done here
