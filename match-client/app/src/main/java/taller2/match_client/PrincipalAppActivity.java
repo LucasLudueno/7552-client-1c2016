@@ -118,17 +118,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         // Base64 Converter
         bs64 = new Base64Converter();
 
-        // No match
-        noMatch = new JSONObject();
-        try {
-            noMatch.put(getResources().getString(R.string.alias), getResources().getString(R.string.no_match_found_alias_en));
-            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
-            String base64 = bs64.bitmapToBase64(photodefault);
-            noMatch.put(getResources().getString(R.string.profilePhoto), base64);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         // User photo and alias in NavHead
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);

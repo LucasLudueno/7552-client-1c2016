@@ -62,9 +62,9 @@ public class MockServer {
         /*** MATCHES ***/
         matches = new ArrayList<JSONObject>();
         try {
-            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"tristelme\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"seba\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
             JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"fede\",\"email\":\"fede@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"el matero loco\",\"email\":\"eze@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"eze\",\"email\":\"eze@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
 
             Bitmap photodefault = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_match);
             Base64Converter bs64 = new Base64Converter();
