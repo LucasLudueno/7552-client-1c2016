@@ -44,7 +44,7 @@ public class HttpConectionClient {
             httpConnection.setRequestProperty("Accept-Language", "UTF-8");
             httpConnection.setDoInput(true);
 
-            httpConnection.setRequestProperty("Content-Type", "application/json");
+            httpConnection.setRequestProperty("Content-Type", "application/json");  //TODO: CHECKEAR SI VA EL ENCABEZADO JSON
             httpConnection.setRequestProperty("Accept", "application/json");
 
             httpConnection.setDoOutput(true);

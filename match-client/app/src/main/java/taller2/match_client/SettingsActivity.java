@@ -2,17 +2,10 @@ package taller2.match_client;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,8 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -38,9 +29,9 @@ import java.util.List;
 public class SettingsActivity extends AppCompatActivity {
 
     /* Attributes */
+    JSONObject profile;
     private Spinner categoryList;
     private Spinner interestList;
-
     private ArrayAdapter<String> listMusicBandAdapter;
     private ArrayAdapter<String> listOutdoorsAdapter;
     private ArrayAdapter<String> listMusicAdapter;
@@ -59,9 +50,6 @@ public class SettingsActivity extends AppCompatActivity {
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog loading;
 
-    FileManager fm;
-    JSONObject profile;
-
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +64,37 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // File Manager
-        fm = new FileManager(this);
+        // Help Windows
+        createHelpWindows();
 
+        // Views
+        instantiateViews();
+
+        // Category listener
+        AdapterView.OnItemSelectedListener interestSelectedListener = new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> spinner, View container,
+                                       int position, long id) {
+                String category = categoryList.getSelectedItem().toString();
+                ArrayAdapter<String> adapter= getCategoryAdapter(category);
+                interestList.setAdapter(adapter);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Nothing for now...
+            }
+        };
+
+        // Setting ItemClick Handler for Spinner Widget
+        categoryList.setOnItemSelectedListener(interestSelectedListener);
+
+        // Include Profile interests in Spinners
+        includeProfileInterest();
+    }
+
+    /* Create windows that are showed to users to comunicate something (error, information) */
+    private void createHelpWindows() {
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
         internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
@@ -88,7 +104,10 @@ public class SettingsActivity extends AppCompatActivity {
         loading = new ProgressDialog(this);
         loading.setTitle(getResources().getString(R.string.please_wait_en));
         loading.setMessage(getResources().getString(R.string.log_processing_en));
+    }
 
+    /* Instantiate views inside Activity and keep it in attibutes */
+    private void instantiateViews() {
         // Category List
         categoryList = (Spinner)findViewById(R.id.categoriesList);
         listCategoryAdapter = ArrayAdapter.createFromResource(this, R.array.category_list_items, android.R.layout.simple_spinner_item);
@@ -150,32 +169,13 @@ public class SettingsActivity extends AppCompatActivity {
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateInterestOnClick();
+                sendUpdateProfileToServer();
             }
         });
 
         // CheckBoxs
         menSelected = (CheckBox)findViewById(R.id.checkMen);
         womenSelected = (CheckBox)findViewById(R.id.checkWomen);
-
-        // Category listener
-        AdapterView.OnItemSelectedListener interestSelectedListener = new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> spinner, View container,
-                                       int position, long id) {
-                String category = categoryList.getSelectedItem().toString();
-                ArrayAdapter<String> adapter= getCategoryAdapter(category);
-                interestList.setAdapter(adapter);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Nothing for now...
-            }
-        };
-
-        // Setting ItemClick Handler for Spinner Widget
-        categoryList.setOnItemSelectedListener(interestSelectedListener);
     }
 
     /* Add interest in actual spinner */
@@ -184,7 +184,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (item.isEmpty()) {
             return;
         }
-
         String category = categoryList.getSelectedItem().toString();
         ArrayAdapter<String> adapter= getCategoryAdapter(category);
 
@@ -207,43 +206,56 @@ public class SettingsActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = null;
 
         switch (category) {     // TODO: HACE FALTA AGREGAR LOS NOMBRES EN STRING.XML ?
-            case "Music":
+            case "music":
                 adapter = listMusicAdapter;
                 break;
-            case "MusicBand":
+            case "music/band":
                 adapter = listMusicBandAdapter;
                 break;
-            case "Sport":
+            case "sport":
                 adapter = listSportAdapter;
                 break;
-            case "Travel":
+            case "travel":
                 adapter = listTravelAdapter;
                 break;
-            case "Food":
+            case "food":
                 adapter = listFoodAdapter;
                 break;
-            case "Outdoors":
+            case "outdoors":
                 adapter = listOutdoorsAdapter;
                 break;
         }
         return adapter;
     }
-    /*  */
-    private void updateInterestOnClick() {
+
+    /* Updated profile is sending to Server. */
+    private void sendUpdateProfileToServer() {
         // Json Data
         String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.update_profile_uri);
 
         try {
-            profile = new JSONObject(fm.readFile(getResources().getString(R.string.profile_filename)));
+            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
             JSONArray interestArray = new JSONArray();
-            addInterestInJsonArray("MusicBand", listMusicBandAdapter, interestArray);
-            addInterestInJsonArray("Outdoors", listOutdoorsAdapter, interestArray);
-            addInterestInJsonArray("Music", listMusicAdapter, interestArray);
-            addInterestInJsonArray("Sport", listSportAdapter, interestArray);
-            addInterestInJsonArray("Food", listFoodAdapter, interestArray);
-            addInterestInJsonArray("Travel", listTravelAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.music_band_category), listMusicBandAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.outdooors_category), listOutdoorsAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.music_category), listMusicAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.sport_category), listSportAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.food_category), listFoodAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(R.string.travel_category), listTravelAdapter, interestArray);
 
+            if (menSelected.isChecked()) {
+                JSONObject interest = new JSONObject();
+                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.men_en));
+                interestArray.put(interest);
+            }
+            if (womenSelected.isChecked()) {
+                JSONObject interest = new JSONObject();
+                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women_en));
+                interestArray.put(interest);
+            }
             profile.remove(getResources().getString(R.string.interests));
             profile.put(getResources().getString(R.string.interests),interestArray);
         } catch (JSONException e) {
@@ -255,23 +267,23 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Sending json data to Server
         loading.show();
-        if ( checkConection() ){
+        /*if ( ActivityHelper.checkConection(getApplicationContext()) ){
             SendInterestTask checkLogin = new SendInterestTask();
             checkLogin.execute("POST", url, uri, profile.toString());
         } else {
             internetDisconnectWindow.show();
-        }
-        checkSettingResponse("200:ok");
+        }*/
+        checkSettingResponseFromServer("200:ok");
     }
 
-    /*  */
+    /* Add each interest of interest Array and save they in Json Array */
     private void addInterestInJsonArray(String category, ArrayAdapter<String> interestAdapter, JSONArray data) {
         for(int i=0 ; i < interestAdapter.getCount() ; i++){
             String interest = interestAdapter.getItem(i);
             JSONObject jsonInterest = new JSONObject();
             try {
-                jsonInterest.put("category", category);
-                jsonInterest.put("value", interest);
+                jsonInterest.put(getResources().getString(R.string.category), category);
+                jsonInterest.put(getResources().getString(R.string.value), interest);
                 data.put(jsonInterest);
             } catch (JSONException e) {
                 //e.printStackTrace();
@@ -279,30 +291,48 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /* Check internet connection */
-    private boolean checkConection() {
-        ConnectivityManager connectManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+    /* When Activity is created, profile interest are included in spinner adapters */
+    private void includeProfileInterest() {
+        try {
+            JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
+            JSONArray interests = actualProfile.getJSONArray(getResources().getString(R.string.interests));
 
-        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {
-            return true;
+            for (int i = 0; i < interests.length(); ++i) {
+                JSONObject interest = interests.getJSONObject(i);
+                String category = interest.getString(getResources().getString(R.string.category));
+                String value = interest.getString(getResources().getString(R.string.value));
+
+                if (category.compareTo(getResources().getString(R.string.sex)) == 0) {
+                    if (value.compareTo(getResources().getString(R.string.men)) == 0) {
+                        menSelected.setChecked(true);
+                    }
+                    if (value.compareTo(getResources().getString(R.string.women)) == 0) {
+                        womenSelected.setChecked(true);
+                    }
+                }
+                ArrayAdapter<String> adapter= getCategoryAdapter(category);
+                if (adapter != null) {
+                    adapter.add(value);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
         }
-        return false;
     }
 
     /* Check profile response from Server */
-    private void checkSettingResponse(String response) {
+    private void checkSettingResponseFromServer(String response) {
         loading.dismiss();
-        String responseCode = response.split(":")[0];
-        String responseMessage = response.split(":")[1];
+        String responseCode = response.split(":", 2)[0];
+        String responseMessage = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) { //TODO: DEFINIR MEJOR NOMBRE
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.interests_uploaded_en),
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_upload_profile))) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en),
                     Toast.LENGTH_LONG).show();
             // Update Profile
             try {
-                fm.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile));
+                FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile), getApplicationContext());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -315,7 +345,7 @@ public class SettingsActivity extends AppCompatActivity {
     private class SendInterestTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
-            checkSettingResponse(dataGetFromServer);
+            checkSettingResponseFromServer(dataGetFromServer);
         }
     }
 

@@ -4,6 +4,8 @@
     <string name="action_settings">Settings</string>
     <string name="user_id">userId</string>
     <string name="profile_filename">profile.json</string>
+    <string name="matches_prefix_filename">matches_</string>
+    <string name="conversation_prefix_filename">conversations_</string>
 
     <!-- Activity's titles -->
     <string name="title_activity_principal_app">Magical Match</string>
@@ -24,7 +26,12 @@
     <string name="like_uri">/like</string>
     <string name="dont_like_uri">/dontlike</string>
     <string name="ok_response_code_register">201</string>
-    <string name="ok_response_code_login">200</string>     <!-- Definir mejores nombres -->
+    <string name="ok_response_code_login">200</string>
+    <string name="ok_response_code_upload_profile">200</string>
+    <string name="ok_response_code_get_matches">200</string>
+    <string name="ok_response_code_get_pos_matches">200</string>
+    <string name="ok_response_code_get_conversation">200</string>
+    <string name="ok_response_code_send_pos_match_interest">200</string>
 
     <string name="userName">name</string>   <!-- Json data Strings -->
     <string name="alias">alias</string>
@@ -37,8 +44,19 @@
     <string name="longitude">longitude</string>
     <string name="sex">sex</string>
     <string name="profilePhoto">photo_profile</string>
+    <string name="category">category</string>
+    <string name="value">value</string>
     <string name="location">location</string>
     <string name="interests">interests</string>
+    <string name="pos_match_count">count</string>
+    <string name="email_src">emailSrc</string>
+    <string name="email_dst">emailDst</string>
+    <string name="possible_matches">possibleMatches</string>
+    <string name="matches">matches</string>
+    <string name="conversation">conversation</string>
+    <string name="messages">messages</string>
+    <string name="msg">msg</string>
+    <string name="send_from">sendFrom</string>
 
     <!-- General Activity strings-->
     <string name="male_en">Male</string>
@@ -78,7 +96,7 @@
     <string name="send_message_button_en">Send</string>
     <string name="select_picture_en">Select Profile Picture</string>
 
-    <!-- PerfilActivity messages -->
+    <!-- ProfileActivity messages -->
     <string name="save_changes_button_en">SAVE CHANGES</string>
     <string name="profile_uploaded_en">Profile Uploaded</string>
 
@@ -90,12 +108,25 @@
     <string name="add_interest_title_en">Add Interest</string>
     <string name="show_sex_title_en">Show me:</string>
     <string name="prompt_enter_category_interest">Enter interest</string>
+    <string name="men">men</string>
+    <string name="women">women</string>
     <string name="men_en">Men</string>
     <string name="women_en">Women</string>
+    <string name="music_band_category">music/band</string>
+    <string name="music_category">music</string>
+    <string name="outdooors_category">outdoors</string>
+    <string name="sport_category">sport</string>
+    <string name="travel_category">travel</string>
+    <string name="food_category">food</string>
+    <string name="sex_category">sex</string>
 
     <!-- Strings in PrincipalAppActivity -->
     <string name="user_name_in_principal_app">Lucas</string>
+    <string name="sending_interest_en">Sending Interest</string>
+    <string name="no_match_found_alias_en">No Match Found</string>
+    <string name="no_more_pos_matches_available_en">"You have no more possible matches, please come back tomorrow"</string>
+    <string name="new_matches_en">YOU HAVE NEW MATCHES!</string>
+    <string name="no_possible_matches_are_available_en">No possible matches are available. Please touch the heart to get more!</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="description">Hola a todos. Me gusta el tango, el asado y la cumbia. No se jugar a la pelota pero se la formación completa de Almirante Brown. No tengo preferencias sexuales, me viene bien todo.</string>
 </resources>

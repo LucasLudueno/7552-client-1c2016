@@ -1,13 +1,11 @@
 package taller2.match_client;
 
 import android.app.AlertDialog;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,32 +23,52 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
+/* PrincipalAppActivity manage other Activities, possible matches, matches and conversations */
 public class PrincipalAppActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     /* Attributes */
     private AlertDialog internetDisconnectWindow;
+    private ProgressDialog connectingToServerWindow;
 
     private ImageView possibleMatchPhoto;
+    private TextView possibleMatchAlias;
     private CardView possibleMatchCard;
+    private Toast noMatchesAvailableInFront;
+    private Toast noMatchesAvailableForDay;
     private MatchManager matchManager;
     private JSONObject actualMatch = null;
+    private JSONObject noMatch = null;
+    //private ArrayList<JSONObject> possibleMatchesBuffer;
+    private PossibleMatchBuffer possibleMatchesBuffer;
+    private Base64Converter bs64;
 
-    private String userMail = "";
-    private int GET_MATCH_TIME = 100000;
+    private String userEmail = "";
+    protected static final int GET_MATCH_SLEEP_TIME = 120000;         // 2 min
+    protected static final int GET_POS_MATCH_SLEEP_TIME = 60000;      // 1 min
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 120000;  // 2 min
     protected static final int GET_MATCH_CODE = 1;
+    protected static final int GET_CONVERSATION_CODE = 2;
+    protected static final int GET_POS_MATCH_CODE = 3;
+    protected static final int MIN_POS_MATCHES_COUNT = 1;
+    protected static final int POS_MATCH_COUNT_TO_REQUEST = 2;
 
+
+    /*** MockServer ***/
+    MockServer mockServer;
+
+    /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,46 +78,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.principalAppToolbar);
         setSupportActionBar(toolbar);
 
-        // internetDisconnectWindows
-        internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
-        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
-
-        // Like Icon
-        FloatingActionButton likeIcon = (FloatingActionButton) findViewById(R.id.likeIcon);
-        likeIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //sendInterestOfPosMatch(getResources().getString(R.string.like_uri));
-            }
-        });
-
-        // Dont Like Icon
-        FloatingActionButton dontlikeIcon = (FloatingActionButton) findViewById(R.id.dontLikeIcon);
-        dontlikeIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //sendInterestOfPosMatch(getResources().getString(R.string.dont_like_uri));
-            }
-        });
-
-        // Match Icon
-        FloatingActionButton matchIcon = (FloatingActionButton) findViewById(R.id.matchIcon);
-        dontlikeIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*if (actualMatch == null) {
-                    String url = getResources().getString(R.string.server_ip);
-                    String uri = getResources().getString(R.string.get_pos_matches_uri);;
-                    String userEmail = matchManager.getUserEmail();
-                    SendGetPossibleMatchsTask getPossibleMatches = new SendGetPossibleMatchsTask();
-                    getPossibleMatches.execute("POST", url, uri, userEmail);
-                } else {
-                    updatePosMatch();
-                }*/
-            }
-        });
-
         // Drawer Layout
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -107,9 +85,11 @@ public class PrincipalAppActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        // Navigation View
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        // Help Windows
+        createHelpWindows();
+
+        // Views
+        instantiateViews();
 
         // Match photo. Set Size.
         Display display = getWindowManager().getDefaultDisplay();
@@ -124,110 +104,124 @@ public class PrincipalAppActivity extends AppCompatActivity
         possibleMatchCard = (CardView)findViewById(R.id.card_view);
         possibleMatchCard.getLayoutParams().height = (6 * height) / 10;
 
+        possibleMatchAlias = (TextView)findViewById(R.id.possibleMatchAlias);
+
         // UserMail
-        // TODO: SACAR USER MAIL DE MATCHMANAGER O DE ARCHIVO??
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            userEmail = bundle.getString(getResources().getString(R.string.email));
+        }
 
-        // GetMatch Timer
-        //new Thread(new GetMatches()).start();
+        // Possible Matches
+        possibleMatchesBuffer = new PossibleMatchBuffer();
 
-        // TODO: TEST: SOLO POR AHORA CREAMOS LOS ARCHIVOS INICIALES DE CONVERSACIONES Y MATCHES
+        // Base64 Converter
+        bs64 = new Base64Converter();
 
-        /*try {
-            // matches
-            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"tristelme\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"algoritmo\",\"email\":\"fede@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"el matero loco\",\"email\":\"eze@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-
+        // No match
+        noMatch = new JSONObject();
+        try {
+            noMatch.put(getResources().getString(R.string.alias), getResources().getString(R.string.no_match_found_alias_en));
             Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
-            Base64Converter bs64 = new Base64Converter();
             String base64 = bs64.bitmapToBase64(photodefault);
-            seba.put(getResources().getString(R.string.profilePhoto), base64);
-            fede.put(getResources().getString(R.string.profilePhoto), base64);
-            eze.put(getResources().getString(R.string.profilePhoto), base64);
-
-            JSONArray match_array = new JSONArray();
-            match_array.put(seba);
-            match_array.put(fede);
-            match_array.put(eze);
-
-            JSONObject matches = new JSONObject();
-            matches.put("matches",match_array); // array de matches
-
-            FileManager fm = new FileManager(getApplicationContext());
-            try {
-                fm.writeFile("matches_lucas@gmail.com",String.valueOf(matches));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            // conversaciones
-            JSONObject seba_conv = new JSONObject();
-            JSONObject fede_conv = new JSONObject();
-            JSONObject eze_conv = new JSONObject();
-
-            JSONObject seba_msg1 = new JSONObject("{\"sendFrom\":\"seba@gmail.com\",\"msg\":\"hola soy seba\"}");
-            JSONObject seba_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-            JSONObject fede_msg1 = new JSONObject("{\"sendFrom\":\"fede@gmail.com\",\"msg\":\"hola soy fede\"}");
-            JSONObject fede_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-            JSONObject eze_msg1 = new JSONObject("{\"sendFrom\":\"eze@gmail.com\",\"msg\":\"hola soy eze\"}");
-            JSONObject eze_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-
-            JSONArray seba_msg = new JSONArray();
-            seba_msg.put(seba_msg1);
-            seba_msg.put(seba_msg2);
-            JSONArray fede_msg = new JSONArray();
-            fede_msg.put(fede_msg1);
-            fede_msg.put(fede_msg2);
-            JSONArray eze_msg = new JSONArray();
-            eze_msg.put(eze_msg1);
-            eze_msg.put(eze_msg2);
-
-            seba_conv.put("email","seba@gmail.com");
-            seba_conv.put("messages",seba_msg);
-            fede_conv.put("email","fede@gmail.com");
-            fede_conv.put("messages",fede_msg);
-            eze_conv.put("email", "eze@gmail.com");
-            eze_conv.put("messages",eze_msg);
-
-            JSONArray conversations = new JSONArray();
-            conversations.put(seba_conv);
-            conversations.put(fede_conv);
-            conversations.put(eze_conv);
-
-            JSONObject conversation_total = new JSONObject();
-            conversation_total.put("conversations",conversations);
-
-            try {
-                fm.writeFile("conversations_lucas@gmail.com",String.valueOf(conversation_total));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //TextView descrip = (TextView)findViewById(R.id.possibleMatchDescription);
-            //descrip.setText(String.valueOf(conversation_total));
-
+            noMatch.put(getResources().getString(R.string.profilePhoto), base64);
         } catch (JSONException e) {
             e.printStackTrace();
-        }*/
+        }
+
+        // User photo and alias in NavHead
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        View hView =  navigationView.getHeaderView(0);
+        ImageView userPhoto = (ImageView) hView.findViewById(R.id.userPhotoInPrincipalApp);
+        TextView userAlias = (TextView) hView.findViewById(R.id.userAliasInPrincipalApp);
+
+        JSONObject profile = null;
+        String alias = "";
+        String userPhotoInB64 = "";
+        try {
+            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
+            alias = profile.getString(getResources().getString(R.string.alias));
+            userPhotoInB64 = profile.getString(getResources().getString(R.string.profilePhoto));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Base64Converter bs64 = new Base64Converter();
+        Bitmap userPhotoBitmap = MatchListAdapter.getRoundedShape(bs64.Base64ToBitmap(userPhotoInB64), 200);
+        userPhoto.setImageBitmap(userPhotoBitmap);  // Set Profile Photo
+        userAlias.setText(alias);                   // Set Alias
 
         /*** Match Manager: load saved matches and conversations ***/
-        /*matchManager = MatchManager.getInstance();
-        matchManager.setData(getApplicationContext(), "matches_lucas@gmail.com", "conversations_lucas@gmail.com", "lucas@gmail.com");*/
+        matchManager = MatchManager.getInstance();
+        String conversationFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
+        String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
+        //matchManager.setData(getApplicationContext(), matchFileName, conversationFileName, userEmail);
+        matchManager.setData(getApplicationContext(), "", "", userEmail);   // TODO: PARA QUE NO QUEDEN GUARDADOS LOS MATCH
+
+        // Timers
+        new Thread(new GetMatches()).start();
+        new Thread(new GetConversations()).start();
+        new Thread(new GetPossibleMatches()).start();
+
+        // Update
+        //updatePosMatch();
+
+        /*** Mock Server***/
+        mockServer = MockServer.getInstance();
     }
 
-    /* Check internet connection */
-    private boolean checkConection() {
-        ConnectivityManager connectManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+    /* Create windows that are showed to users to comunicate something (error, information) */
+    private void createHelpWindows() {
+        // internetDisconnectWindows
+        internetDisconnectWindow = new AlertDialog.Builder(this).create();
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
 
-        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {
-            return true;
-        }
-        return false;
+        // loadingWindow
+        connectingToServerWindow = new ProgressDialog(this);
+        connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
+        connectingToServerWindow.setMessage(getResources().getString(R.string.sending_interest_en));
+
+        // Toast
+        noMatchesAvailableInFront = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_possible_matches_are_available_en), Toast.LENGTH_LONG);
+        noMatchesAvailableForDay = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_more_pos_matches_available_en), Toast.LENGTH_LONG);
     }
 
-    @Override /* Close drawer if its open */
+    /* Instantiate views inside Activity and keep it in attibutes */
+    private void instantiateViews() {
+        // Like Icon
+        FloatingActionButton likeIcon = (FloatingActionButton) findViewById(R.id.likeIcon);
+        likeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendInterestOfPosMatchToServer(getResources().getString(R.string.like_uri));
+            }
+        });
+
+        // Dont Like Icon
+        FloatingActionButton dontlikeIcon = (FloatingActionButton) findViewById(R.id.dontLikeIcon);
+        dontlikeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendInterestOfPosMatchToServer(getResources().getString(R.string.dont_like_uri));
+            }
+        });
+
+        // Match Icon
+        FloatingActionButton matchIcon = (FloatingActionButton) findViewById(R.id.matchIcon);
+        matchIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendGetPossibleMatchRequestToServer();
+                updatePosMatch();
+            }
+        });
+    }
+
+    /* Close drawer if its open */
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -247,7 +241,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         startActivity(finishAplication);
     }
 
-    /*  */
+    /* Inflate Menu when menu button is pressed */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -255,7 +249,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         return true;
     }
 
-    /* Handle menu item click */
+    /* Handle menu item clicks */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -270,7 +264,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /* Handle navigation view item clicks and create Activities */
+    /* Handle navigation view item clicks and then create Activities */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -282,7 +276,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         } else if (id == R.id.nav_information) {
 
         } else if (id == R.id.nav_perfil) {
-            Intent startProfileActivity = new Intent(this, PerfilActivity.class);
+            Intent startProfileActivity = new Intent(this, ProfileActivity.class);
             startProfileActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startProfileActivity);
         } else if (id == R.id.nav_chat) {
@@ -295,119 +289,240 @@ public class PrincipalAppActivity extends AppCompatActivity
         return true;
     }
 
+    /* Update photo and alias of possible match. If possible match buffer is empty,
+     * no_match user is setted */
+    private void updatePosMatch() {
+        if (possibleMatchesBuffer.size() > 0) {
+            possibleMatchCard.setVisibility(View.VISIBLE);
+            Random r = new Random();
+            int random = r.nextInt(possibleMatchesBuffer.size());
 
-    /*  */
-    private void sendInterestOfPosMatch(String sendUri) {
-        if (actualMatch == null) {
-            // TODO: INFORMAR QUE NO HAY MATCH
+            if (actualMatch != null) {
+                possibleMatchesBuffer.add(actualMatch);
+            }
+            actualMatch = possibleMatchesBuffer.get(random);
+            possibleMatchesBuffer.remove(random);
+        } else {
+            if (actualMatch == null) {
+                possibleMatchCard.setVisibility(View.INVISIBLE);
+            }
             return;
         }
-        if (checkConection()) {
+
+        // set possible match on Principal Card
+        try {
+            possibleMatchPhoto.setImageBitmap(bs64.Base64ToBitmap(actualMatch.getString(getResources().getString(R.string.photoProfile))));
+            possibleMatchAlias.setText(actualMatch.getString(getResources().getString(R.string.alias)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* Send a Get request to Server asking if there are more possible match if we have more than
+     * MIN_POS_MATCHES_COUNT. In other case,updatePosMatch function is called */
+    private void sendGetPossibleMatchRequestToServer() {
+        // construct possible match request
+        JSONObject posMatchRequest = new JSONObject();
+        try {
+            posMatchRequest.put(getResources().getString(R.string.email), userEmail);
+            posMatchRequest.put(getResources().getString(R.string.pos_match_count), POS_MATCH_COUNT_TO_REQUEST);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // send request if there are not possible matches
+        if (possibleMatchesBuffer.size() <= MIN_POS_MATCHES_COUNT) {
+                    /*if (ActivityHelper.checkConection(getApplicationContext())) {
+                        String url = getResources().getString(R.string.server_ip);
+                        String uri = getResources().getString(R.string.get_pos_matches_uri);;
+                        SendGetPossibleMatchsTask getPossibleMatches = new SendGetPossibleMatchsTask();
+                        getPossibleMatches.execute("POST", url, uri, posMatchRequest.toString());
+                    } else {
+                        internetDisconnectWindow.show();
+                    }*/
+            checkGetPosMatchResponseFromServer(mockServer.getPossibleMatches(posMatchRequest.toString()));
+        } /*else {
+            updatePosMatch();
+        }*/
+    }
+
+    /* When user touch like or dont like icon, if there is a possible match on screen,
+     * interest request is send to Server */
+    private void sendInterestOfPosMatchToServer(String sendUri) {
+        if (actualMatch == null) {
+            noMatchesAvailableInFront.show();
+            return;
+        }
+        //if (ActivityHelper.checkConection(getApplicationContext())) {
+            JSONObject interestMatches = new JSONObject();
             String pos_match_email = "";
             try {
                 pos_match_email = actualMatch.getString(getResources().getString(R.string.email));
+                interestMatches.put(getResources().getString(R.string.email_src),userEmail);
+                interestMatches.put(getResources().getString(R.string.email_dst), pos_match_email);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String url = getResources().getString(R.string.server_ip);
+            connectingToServerWindow.show();
+            /*String url = getResources().getString(R.string.server_ip);
             String uri = sendUri;
             SendInterestOfPosMatchTask sendPosMatchInterest = new SendInterestOfPosMatchTask();
-            sendPosMatchInterest.execute("POST", url, uri, pos_match_email);   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
-        } else {
-            internetDisconnectWindow.show();
-        }
+            sendPosMatchInterest.execute("POST", url, uri, pos_match_email);*/
+            checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));
+        //} else {
+            //internetDisconnectWindow.show();
+        //}
     }
 
-    /*  */
-    private void checkPosMatchResponse(String response) {   // TODO: PENSAR QUE PASA SI AL MISMO TIEMPO APRETAMOS UPDATE...
-        String responseCode = response.split(":")[0];       // TODO: SOLUCIÓN: CAMBIO AUTOMÁTICO...
-        String responseMessage = response.split(":")[1];
+    /* Check response from Server after sending possible match interest. If response is ok
+     * actual possible match is remove and updatePosMatch is called */
+    private void checkInterestPosMatchResponseFromServer(String response) {
+        String responseCode = response.split(":", 2)[0];
+        String responseMessage = response.split(":", 2)[1];
+        connectingToServerWindow.dismiss();
 
-        if (responseCode.compareTo("201") == 0) {   // TODO: CHECKEAR CODIGO CON EZE
-            String pos_match_email = null;
-            try {
-                pos_match_email = actualMatch.getString(getResources().getString(R.string.email));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            matchManager.removePossibleMatch(pos_match_email);
+        if (responseCode.compareTo(getResources().getString(R.string.ok_response_code_send_pos_match_interest)) == 0) {
+            //possibleMatchesBuffer.remove(actualMatch);
+            actualMatch = null;   //TODO: DESREFERENCIO, ALGUNA FORMA DE BORRARLO ?
             updatePosMatch();
         }
     }
 
-    /*  */
-    private void checkGetPosMatchResponse(String response) {
-        String responseCode = response.split(":")[0];
-        String responseMessage = response.split(":")[1];
+    /* Check response from Server after sending get possible matches request. If new pos matches are
+     * received this ones are saving into buffer. */
+    private void checkGetPosMatchResponseFromServer(String response) {
+        String responseCode = response.split(":", 2)[0];
+        String possibleMatches = response.split(":", 2)[1];
 
-        if (responseCode.compareTo("201") == 0) {
+        if (responseCode.compareTo(getResources().getString(R.string.ok_response_code_get_pos_matches)) == 0) {
             try {
-                JSONArray posMatchArray = new JSONArray(responseMessage);
-                matchManager.addPossibleMatches(posMatchArray);
+                JSONObject possibleMatchesjson = new JSONObject(possibleMatches);
+                JSONArray posMatchArray = possibleMatchesjson.getJSONArray(getResources().getString(R.string.possible_matches));
+
+                for (int i = 0; i < posMatchArray.length(); ++i) {
+                    JSONObject posMatch = posMatchArray.getJSONObject(i);
+                    this.possibleMatchesBuffer.add(posMatch);
+                }
+
+                if (actualMatch == null && possibleMatchesBuffer.size() > 0) {
+                    updatePosMatch();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            updatePosMatch();
         }
     }
 
-    /*  */
-    private void checkGetMatchResponse(String response) {
-        internetDisconnectWindow.setMessage(response);
-        internetDisconnectWindow.show();
-    };
+    /* Check response from Server after sending get matches request. If new matches are
+    * received, MatchManager keep this ones. */
+    private void checkGetMatchResponseFromServer(String response) {
+        String responseCode = response.split(":", 2)[0];
+        String matches = response.split(":", 2)[1];
 
-
-    /*  */
-    private void updatePosMatch() {
-        actualMatch = matchManager.getPossibleMatch();
-        if (actualMatch == null) {
-            // TODO: INFORMAR QUE NO HAY MÁS MATCHS O PEDIR MÁS MATCHS
-        } else {
-            // TODO: CARGAR NUEVO MATCH EN PATANLLA PRINCIPAL
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            JSONObject matchData = null;
+            JSONArray matchesArray = null;
+            try {
+                matchData = new JSONObject(matches);
+                matchesArray = matchData.getJSONArray(getResources().getString(R.string.matches));
+                for (int i = 0; i < matchesArray.length(); ++i) {
+                    JSONObject match = matchesArray.getJSONObject(i);
+                    matchManager.addMatch(match);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (matchesArray.length() > 0) {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.new_matches_en),
+                        Toast.LENGTH_LONG).show();
+            }
         }
     }
 
+    /* Check response from Server after sending get conversation request. If new conversations are
+    * received, MatchManager keep this ones. */
+    private void checkGetConversationResponseFromServer(String response) {
+        String responseCode = response.split(":", 2)[0];
+        String conversation = response.split(":", 2)[1];
 
-    // TODO: AGRUPAR ESTAS CLASES DE ALGUNA MANERA: DEVOLVIENDO CÓDIGO DE OPERACION Y ASIGNANDOLO AL CREAR LA CLASE O INVOCARLA.
-    // TODO: CHECKEAR SI SE PUEDE TENER SOLO UNA INSTACIA...
-    /*  */
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            JSONObject conversationJson = null;
+            try {
+                conversationJson = new JSONObject(conversation);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            matchManager.addConversation(conversationJson);
+        }
+    }
+
+    /* Send Interest of possible match to Server */
     private class SendInterestOfPosMatchTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
-            checkPosMatchResponse(dataGetFromServer);
+            checkInterestPosMatchResponseFromServer(dataGetFromServer);
         }
     }
 
-    /*  */
+    /* Send get possible match request to Server */
     private class SendGetPossibleMatchsTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer) {
-            checkGetPosMatchResponse(dataGetFromServer);
+            checkGetPosMatchResponseFromServer(dataGetFromServer);
         }
     }
 
-    /*  */
+    /* Send get match request to Server */
     private class SendGetMatchsTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer) {
-            checkGetMatchResponse(dataGetFromServer);
+            checkGetMatchResponseFromServer(dataGetFromServer);
         }
     }
 
-    /*  */
-    Handler matchManagerHandler = new Handler() {
+    /* Thread Handler, handle get match and get conversation events */
+    Handler matchManagerHandler = new Handler() { // TODO: RECOMENDACION DE STATIC ?? MUTEX ?
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case GET_MATCH_CODE:
+                case GET_MATCH_CODE:    // Send Get match request to Server
                     //SendGetMatchsTask getMatchs = new SendGetMatchsTask();
+                    JSONObject userMailJson = new JSONObject();
+                    try {
+                        userMailJson.put(getResources().getString(R.string.email), userEmail);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    checkGetMatchResponseFromServer(mockServer.getMatches(userMailJson.toString()));
+                    break;
+                case GET_CONVERSATION_CODE: // Send Get conversation request to Server
+                    List<JSONObject> matches = matchManager.getMatches();
+                    for (int i = 0; i < matches.size(); ++i){
+                        JSONObject match = matches.get(i);
+                        String matchEmail = "";
+                        JSONObject convRequest = new JSONObject();
+                        try {
+                            matchEmail = match.getString(getResources().getString(R.string.email));
+                            convRequest.put(getResources().getString(R.string.email_src),
+                                    matchEmail);
+                            convRequest.put(getResources().getString(R.string.email_dst),
+                                    userEmail);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        //SendGetMatchsTask getMatchs = new SendGetMatchsTask();
+                        checkGetConversationResponseFromServer(
+                                mockServer.getConversation(convRequest.toString()));
+                    }
+                    break;
+                case GET_POS_MATCH_CODE: // Send Get Possible Match request to Server
+                    sendGetPossibleMatchRequestToServer();
                     break;
             }
             super.handleMessage(msg);
         }
     };
 
-    /*  */
+    /* Get Matches Thread. After a time send get matches request to Server */
     class GetMatches implements Runnable {
         public void run() {
             while (! Thread.currentThread().isInterrupted()) {
@@ -416,7 +531,41 @@ public class PrincipalAppActivity extends AppCompatActivity
                 PrincipalAppActivity.this.matchManagerHandler.sendMessage(message);
 
                 try {
-                    Thread.sleep(GET_MATCH_TIME);
+                    Thread.sleep(GET_MATCH_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    /* Get Conversations Thread. After a time send get conversation request to Server */
+    class GetConversations implements Runnable {
+        public void run() {
+            while (! Thread.currentThread().isInterrupted()) {
+                Message message = new Message();
+                message.what = GET_CONVERSATION_CODE;
+                PrincipalAppActivity.this.matchManagerHandler.sendMessage(message);
+
+                try {
+                    Thread.sleep(GET_CONVERSATION_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    /* Get Matches Thread. After a time send get matches request to Server */
+    class GetPossibleMatches implements Runnable {
+        public void run() {
+            while (! Thread.currentThread().isInterrupted()) {
+                Message message = new Message();
+                message.what = GET_POS_MATCH_CODE;
+                PrincipalAppActivity.this.matchManagerHandler.sendMessage(message);
+
+                try {
+                    Thread.sleep(GET_POS_MATCH_SLEEP_TIME);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

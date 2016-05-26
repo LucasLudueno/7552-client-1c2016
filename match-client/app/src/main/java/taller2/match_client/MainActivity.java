@@ -1,38 +1,23 @@
 package taller2.match_client;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 /* MainActivity manage the Login. When the user login, check with the server login information */
 public class MainActivity extends AppCompatActivity {
@@ -47,8 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText userPasswordView;
     private Button login;
     private Button register;
-    private String userMail;
+    private String userEmail;
     private String userPassword;
+
+    /***MockServer***/
+    private MockServer mockServer;
 
     /* On create Activity */
     @Override
@@ -63,6 +51,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
 
+        // Help Windows
+        createHelpWindows();
+
+        // Views
+        instantiateViews();
+
+        /*** MockServer ***/
+        mockServer = MockServer.getInstance();
+        mockServer.initialize(getApplicationContext());
+        userMailView.setText("lucas@gmail.com");
+    }
+
+    /* Create windows that are showed to users to comunicate something (error, information) */
+    private void createHelpWindows() {
         // emailWrongFormatWindow
         wrongMailWindow = new AlertDialog.Builder(this).create();
         wrongMailWindow.setTitle(getResources().getString(R.string.mail_wrong_format_error_title_en));
@@ -87,7 +89,10 @@ public class MainActivity extends AppCompatActivity {
         loadingWindow = new ProgressDialog(this);
         loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
         loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
+    }
 
+    /* Instantiate views inside Activity and keep it in attibutes */
+    private void instantiateViews() {
         // Login Button
         login = (Button)findViewById(R.id.loginButton);
         login.setOnClickListener(new View.OnClickListener() {
@@ -113,24 +118,24 @@ public class MainActivity extends AppCompatActivity {
 
     /* When an user login, if the userName and the password are correct (that is checked with Server) PrincipalAppActivity is created. */
     private void loginOnClick(View v) {
-        userMail = userMailView.getText().toString();
+        userEmail = userMailView.getText().toString();
         userPassword = userPasswordView.getText().toString();
 
         // check formats
-        /*if (!checkFormatFields()) {
+        if (!checkFormatFields()) {
             return;
-        }*/
+        }
 
         // construct json login
+        JSONObject data = new JSONObject();
         try {
-            JSONObject data = new JSONObject();
             data.put(getResources().getString(R.string.password), userPassword);
-            data.put(getResources().getString(R.string.email), userMail);
+            data.put(getResources().getString(R.string.email), userEmail);
         } catch (JSONException e) {
             // ERROR
             // LOG
         }
-        /*if ( checkConection() ){
+        /*if ( ActivityHelper.checkConection() ){
             loadingWindow.show();
             String url = getResources().getString(R.string.server_ip);
             String uri = getResources().getString(R.string.login_uri);
@@ -139,7 +144,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             internetDisconnectWindow.show();
         }*/
-        checkLoginResponse("200:ok");
+
+        /*** MockServer ***/
+        checkLoginResponseFromServer(mockServer.Login(data));
     }
 
     /* When user registers, RegisterActivity is created */
@@ -166,69 +173,35 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /* Check internet connection */
-    private boolean checkConection() {
-        ConnectivityManager connectManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {
-            return true;
-        }
-        return false;
-    }
-
     /* Return true if the format of fields is correct */
     private boolean checkFormatFields() {
-        if (userMail.isEmpty() || userPassword.isEmpty()) {
+        if (userEmail.isEmpty() || userPassword.isEmpty()) {
             emptyFieldsWindow.show();
             return false;
         }
-        if (!checkEmailFormat(userMail)) {
+        if (!ActivityHelper.checkEmailFormat(userEmail)) {
             wrongMailWindow.show();
             return false;
         }
         return true;
     }
 
-    /* Return true if the mail format is correct */
-    public static boolean checkEmailFormat (String email) {
-        String format = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        Pattern pattern = Pattern.compile(format);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
     /* Check login response from Server */
-    private void checkLoginResponse(String response) {
+    private void checkLoginResponseFromServer(String response) {
         loadingWindow.dismiss();
-        String responseCode = response.split(":")[0];
-        String responseMessage = response.split(":")[1];
+        String responseCode = response.split(":", 2)[0];
+        String profile = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
             // update profile
             try {
-                FileManager fm = new FileManager(this);
-                //JSONObject profile = new JSONObject(response);    //TODO: ESTO POR AHORA...
-                JSONObject profile = new JSONObject("{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"interests\":[],\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"milito\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
-                Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.wallpaper);
-                Base64Converter bs64 = new Base64Converter();
-                String base64 = bs64.bitmapToBase64(photodefault);
-                profile.put(getResources().getString(R.string.profilePhoto), base64);
-
-                String profileString = String.valueOf(profile);
-                try {
-                    fm.writeFile(getResources().getString(R.string.profile_filename), profileString);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                //fm.writeFile("profile.json", responseMessage); // ESTA ES LA QUE VA
-
-            } catch (JSONException e) {
+                FileManager.writeFile(getResources().getString(R.string.profile_filename), profile, getApplicationContext());
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             // start principal aplication
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
             this.finish();
         } else {
@@ -240,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     private class SendLoginTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
-            checkLoginResponse(dataGetFromServer);
+            checkLoginResponseFromServer(dataGetFromServer);
         }
     }
 }
@@ -263,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 // TODO: AGRUPAR RIGHT Y LEFT MSG ??
 // TODO: FONDO DE PANTALLA A CHAT ??
 // TODO: AGRUPAR PERFIL Y REGISTER ??
-
+// TODO: CHECKEAR REQUEST NO JSON... POR EL HEADER...
 
 // NECESARIO
 // TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS

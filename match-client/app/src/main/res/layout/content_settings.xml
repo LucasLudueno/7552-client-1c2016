@@ -185,7 +185,7 @@
                 android:layout_height="@dimen/button_med_hight_height_margin"
                 android:paddingLeft="@dimen/button_med_padding_margin"
                 android:paddingRight="@dimen/button_med_padding_margin"
-                android:layout_marginTop="@dimen/text_margin"
+                android:layout_marginTop="5dp"
                 android:layout_marginBottom="20dp"
                 android:textColor="#ffffff"
                 android:background="@drawable/blue_button"

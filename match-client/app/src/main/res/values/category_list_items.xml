@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="category_list_items">
-        <item>MusicBand</item>
-        <item>Music</item>
-        <item>Travel</item>
-        <item>Food</item>
-        <item>Outdoors</item>
-        <item>Sport</item>
+        <item>music/band</item>
+        <item>music</item>
+        <item>travel</item>
+        <item>food</item>
+        <item>outdoors</item>
+        <item>sport</item>
     </string-array>
     
 </resources>

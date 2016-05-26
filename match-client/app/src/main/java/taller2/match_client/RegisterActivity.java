@@ -1,26 +1,15 @@
 package taller2.match_client;
 
-import android.Manifest;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -30,20 +19,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+/* RegisterActivity manage the Register. When the user register, check with the server if the email already exist and
+ * if don't, the user is register. */
 public class RegisterActivity extends AppCompatActivity {
 
     /* Attributes */
@@ -69,11 +53,10 @@ public class RegisterActivity extends AppCompatActivity {
     private String userName;
     private String userPassword;
     private String userRealName;
-    private String userMail;
+    private String userEmail;
     private String userBirthday;
     private String latitude = "";
     private String longitude = "";
-
     private JSONObject registerData;
 
     /* On create Activity */
@@ -90,6 +73,45 @@ public class RegisterActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Help Windows
+        createHelpWindows();
+
+        // Views
+        instantiateViews();
+
+        // Location Manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                latitude = Double.toString(location.getLatitude());
+                longitude = Double.toString(location.getLongitude());
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d("Latitude", "disable");
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d("Latitude","enable");
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d("Latitude","status");
+            }
+        };
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
+        } catch (SecurityException e) {
+            // LOG - ERROR
+        }
+    }
+
+    /* Create windows that are showed to users to comunicate something (error, information) */
+    private void createHelpWindows() {
         // wrongFieldsWindow
         wrongBirthdayWindow = new AlertDialog.Builder(this).create();
         wrongBirthdayWindow.setTitle(getResources().getString(R.string.birthdate_wrong_format_error_title_en));
@@ -119,7 +141,10 @@ public class RegisterActivity extends AppCompatActivity {
         connectingToServerWindow = new ProgressDialog(this);
         connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
         connectingToServerWindow.setMessage(getResources().getString(R.string.reg_processing_en));
+    }
 
+    /* Instantiate views inside Activity and keep it in attibutes */
+    private void instantiateViews() {
         // Continue Button
         continueRegButton = (Button) findViewById(R.id.ContinueRegisterButton);
         continueRegButton.setOnClickListener(new View.OnClickListener() {
@@ -157,35 +182,6 @@ public class RegisterActivity extends AppCompatActivity {
         userMailView = (EditText) findViewById(R.id.userMail);
         userBirthdayView = (EditText) findViewById(R.id.userBirthdate);
 
-        // Location Manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                latitude = Double.toString(location.getLatitude());
-                longitude = Double.toString(location.getLongitude());
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Log.d("Latitude", "disable");
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.d("Latitude","enable");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.d("Latitude","status");
-            }
-        };
-        try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
-        } catch (SecurityException e) {
-            // LOG - ERROR
-        }
     }
 
     /* This function check fields format and if its ok, send the register information to Server to check it.
@@ -194,7 +190,7 @@ public class RegisterActivity extends AppCompatActivity {
         userName = userNameView.getText().toString();
         userPassword = userPasswordView.getText().toString();
         userRealName = userRealNameView.getText().toString();
-        userMail = userMailView.getText().toString();
+        userEmail = userMailView.getText().toString();
         userBirthday = userBirthdayView.getText().toString();
 
         // check format fields
@@ -204,7 +200,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // check latitude and longitude
         if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
-            //internetDisconnectWindow.show();
+            internetDisconnectWindow.show();
             return;
         }
 
@@ -223,7 +219,7 @@ public class RegisterActivity extends AppCompatActivity {
             registerData.put(getResources().getString(R.string.alias), userName);
             registerData.put(getResources().getString(R.string.password), userPassword);
             registerData.put(getResources().getString(R.string.userName), userRealName);
-            registerData.put(getResources().getString(R.string.email), userMail);
+            registerData.put(getResources().getString(R.string.email), userEmail);
             registerData.put(getResources().getString(R.string.birthday), userBirthday);
             registerData.put(getResources().getString(R.string.sex), userSex);
 
@@ -231,11 +227,11 @@ public class RegisterActivity extends AppCompatActivity {
             JSONObject location = new JSONObject();
             location.put(getResources().getString(R.string.latitude),latitude);
             location.put(getResources().getString(R.string.longitude), longitude);
-            registerData.put("location",location);
+            registerData.put(getResources().getString(R.string.location),location);
 
             // interests
             JSONArray interestEmptyList = new JSONArray();
-            registerData.put("interests",interestEmptyList);
+            registerData.put(getResources().getString(R.string.interests),interestEmptyList);
 
             // profile photo
             Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
@@ -247,7 +243,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // send registerData
-        if ( checkConection() ){
+        if ( ActivityHelper.checkConection(getApplicationContext()) ){
             connectingToServerWindow.show();
             String url =  getResources().getString(R.string.server_ip);;
             String uri = getResources().getString(R.string.register_uri);
@@ -264,18 +260,18 @@ public class RegisterActivity extends AppCompatActivity {
         if (userName.isEmpty() ||
                 userPassword.isEmpty() ||
                 userRealName.isEmpty() ||
-                userMail.isEmpty() ||
+                userEmail.isEmpty() ||
                 userBirthday.isEmpty() ||
                 (!userFemaleView.isChecked() && !userMaleView.isChecked()) ) {
 
             emptyFieldsWindow.show();
             return false;
         }
-        if (!checkEmailFormat(userMail)) {
+        if (!ActivityHelper.checkEmailFormat(userEmail)) {
             wrongMailWindow.show();
             return false;
         }
-        if (!checkDateFormat(userBirthday)) {
+        if (!ActivityHelper.checkDateFormat(userBirthday)) {
             wrongBirthdayWindow.show();
             return false;
         }
@@ -298,33 +294,19 @@ public class RegisterActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /* Check internet connection */
-    private boolean checkConection() {
-        ConnectivityManager connectManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo networkInfo = connectManager.getActiveNetworkInfo();
-        if ((networkInfo != null && networkInfo.isConnected()) ) {
-            return true;
-        }
-        return false;
-    }
-
     /* Check register response from Server. Response includes responseCode and responseMessage*/
-    private void checkRegisterResponse(String response) {
+    private void checkRegisterResponseFromServer(String response) {
         connectingToServerWindow.dismiss();
-        String responseCode = response.split(":")[0];
-        String responseMessage = response.split(":")[1];
+        String responseCode = response.split(":", 2)[0];
+        String responseMessage = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
             // save registerdata in file
-            FileManager fm = new FileManager(this);
             try {
-                fm.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(registerData));
+                FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(registerData), getApplicationContext());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             // start principal activity
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startAppActivity.setAction(Intent.ACTION_MAIN);
@@ -333,37 +315,21 @@ public class RegisterActivity extends AppCompatActivity {
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
 
             // Finish actual activity
             this.finish();
         } else {
-            userMailExistWindow.setTitle(response); // TODO: Only for now...
             userMailExistWindow.show();
         }
-    }
-
-    /* Return true if the date format is correct (dd/mm/yyyy) */
-    public static boolean checkDateFormat(String date) {
-        String format = "^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$";
-        Pattern pattern = Pattern.compile(format);
-        Matcher matcher = pattern.matcher(date);
-        return matcher.matches();
-    }
-
-    /* Return true if the mail format is correct */
-    public static boolean checkEmailFormat (String email) {
-        String format = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        Pattern pattern = Pattern.compile(format);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
     }
 
     /* This class send the register to Server */
     private class SendRegisterTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
-            checkRegisterResponse(dataGetFromServer);
+            checkRegisterResponseFromServer(dataGetFromServer);
         }
     }
 }

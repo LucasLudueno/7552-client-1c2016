@@ -37,7 +37,7 @@ tools:showIn="@layout/app_bar_principal_app">
                     android:scaleType="fitCenter" />
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/possibleMatchAlias"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
@@ -45,16 +45,7 @@ tools:showIn="@layout/app_bar_principal_app">
                     android:textColor="#222"
                     android:textStyle="bold"
                     android:textSize="16dp"
-                    android:maxLines="3" />
-
-                <TextView
-                    android:id="@+id/possibleMatchDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="@string/description"
-                    android:textColor="#666"
-                    android:textSize="14dp" />
+                    android:maxLines="2" />
             </LinearLayout>
 
         </ScrollView>

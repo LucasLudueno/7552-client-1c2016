@@ -1,58 +1,55 @@
 package taller2.match_client;
 
 import android.content.Context;
-import android.os.Parcelable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-
-/*  */
+/* Match Manager, manage usar matches and conversations with th */
 public class MatchManager {
+    /* Attributes */
     private static final MatchManager matchManager = new MatchManager();
-    private Lock mutex;
+    private ReentrantLock mutex_conversations;
+    private ReentrantLock mutex_matches;
     private HashMap<String, ChatConversation> conversations;
     private HashMap<String, JSONObject> matches;
     private HashMap<String, JSONObject> possibleMatches;
     private Context androidContext;
     private String userEmail;
+    private MatchListAdapter matchListAdapter; // TODO: PENSAR SI LA USAMOS...
 
     MatchManager() {
         conversations = new HashMap<String, ChatConversation>();
         matches = new HashMap<String, JSONObject>();
         possibleMatches = new HashMap<String, JSONObject>();
+        mutex_matches = new ReentrantLock();
+        mutex_conversations = new ReentrantLock();
     }
 
-    /*  */
+    /* Return an instance */
     public static MatchManager getInstance() {
         return matchManager;
     }
 
-    /*  */
+    /* Initizalize. Charge matches and conversation saved in files. */
     public void setData(Context context, String matchFile, String conversationsFile, String userMail) {
         androidContext = context;
         userEmail = userMail;
-        FileManager fileManager = new FileManager(androidContext);
         String matchList = "";
         String conversationsList = "";
         try {
             // read files
-            matchList = fileManager.readFile(matchFile);
-            conversationsList = fileManager.readFile(conversationsFile);
+            matchList = FileManager.readFile(matchFile, context);
+            conversationsList = FileManager.readFile(conversationsFile, context);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,23 +73,24 @@ public class MatchManager {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    /*  */
+    /* Add match */
     public void addMatch(JSONObject matchData) throws JSONException {
         String email = "";
         email = matchData.getString(androidContext.getResources().getString(R.string.email));
         ChatConversation conversation = new ChatConversation(androidContext, R.layout.right_msg_chat);
-        conversations.put(email, conversation);
-        matches.put(email, matchData);
+
+        mutex_conversations.lock();
+            conversations.put(email, conversation);
+        mutex_conversations.unlock();
+
+        mutex_matches.lock();
+            matches.put(email, matchData);
+        mutex_matches.unlock();
     }
 
-    /*  */
+    /* Add possible match */
     public void addPossibleMatches(JSONArray possibleMatchList) throws JSONException {
         for (int i = 0; i < possibleMatchList.length(); ++i) {
             JSONObject possibleMatch = possibleMatchList.getJSONObject(i);
@@ -101,7 +99,7 @@ public class MatchManager {
         }
     }
 
-    /*  */
+    /* Remove possible match */
     public boolean removePossibleMatch(String pmEmail) {
         if (possibleMatches.containsKey(pmEmail)) {
             possibleMatches.remove(pmEmail);
@@ -110,7 +108,7 @@ public class MatchManager {
         return false;
     }
 
-    /*  */
+    /* Return possible match */
     public JSONObject getPossibleMatch() {
         if (possibleMatches.isEmpty()) {
             return null;
@@ -122,25 +120,33 @@ public class MatchManager {
         return possibleMatches.get(posMatchEmailRandom);
     }
 
-    /*  */
-    public boolean addConversation(JSONObject conversation) {
+    /* Add a conversation with some match */
+    public boolean addConversation(JSONObject completeConversation) {
+        JSONObject conversation = null;
+        String matchEmail = null;
         try {
-            String matchEmail = conversation.getString("email");
-            if (!matches.containsKey(matchEmail)) {
-                return false;
-            }
+            conversation = completeConversation.getJSONObject(androidContext.getResources().getString(R.string.conversation));
+            matchEmail = conversation.getString(androidContext.getResources().getString(R.string.email));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-            /*if (!conversations.containsKey(matchEmail)) { //CONTEMPLADO
-                ChatConversation chatConversation = new ChatConversation(androidContext, R.layout.right_msg_chat);
-                conversation.put(matchEmail,chatConversation);
-            }*/
+        mutex_matches.lock();
+            boolean containsKey = matches.containsKey(matchEmail);
+        mutex_matches.unlock();
 
+        if (!containsKey) {
+            return false;
+        }
+
+        mutex_conversations.lock();
+        try {
             ChatConversation chatConversation = conversations.get(matchEmail);
-            JSONArray messages = conversation.getJSONArray("messages");
+            JSONArray messages = conversation.getJSONArray(androidContext.getResources().getString(R.string.messages));
             for (int i = 0; i < messages.length(); ++i) {
                 JSONObject message = messages.getJSONObject(i);
-                String emailSource = message.getString("sendFrom");
-                String stringMessage = message.getString("msg");
+                String emailSource = message.getString(androidContext.getResources().getString(R.string.send_from));
+                String stringMessage = message.getString(androidContext.getResources().getString(R.string.msg));
                 //int time = message.getInt("time");
 
                 if (emailSource.compareTo(userEmail) == 0) {
@@ -149,28 +155,34 @@ public class MatchManager {
                     chatConversation.add(new ChatMessage(false, stringMessage)); // false = matchMsg
                 }
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+            mutex_conversations.unlock();
         }
         return true;
     }
 
-    /*  */
+    /* Return the match list. */
     public List<JSONObject> getMatches() {
         List<JSONObject> matchList = new ArrayList<JSONObject>();
-        for (JSONObject match : matches.values()) {
-            matchList.add(match);
-        }
+        mutex_matches.lock();
+            for (JSONObject match : matches.values()) {
+                matchList.add(match);
+            }
+        mutex_matches.unlock();
         return matchList;
     }
 
-    /*  */
+    /* Return chat conversation of match */
     public ChatConversation getConversation(String matchEmail) {
-        if (conversations.containsKey(matchEmail)) {
-            return conversations.get(matchEmail);
-        }
-        return null;
+        ChatConversation conversation = null;
+        mutex_conversations.lock();
+            if (conversations.containsKey(matchEmail)) {
+                conversation = conversations.get(matchEmail);
+            }
+        mutex_conversations.unlock();
+        return conversation;
     }
 
 }
