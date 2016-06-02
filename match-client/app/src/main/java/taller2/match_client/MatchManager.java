@@ -1,5 +1,6 @@
 package taller2.match_client;
 
+import android.app.Activity;
 import android.content.Context;
 
 import org.json.JSONArray;
@@ -41,15 +42,16 @@ public class MatchManager {
     }
 
     /* Initizalize. Charge matches and conversation saved in files. */
-    public void setData(Context context, String matchFile, String conversationsFile, String userMail) {
-        androidContext = context;
+    public void setData(Context androidContext, String matchFile, String conversationsFile, String userMail) {
+        this.androidContext = androidContext;
+        matchListAdapter = new MatchListAdapter(androidContext);
         userEmail = userMail;
         String matchList = "";
         String conversationsList = "";
         try {
             // read files
-            matchList = FileManager.readFile(matchFile, context);
-            conversationsList = FileManager.readFile(conversationsFile, context);
+            matchList = FileManager.readFile(matchFile, androidContext);
+            conversationsList = FileManager.readFile(conversationsFile, androidContext);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,6 +90,8 @@ public class MatchManager {
         mutex_matches.lock();
             matches.put(email, matchData);
         mutex_matches.unlock();
+
+        matchListAdapter.addItem(matchData);
     }
 
     /* Add possible match */
@@ -174,6 +178,17 @@ public class MatchManager {
         return matchList;
     }
 
+    /* Return match */
+    public JSONObject getMatch(String matchEmail) {
+        JSONObject matchData = null;
+        mutex_matches.lock();
+        if (matches.containsKey(matchEmail)) {
+            matchData = matches.get(matchEmail);
+        }
+        mutex_matches.unlock();
+        return matchData;
+    }
+
     /* Return chat conversation of match */
     public ChatConversation getConversation(String matchEmail) {
         ChatConversation conversation = null;
@@ -183,6 +198,11 @@ public class MatchManager {
             }
         mutex_conversations.unlock();
         return conversation;
+    }
+
+    /* Return Match List */
+    public MatchListAdapter getMatchListAdapter() {
+        return matchListAdapter;
     }
 
 }

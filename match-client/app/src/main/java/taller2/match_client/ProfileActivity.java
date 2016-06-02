@@ -36,9 +36,10 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView userPhoto;
     private Button saveChangesButton;
     private static final int SELECT_PICTURE = 1;
+    private static final int PROFILE_IMAGE_SIZE = 250;
     private String userName;
     private String userRealName;
-    JSONObject profile;
+    private JSONObject profile;
 
     /* On Create Activity */
     @Override
@@ -119,31 +120,25 @@ public class ProfileActivity extends AppCompatActivity {
 
     /* When profile photo is pressed, gallery option to choose other is open. */
     private void changeProfilePhoto() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.select_picture_en)), SELECT_PICTURE);
+        Intent imageDownload = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imageDownload.putExtra("crop", "true");
+        imageDownload.putExtra("aspectX", 1);
+        imageDownload.putExtra("aspectY", 1);
+        imageDownload.putExtra("outputX", PROFILE_IMAGE_SIZE);
+        imageDownload.putExtra("outputY", PROFILE_IMAGE_SIZE);
+        imageDownload.putExtra("return-data", true);
+        startActivityForResult(imageDownload, SELECT_PICTURE);
     }
 
     /* On activity result after press profile photo */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK) {
-            return;
-            // LOG
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == SELECT_PICTURE && resultCode == RESULT_OK && data != null)
+        {
+            Bundle extras = data.getExtras();
+            Bitmap image = extras.getParcelable("data");
+            userPhoto.setImageBitmap(image);
         }
-        Uri imageUri = data.getData();
-        //String imagePath = getPath(imageUri);
-
-        Bitmap bitmap = null;
-        try {
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
-        Bitmap bitmap_scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);       // TODO: CHECK Scale image to show large images
-
-        userPhoto.setImageBitmap(bitmap_scaled);
     }
 
     /* Updated profile is sending to Server. */

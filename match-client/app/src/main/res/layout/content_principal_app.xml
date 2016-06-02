@@ -16,12 +16,7 @@ tools:showIn="@layout/app_bar_principal_app">
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scrollbars="none">
+        android:layout_height="280sp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -31,24 +26,24 @@ tools:showIn="@layout/app_bar_principal_app">
                 <ImageView
                     android:id="@+id/possibleMatchPhoto"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/no_match"
-                    android:layout_gravity="center_horizontal"
-                    android:scaleType="fitCenter" />
+                    android:layout_height="200sp"
+                    android:layout_alignParentTop="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/no_match" />
 
                 <TextView
                     android:id="@+id/possibleMatchAlias"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
                     android:text="Rogelio Marco Aurelio"
                     android:textColor="#222"
                     android:textStyle="bold"
-                    android:textSize="16dp"
-                    android:maxLines="2" />
+                    android:textSize="18dp"
+                    android:maxLines="2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/thumbnail"
+                    android:padding="8dp" />
             </LinearLayout>
 
-        </ScrollView>
     </android.support.v7.widget.CardView>
 
 

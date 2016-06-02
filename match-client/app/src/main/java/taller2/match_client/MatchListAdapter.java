@@ -22,12 +22,12 @@ import java.util.ArrayList;
 /* This class represent an List Adapter that have match items and show match alias and photo
  * when is used in a ListView */
 public class MatchListAdapter extends BaseAdapter {
-    Activity cntx;
+    Context cntx;
     ArrayList<JSONObject> matches;
     Base64Converter bs64;
     int MATCH_PHOTO_SIZE = 200;
 
-    public MatchListAdapter(Activity context) {
+    public MatchListAdapter(Context context) {
         this.cntx=context;
         this.matches = new ArrayList<JSONObject>();
         bs64 = new Base64Converter();
@@ -68,7 +68,9 @@ public class MatchListAdapter extends BaseAdapter {
     /* Return View with Match alias and photo */
     public View getView(final int position, View convertView, ViewGroup parent) {
         View row=null;
-        LayoutInflater inflater = cntx.getLayoutInflater();
+        LayoutInflater inflater = (LayoutInflater) this.cntx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        //LayoutInflater inflater = cntx.getLayoutInflater();
         row = inflater.inflate(R.layout.list_item, null);
         TextView matchName = (TextView) row.findViewById(R.id.matchName);
         ImageView matchPhoto = (ImageView) row.findViewById(R.id.matchPhoto);

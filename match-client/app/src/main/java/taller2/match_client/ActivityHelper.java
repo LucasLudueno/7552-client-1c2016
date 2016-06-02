@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,5 +38,22 @@ public class ActivityHelper {
         Pattern pattern = Pattern.compile(format);
         Matcher matcher = pattern.matcher(date);
         return matcher.matches();
+    }
+
+    /* Compare birthday with actual date and return Age */
+    public static int getAge(String birthday) {
+        String year = birthday.split("/", 3)[2];    // TODO: CHECKEAR SI NO DA ERROR...
+        String month = birthday.split("/", 3)[1];
+        String day = birthday.split("/", 3)[0];
+
+        Calendar cal = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+        Calendar now = new GregorianCalendar();
+        int age = now.get(Calendar.YEAR) - cal.get(Calendar.YEAR);
+        if ((cal.get(Calendar.MONTH) > now.get(Calendar.MONTH))
+                || (cal.get(Calendar.MONTH) == now.get(Calendar.MONTH) && cal.get(Calendar.DAY_OF_MONTH) > now
+                .get(Calendar.DAY_OF_MONTH))) {
+            age--;
+        }
+        return age;
     }
 }

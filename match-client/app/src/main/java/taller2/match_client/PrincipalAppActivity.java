@@ -2,15 +2,22 @@ package taller2.match_client;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -24,6 +31,11 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.andtinder.model.CardModel;
+import com.andtinder.model.Orientations;
+import com.andtinder.view.CardContainer;
+import com.andtinder.view.SimpleCardStackAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,21 +61,23 @@ public class PrincipalAppActivity extends AppCompatActivity
     private Toast noMatchesAvailableForDay;
     private MatchManager matchManager;
     private JSONObject actualMatch = null;
-    private JSONObject noMatch = null;
-    //private ArrayList<JSONObject> possibleMatchesBuffer;
     private PossibleMatchBuffer possibleMatchesBuffer;
     private Base64Converter bs64;
+    private Menu menu = null;
 
     private String userEmail = "";
-    protected static final int GET_MATCH_SLEEP_TIME = 120000;         // 2 min
+    protected static final int GET_MATCH_SLEEP_TIME = 60000;         // 1 min
     protected static final int GET_POS_MATCH_SLEEP_TIME = 60000;      // 1 min
-    protected static final int GET_CONVERSATION_SLEEP_TIME = 120000;  // 2 min
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 30000;  // 30 seg
     protected static final int GET_MATCH_CODE = 1;
     protected static final int GET_CONVERSATION_CODE = 2;
     protected static final int GET_POS_MATCH_CODE = 3;
     protected static final int MIN_POS_MATCHES_COUNT = 1;
     protected static final int POS_MATCH_COUNT_TO_REQUEST = 2;
 
+    /* Cards */ // TODO: CHECKEAR USO...
+    CardContainer possibleMatchBuffer;
+    SimpleCardStackAdapter possibleMatchAdapter;
 
     /*** MockServer ***/
     MockServer mockServer;
@@ -91,21 +105,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         // Views
         instantiateViews();
 
-        // Match photo. Set Size.
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-
-        possibleMatchPhoto = (ImageView)findViewById(R.id.possibleMatchPhoto);
-        possibleMatchPhoto.getLayoutParams().height = (5 * height) / 10;
-
-        possibleMatchCard = (CardView)findViewById(R.id.card_view);
-        possibleMatchCard.getLayoutParams().height = (6 * height) / 10;
-
-        possibleMatchAlias = (TextView)findViewById(R.id.possibleMatchAlias);
-
         // UserMail
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -118,29 +117,8 @@ public class PrincipalAppActivity extends AppCompatActivity
         // Base64 Converter
         bs64 = new Base64Converter();
 
-        // User photo and alias in NavHead
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        View hView =  navigationView.getHeaderView(0);
-        ImageView userPhoto = (ImageView) hView.findViewById(R.id.userPhotoInPrincipalApp);
-        TextView userAlias = (TextView) hView.findViewById(R.id.userAliasInPrincipalApp);
-
-        JSONObject profile = null;
-        String alias = "";
-        String userPhotoInB64 = "";
-        try {
-            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
-            alias = profile.getString(getResources().getString(R.string.alias));
-            userPhotoInB64 = profile.getString(getResources().getString(R.string.profilePhoto));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Base64Converter bs64 = new Base64Converter();
-        Bitmap userPhotoBitmap = MatchListAdapter.getRoundedShape(bs64.Base64ToBitmap(userPhotoInB64), 200);
-        userPhoto.setImageBitmap(userPhotoBitmap);  // Set Profile Photo
-        userAlias.setText(alias);                   // Set Alias
+        // Update Head Profile
+        updateHeadProfile();
 
         /*** Match Manager: load saved matches and conversations ***/
         matchManager = MatchManager.getInstance();
@@ -154,11 +132,48 @@ public class PrincipalAppActivity extends AppCompatActivity
         new Thread(new GetConversations()).start();
         new Thread(new GetPossibleMatches()).start();
 
-        // Update
-        //updatePosMatch();
-
         /*** Mock Server***/
-        mockServer = MockServer.getInstance();
+        mockServer = new MockServer(getApplicationContext());
+
+
+        /*CardModel.OnCardDimissedListener dimissedListened = new CardModel.OnCardDimissedListener() {
+            @Override
+            public void onLike() {
+                Log.d("Swipeable Card", "I liked it");
+            }
+
+            @Override
+            public void onDislike() {
+                Log.d("Swipeable Card", "I did not liked it");
+            }
+        };
+        CardModel.OnClickListener onClickListener = new CardModel.OnClickListener() {
+            @Override
+            public void OnClickListener() { Log.i("Swipeable Cards", "I am pressing the card");
+            }
+        };
+        CardModel.OnCardDimissedListener dimissedListened2 = new CardModel.OnCardDimissedListener() {
+            @Override
+            public void onLike() {
+                Log.d("Swipeable Card", "I liked it");
+            }
+
+            @Override
+            public void onDislike() {
+                Log.d("Swipeable Card", "I did not liked it");
+            }
+        };
+        CardModel.OnClickListener onClickListener2 = new CardModel.OnClickListener() {
+            @Override
+            public void OnClickListener() { Log.i("Swipeable Cards", "I am pressing the card");
+            }
+        };
+        possibleMatchAdapter = new SimpleCardStackAdapter(this);*/
+
+        // load match activity
+        Intent startMatchActivity = new Intent(this, MatchActivity.class);
+        startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(startMatchActivity);
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -207,6 +222,49 @@ public class PrincipalAppActivity extends AppCompatActivity
                 updatePosMatch();
             }
         });
+
+        // Match photo. Set Size.
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+        possibleMatchCard = (CardView)findViewById(R.id.card_view);
+        possibleMatchCard.getLayoutParams().height = (55 * height) / 100;
+
+        possibleMatchPhoto = (ImageView)findViewById(R.id.possibleMatchPhoto);
+        //possibleMatchPhoto.getLayoutParams().height = (5 * height) / 10;
+        //possibleMatchPhoto.getLayoutParams().width = (5 * height) / 10;
+
+        possibleMatchAlias = (TextView)findViewById(R.id.possibleMatchAlias);
+    }
+
+    /* Update User profile photo and Alias in NavigationHead */
+    private void updateHeadProfile() {
+        // User photo and alias in NavHead
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        View hView =  navigationView.getHeaderView(0);
+        ImageView userPhoto = (ImageView) hView.findViewById(R.id.userPhotoInPrincipalApp);
+        TextView userAlias = (TextView) hView.findViewById(R.id.userAliasInPrincipalApp);
+
+        JSONObject profile = null;
+        String alias = "";
+        String userPhotoInB64 = "";
+        try {
+            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
+            alias = profile.getString(getResources().getString(R.string.alias));
+            userPhotoInB64 = profile.getString(getResources().getString(R.string.profilePhoto));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Base64Converter bs64 = new Base64Converter();
+        Bitmap userPhotoBitmap = MatchListAdapter.getRoundedShape(bs64.Base64ToBitmap(userPhotoInB64), 150);
+        userPhoto.setImageBitmap(userPhotoBitmap);  // Set Profile Photo
+        userAlias.setText(alias);                   // Set Alias
     }
 
     /* Close drawer if its open */
@@ -222,7 +280,7 @@ public class PrincipalAppActivity extends AppCompatActivity
     }
 
     /* This method finish all activities and aplication */
-    public void finishAplication() {
+    private void finishAplication() {
         this.finish();
         Intent finishAplication = new Intent(Intent.ACTION_MAIN);
         finishAplication.addCategory(Intent.CATEGORY_HOME);
@@ -235,6 +293,7 @@ public class PrincipalAppActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_principal_app, menu);
+        this.menu = menu;
         return true;
     }
 
@@ -248,6 +307,14 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_chat) {
+            Intent startMatchActivity = new Intent(this, MatchActivity.class);
+            startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(startMatchActivity);
+
+            // Update match icon
+            menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_person_white_36dp));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -272,6 +339,9 @@ public class PrincipalAppActivity extends AppCompatActivity
             Intent startMatchActivity = new Intent(this, MatchActivity.class);
             startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startMatchActivity);
+
+            // Update match icon
+            menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_person_white_36dp));
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -279,7 +349,7 @@ public class PrincipalAppActivity extends AppCompatActivity
     }
 
     /* Update photo and alias of possible match. If possible match buffer is empty,
-     * no_match user is setted */
+     * no_match user is set */
     private void updatePosMatch() {
         if (possibleMatchesBuffer.size() > 0) {
             possibleMatchCard.setVisibility(View.VISIBLE);
@@ -291,17 +361,25 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
             actualMatch = possibleMatchesBuffer.get(random);
             possibleMatchesBuffer.remove(random);
+
+            // TODO: CHECKEAR VERSIONES ANTERIORES ANDROID
+            View v = findViewById(R.id.drawer_layout); // Change background
+            v.setBackground(getResources().getDrawable(R.drawable.white_background));
         } else {
             if (actualMatch == null) {
                 possibleMatchCard.setVisibility(View.INVISIBLE);
+                View v = findViewById(R.id.drawer_layout); // Change background
+                v.setBackground(getResources().getDrawable(R.drawable.no_possible_match));
             }
             return;
         }
 
         // set possible match on Principal Card
         try {
+            String alias = actualMatch.getString(getResources().getString(R.string.alias));
+            String age = String.valueOf(ActivityHelper.getAge(actualMatch.getString(getResources().getString(R.string.birthday))));
             possibleMatchPhoto.setImageBitmap(bs64.Base64ToBitmap(actualMatch.getString(getResources().getString(R.string.photoProfile))));
-            possibleMatchAlias.setText(actualMatch.getString(getResources().getString(R.string.alias)));
+            possibleMatchAlias.setText(alias + ", " + age);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -391,7 +469,15 @@ public class PrincipalAppActivity extends AppCompatActivity
                 for (int i = 0; i < posMatchArray.length(); ++i) {
                     JSONObject posMatch = posMatchArray.getJSONObject(i);
                     this.possibleMatchesBuffer.add(posMatch);
+
+                    /*Bitmap photo = bs64.Base64ToBitmap(posMatch.getString(getResources().getString(R.string.photoProfile)));
+                    String name = posMatch.getString(getResources().getString(R.string.alias));
+                    CardModel card = new CardModel(name, "Description goes here", photo);
+                    possibleMatchAdapter.add(card);*/
+
                 }
+                //possibleMatchBuffer = (CardContainer) findViewById(R.id.possible_match_container);
+                //possibleMatchBuffer.setAdapter(possibleMatchAdapter);
 
                 if (actualMatch == null && possibleMatchesBuffer.size() > 0) {
                     updatePosMatch();
@@ -417,6 +503,10 @@ public class PrincipalAppActivity extends AppCompatActivity
                 for (int i = 0; i < matchesArray.length(); ++i) {
                     JSONObject match = matchesArray.getJSONObject(i);
                     matchManager.addMatch(match);
+                }
+                // Update match icon
+                if (matchesArray.length() > 0 && menu != null) {
+                    menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_person_add_white_36dp));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -560,5 +650,12 @@ public class PrincipalAppActivity extends AppCompatActivity
                 }
             }
         }
+    }
+
+    /* On resume load nav head profile */
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        updateHeadProfile();
     }
 }

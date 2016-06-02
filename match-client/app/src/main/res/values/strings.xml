@@ -14,6 +14,7 @@
     <string name="title_activity_perfil">Edit Perfil</string>
     <string name="title_activity_chat">Chat</string>
     <string name="title_activity_match">Matches</string>
+    <string name="title_activity_chat2">Chat</string>
 
     <!-- Protocol Strings -->
     <string name="server_ip">http://192.168.0.5:8000</string>
@@ -33,7 +34,8 @@
     <string name="ok_response_code_get_conversation">200</string>
     <string name="ok_response_code_send_pos_match_interest">200</string>
 
-    <string name="userName">name</string>   <!-- Json data Strings -->
+    <string name="userName">name</string>
+    <!-- Json data Strings -->
     <string name="alias">alias</string>
     <string name="email">email</string>
     <string name="password">password</string>
@@ -95,6 +97,8 @@
     <string name="write_message_text_en">Write message</string>
     <string name="send_message_button_en">Send</string>
     <string name="select_picture_en">Select Profile Picture</string>
+    <string name="chat_tab_en">Chat</string>
+    <string name="info_tab_en">Info</string>
 
     <!-- ProfileActivity messages -->
     <string name="save_changes_button_en">SAVE CHANGES</string>
@@ -129,4 +133,5 @@
     <string name="no_possible_matches_are_available_en">No possible matches are available. Please touch the heart to get more!</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
 </resources>

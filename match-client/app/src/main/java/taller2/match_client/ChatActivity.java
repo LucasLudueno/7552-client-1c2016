@@ -1,91 +1,89 @@
 package taller2.match_client;
 
-import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Button;
 
-/* Chat Activity have a chat conversation between user and a match. It send to Server every message
- * that the user send and request ask for match messages. */
+import java.util.ArrayList;
+import java.util.List;
+
+/* Chat Activity manage Chat Tab and Match Tab. It create then and setup view pages */
 public class ChatActivity extends AppCompatActivity {
-
-    /* Attributes */
-    private MatchManager matchManager;
-    private ChatConversation chatArrayAdapter;
-    private ListView listView;
-    private Button sendChat;
-    private boolean userSide = true;    //true = right
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private String matchEmail = "";
 
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
         setSupportActionBar(toolbar);
-
-        // Add back activity button in the toolbar
-        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Chat Array Adapter
-        chatArrayAdapter = new ChatConversation(getApplicationContext(), R.layout.right_msg_chat);
-        listView = (ListView) findViewById(R.id.chatMsgList);
-        listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        listView.setAdapter(chatArrayAdapter);
-
-        // To scroll the list view to bottom on data change
-        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                listView.setSelection(chatArrayAdapter.getCount() - 1);
-            }
-        });
-
-        // Send Button
-        sendChat = (Button)findViewById(R.id.sendChatMsg);
-        sendChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onSendChatClick(v);
-            }
-        });
-
-
-        /*** Match Manager ***/
-        matchManager = MatchManager.getInstance();
-        String matchEmail = "";
+        // Match Email
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             matchEmail = bundle.getString(getResources().getString(R.string.email));
         }
-        // Include conversation
-        chatArrayAdapter = matchManager.getConversation(matchEmail);
-        if (chatArrayAdapter == null) {
-            this.finish();
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    /* Setup Chat Tab and Match Tab */
+    private void setupViewPager(ViewPager viewPager) {
+        Bundle bundle = new Bundle();
+        bundle.putString(getResources().getString(R.string.email), matchEmail);
+        ChatTab chatTab = new ChatTab();
+        MatchTab matchTab = new MatchTab();
+        chatTab.setArguments(bundle);
+        matchTab.setArguments(bundle);
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(chatTab, getResources().getString(R.string.chat_tab_en));
+        adapter.addFragment(matchTab, getResources().getString(R.string.info_tab_en));
+        viewPager.setAdapter(adapter);
+    }
+
+    /* ViewPager Adapter is an adapter for ViewPager that save Fragment classes */
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
         }
-        listView.setAdapter(chatArrayAdapter);
-    }
 
-    /* Send Chat message to Server */
-    private void sendChatMessage(EditText chatText, boolean side) {
-        chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
-    }
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
 
-    /* When Send button is pressed, the content of the ChatText is send */
-    public void onSendChatClick(View v) {
-        EditText chatMsg = (EditText) findViewById(R.id.userChatMsg);
-        sendChatMessage(chatMsg, userSide);
-        chatMsg.setText("");
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 
     /* Handle menu item click */
@@ -98,5 +96,3 @@ public class ChatActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-
-

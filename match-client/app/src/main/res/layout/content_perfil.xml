@@ -21,15 +21,36 @@
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true">
 
-
-            <ImageView
-                android:id="@+id/userPerfilPhoto"
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/no_match"
                 android:layout_gravity="center_horizontal"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"/>
+                android:layout_marginTop="@dimen/activity_general_margin"
+                android:layout_marginBottom="@dimen/activity_general_margin">
+
+                <ImageView
+                    android:id="@+id/userPerfilPhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/no_match"
+                    android:layout_gravity="center_horizontal"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"/>
+
+                <TextView
+                    android:id="@+id/changeProfilePhoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/userPerfilPhoto"
+                    android:layout_alignTop="@+id/userPerfilPhoto"
+                    android:layout_alignRight="@+id/userPerfilPhoto"
+                    android:layout_alignBottom="@+id/userPerfilPhoto"
+                    android:layout_margin="1dp"
+                    android:gravity="center"
+                    android:text="Click to change profile photo"
+                    android:textSize="25dp"
+                    android:textColor="#a5686868" />
+            </RelativeLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

@@ -9,34 +9,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 /* This class represent the Aplication Server. Its a test class  */
 public class MockServer {
     /* Attributes */
-    private static final MockServer mockServer = new MockServer();
-    private Lock mutex;
     private Context context;
-    private JSONObject userProfile;
-    private ArrayList<JSONObject> matches;
+    private HashMap<String, JSONObject> matches;
     private ArrayList<JSONObject> possibleMatches;
-    private ArrayList<JSONObject> conversations;
 
-    MockServer() {
-    }
-
-    /* Initialize profile, matches list, conversations and possible match list to test. */
-    public void initialize(Context context) {
+    public MockServer(Context context) {
         this.context = context;
-        createProfile();
         createMatchList();
         createPossibleMatchList();
-        createConversations();
     }
 
-    private void createProfile() {
-        /** USER PROFILE ***/
+    private void createMatchList() {
+        /*** MATCHES ***/
+        matches = new HashMap<String, JSONObject>();
         try {
+            // Interests
             JSONObject interest1 = new JSONObject("{\"category\": \"music/band\", \"value\": \"Pink Floyd\"}");
             JSONObject interest2 = new JSONObject("{\"category\": \"music/band\", \"value\": \"The Beatles\"}");
             JSONObject interest3 = new JSONObject("{\"category\": \"outdoors\", \"value\": \"running\"}");
@@ -47,35 +41,33 @@ public class MockServer {
             interests.put(interest3);
             interests.put(interest4);
 
-            userProfile = new JSONObject("{\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"Milito\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
-            Bitmap photodefault = BitmapFactory.decodeResource(context.getResources(), R.drawable.foto_perfil_prueba);
+            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"Seba\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/1991\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"Fede\",\"email\":\"fede@gmail.com\",\"birthday\":\"13/08/1991\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"Eze\",\"email\":\"eze@gmail.com\",\"birthday\":\"2/10/1993\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject lucas = new JSONObject("{\"birthday\":\"13/08/1993\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"Lucas\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
+
             Base64Converter bs64 = new Base64Converter();
-            String base64 = bs64.bitmapToBase64(photodefault);
-            userProfile.put(context.getResources().getString(R.string.profilePhoto), base64);
-            userProfile.put(context.getResources().getString(R.string.interests), interests);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void createMatchList() {
-        /*** MATCHES ***/
-        matches = new ArrayList<JSONObject>();
-        try {
-            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"seba\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"fede\",\"email\":\"fede@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"eze\",\"email\":\"eze@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            Bitmap photodefault_seba = BitmapFactory.decodeResource(context.getResources(), R.drawable.seba_foto_perfil);
+            Bitmap photodefault_fede = BitmapFactory.decodeResource(context.getResources(), R.drawable.fede_foto_perfil);
+            Bitmap photodefault_eze = BitmapFactory.decodeResource(context.getResources(), R.drawable.eze_foto_perfil);
+            Bitmap photodefault_lucas = BitmapFactory.decodeResource(context.getResources(), R.drawable.lucas_foto_perfil);
 
-            Bitmap photodefault = BitmapFactory.decodeResource(context.getResources(), R.drawable.no_match);
-            Base64Converter bs64 = new Base64Converter();
-            String base64 = bs64.bitmapToBase64(photodefault);
-            seba.put(context.getResources().getString(R.string.profilePhoto), base64);
-            fede.put(context.getResources().getString(R.string.profilePhoto), base64);
-            eze.put(context.getResources().getString(R.string.profilePhoto), base64);
+            String base64_seba = bs64.bitmapToBase64(photodefault_seba);
+            String base64_fede = bs64.bitmapToBase64(photodefault_fede);
+            String base64_eze = bs64.bitmapToBase64(photodefault_eze);
+            String base64_lucas = bs64.bitmapToBase64(photodefault_lucas);
 
-            matches.add(seba);
-            matches.add(fede);
-            matches.add(eze);
+            seba.put(context.getResources().getString(R.string.profilePhoto), base64_seba);
+            fede.put(context.getResources().getString(R.string.profilePhoto), base64_fede);
+            eze.put(context.getResources().getString(R.string.profilePhoto), base64_eze);
+            lucas.put(context.getResources().getString(R.string.profilePhoto), base64_lucas);
+            lucas.put(context.getResources().getString(R.string.interests), interests);
+
+            matches.put("seba@gmail.com", seba);
+            matches.put("fede@gmail.com", fede);
+            matches.put("eze@gmail.com", eze);
+            matches.put("lucas@gmail.com", lucas);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -85,12 +77,12 @@ public class MockServer {
         /*** POSSIBLE MATCHES ***/
         possibleMatches = new ArrayList<JSONObject>();
         try {
-            JSONObject pmatch1 = new JSONObject("{\"name\":\"wolverine\",\"alias\":\"wolverine\",\"email\":\"wolverine@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch2 = new JSONObject("{\"name\":\"yoda\",\"alias\":\"yoda\",\"email\":\"yoda@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch3 = new JSONObject("{\"name\":\"terminator\",\"alias\":\"terminator\",\"email\":\"terminator@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch4 = new JSONObject("{\"name\":\"anonymous\",\"alias\":\"anonymous\",\"email\":\"anonymous@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch5 = new JSONObject("{\"name\":\"mario\",\"alias\":\"mario\",\"email\":\"mario@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch6 = new JSONObject("{\"name\":\"soldier\",\"alias\":\"soldier\",\"email\":\"soldier@gmail.com\",\"birthday\":\"13/08/93\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch1 = new JSONObject("{\"name\":\"Wolverine\",\"alias\":\"Wolverine\",\"email\":\"wolverine@gmail.com\",\"birthday\":\"13/08/100\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch2 = new JSONObject("{\"name\":\"Yoda\",\"alias\":\"Yoda\",\"email\":\"yoda@gmail.com\",\"birthday\":\"13/08/2006\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch3 = new JSONObject("{\"name\":\"Terminator\",\"alias\":\"Terminator\",\"email\":\"terminator@gmail.com\",\"birthday\":\"13/08/1000\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch4 = new JSONObject("{\"name\":\"Anonymous\",\"alias\":\"Anonymous\",\"email\":\"anonymous@gmail.com\",\"birthday\":\"13/08/2002\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch5 = new JSONObject("{\"name\":\"Mario\",\"alias\":\"Mario\",\"email\":\"mario@gmail.com\",\"birthday\":\"13/08/1800\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch6 = new JSONObject("{\"name\":\"Soldier\",\"alias\":\"Soldier\",\"email\":\"soldier@gmail.com\",\"birthday\":\"13/08/1995\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
 
             Base64Converter bs64 = new Base64Converter();
             Bitmap pmatch1BitmapPhoto = BitmapFactory.decodeResource(context.getResources(), R.drawable.pmatch1);
@@ -124,51 +116,6 @@ public class MockServer {
         }
     }
 
-    private void createConversations() {
-        /*** CONVERSATIONS ***/
-        try {
-            conversations = new ArrayList<JSONObject>();
-            JSONObject seba_conv = new JSONObject();
-            JSONObject fede_conv = new JSONObject();
-            JSONObject eze_conv = new JSONObject();
-
-            JSONObject seba_msg1 = new JSONObject("{\"sendFrom\":\"seba@gmail.com\",\"msg\":\"hola soy seba\"}");
-            JSONObject seba_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-            JSONObject fede_msg1 = new JSONObject("{\"sendFrom\":\"fede@gmail.com\",\"msg\":\"hola soy fede\"}");
-            JSONObject fede_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-            JSONObject eze_msg1 = new JSONObject("{\"sendFrom\":\"eze@gmail.com\",\"msg\":\"hola soy eze\"}");
-            JSONObject eze_msg2 = new JSONObject("{\"sendFrom\":\"lucas@gmail.com\",\"msg\":\"hola soy lucas\"}");
-
-            JSONArray seba_msg = new JSONArray();
-            seba_msg.put(seba_msg1);
-            seba_msg.put(seba_msg2);
-            JSONArray fede_msg = new JSONArray();
-            fede_msg.put(fede_msg1);
-            fede_msg.put(fede_msg2);
-            JSONArray eze_msg = new JSONArray();
-            eze_msg.put(eze_msg1);
-            eze_msg.put(eze_msg2);
-
-            seba_conv.put("email","seba@gmail.com");
-            seba_conv.put("messages",seba_msg);
-            fede_conv.put("email", "fede@gmail.com");
-            fede_conv.put("messages", fede_msg);
-            eze_conv.put("email", "eze@gmail.com");
-            eze_conv.put("messages",eze_msg);
-
-            conversations.add(seba_conv);
-            conversations.add(fede_conv);
-            conversations.add(eze_conv);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /* Return an instance */
-    public static MockServer getInstance() {
-        return mockServer;
-    }
-
     /* Represent Login Request */
     public String Login(JSONObject data) {
         String userEmail = "";
@@ -177,11 +124,12 @@ public class MockServer {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String profileString = String.valueOf(userProfile);
-        if (userEmail.compareTo("lucas@gmail.com") == 0) {
+        if (matches.containsKey(userEmail)) {
+            String profileString = String.valueOf(matches.get(userEmail));
+            matches.remove(userEmail);
             return "200:" + profileString;
         }
-        return "201:" + profileString;
+        return "201:" + "";
     }
 
     /* Represent Get Matches Request */
@@ -190,9 +138,10 @@ public class MockServer {
         int count = 1;
         for (int i = 0; i < count; ++i) {
             if (matches.size() != 0) {
-                JSONObject match = matches.get(i);
+                String email = (String)matches.keySet().toArray()[0];
+                JSONObject match = matches.get(email);
                 match_array.put(match);
-                matches.remove(i);
+                matches.remove(email);
             }
         }
         JSONObject matchesToSend = new JSONObject();

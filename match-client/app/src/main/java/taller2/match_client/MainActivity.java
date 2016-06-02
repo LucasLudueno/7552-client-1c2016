@@ -57,9 +57,7 @@ public class MainActivity extends AppCompatActivity {
         // Views
         instantiateViews();
 
-        /*** MockServer ***/
-        mockServer = MockServer.getInstance();
-        mockServer.initialize(getApplicationContext());
+        mockServer = new MockServer(getApplicationContext());
         userMailView.setText("lucas@gmail.com");
     }
 

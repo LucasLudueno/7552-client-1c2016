@@ -2,6 +2,8 @@ package taller2.match_client;
 
 import java.util.List;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,7 @@ public class MatchActivity extends AppCompatActivity {
     private MatchListAdapter matchListAdapter;
     private ListView matchListView;
     private MatchManager matchManager;
+    private String userEmail = "";
 
     /* On create Activity */
     @Override
@@ -35,8 +38,17 @@ public class MatchActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // UserMail
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            userEmail = bundle.getString(getResources().getString(R.string.email));
+        }
+
+        /***  Match Manager ***/
+        matchManager = MatchManager.getInstance();
+
         // MatchList
-        matchListAdapter = new MatchListAdapter(this);
+        matchListAdapter = new MatchListAdapter(getApplicationContext());
         matchListView = (ListView) findViewById(R.id.matchList);
         matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         matchListView.setAdapter(matchListAdapter);
@@ -48,14 +60,14 @@ public class MatchActivity extends AppCompatActivity {
             }
         });
 
-        /***  Match Manager ***/
-        matchManager = MatchManager.getInstance();
-        List<JSONObject> matches = matchManager.getMatches();
-        for (int i = 0; i < matches.size(); i++) {
-            JSONObject match = matches.get(i);
-            matchListAdapter.addItem(match);
-        }
+        matchListAdapter = matchManager.getMatchListAdapter();
+        matchListView.setAdapter(matchListAdapter);
 
+
+        // come back to principal activity
+        Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
+        startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(startAppActivity);
     }
 
     /* When some match are taken, its chat is created */
@@ -70,7 +82,6 @@ public class MatchActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
             onBackPressed();
-            finish();   // TODO: CHECKEAR EFICIENCIA
             return true;
         }
         return super.onOptionsItemSelected(item);
