@@ -47,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button continueRegButton;
 
     private LocationManager locationManager;
-    private LocationListener locationListener;
+    private LocationListenerGetter locationListener;
     private int minTimeToRefresh = 5000;
 
     private String userName;
@@ -81,28 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Location Manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                latitude = Double.toString(location.getLatitude());
-                longitude = Double.toString(location.getLongitude());
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Log.d("Latitude", "disable");
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.d("Latitude","enable");
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.d("Latitude","status");
-            }
-        };
+        locationListener = new LocationListenerGetter();
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
         } catch (SecurityException e) {
@@ -141,6 +120,7 @@ public class RegisterActivity extends AppCompatActivity {
         connectingToServerWindow = new ProgressDialog(this);
         connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
         connectingToServerWindow.setMessage(getResources().getString(R.string.reg_processing_en));
+        connectingToServerWindow.setMax(100);
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -181,7 +161,6 @@ public class RegisterActivity extends AppCompatActivity {
         userRealNameView = (EditText) findViewById(R.id.userRealName);
         userMailView = (EditText) findViewById(R.id.userMail);
         userBirthdayView = (EditText) findViewById(R.id.userBirthdate);
-
     }
 
     /* This function check fields format and if its ok, send the register information to Server to check it.
@@ -199,6 +178,9 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // check latitude and longitude
+        latitude = Double.toString(locationListener.getLatitude());
+        longitude = Double.toString(locationListener.getLongitude());
+
         if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
             internetDisconnectWindow.show();
             return;

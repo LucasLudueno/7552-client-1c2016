@@ -1,6 +1,5 @@
 package taller2.match_client;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,14 +59,14 @@ public class MatchListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    /* return size */ //TODO: CHECKEAR...
+    /* return size */
     public long getItemId(int position) {
         return matches.size();
     }
 
     /* Return View with Match alias and photo */
     public View getView(final int position, View convertView, ViewGroup parent) {
-        View row=null;
+        View row = null;
         LayoutInflater inflater = (LayoutInflater) this.cntx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         //LayoutInflater inflater = cntx.getLayoutInflater();

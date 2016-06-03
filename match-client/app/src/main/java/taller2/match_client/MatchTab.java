@@ -12,7 +12,6 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 /* Match Tab is a Fragment that has match information. On create get match alias, profile photo
  * and age and show them in activity. */
 public class MatchTab extends Fragment {

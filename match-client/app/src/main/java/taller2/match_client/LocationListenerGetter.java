@@ -1,13 +1,12 @@
 package taller2.match_client;
 
 import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 
-/**
- * Created by lucas on 22/05/16.
- */
-public class LocationListener implements android.location.LocationListener{
+/* Location Listener Getter can get Location as Latitude and Longitude */
+public class LocationListenerGetter implements LocationListener {
 
     /* Atributes */
     Double latitude = 0.0;

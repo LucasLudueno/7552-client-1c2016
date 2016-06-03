@@ -19,7 +19,7 @@ public class ChatTab extends Fragment {
     private ChatConversation chatArrayAdapter;
     private ListView listView;
     private Button sendChat;
-    private boolean userSide = true;    //true = right
+    private boolean userSide = true;    //true = right side
     private String matchEmail;
 
     public ChatTab() {
@@ -67,7 +67,10 @@ public class ChatTab extends Fragment {
 
     /* Send Chat message to Server */
     private void sendChatMessage(EditText chatText, boolean side) {
-        chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
+        String chatString = chatText.getText().toString();
+        if (chatString.compareTo("") != 0) {
+            chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
+        }
     }
 
     /* When Send button is pressed, the content of the ChatText is send */

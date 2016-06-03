@@ -224,14 +224,14 @@ public class PrincipalAppActivity extends AppCompatActivity
         });
 
         // Match photo. Set Size.
-        Display display = getWindowManager().getDefaultDisplay();
+        /*Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        int height = size.y;
+        int height = size.y;*/
 
         possibleMatchCard = (CardView)findViewById(R.id.card_view);
-        possibleMatchCard.getLayoutParams().height = (55 * height) / 100;
+        ///possibleMatchCard.getLayoutParams().height = (55 * height) / 100;
 
         possibleMatchPhoto = (ImageView)findViewById(R.id.possibleMatchPhoto);
         //possibleMatchPhoto.getLayoutParams().height = (5 * height) / 10;

@@ -80,7 +80,7 @@
 
     <!-- RegisterActivity messages -->
     <string name="birthdate_wrong_format_error_title_en">Wrong Birthdate</string>
-    <string name="birthdate_wrong_format_error_en">Birthdate field has not right format or is empty</string>
+    <string name="birthdate_wrong_format_error_en">Birthdate field has not right format or is empty. Format is: dd/mm/yyyy</string>
     <string name="mail_wrong_format_error_title_en">Wrong Email</string>
     <string name="mail_wrong_format_error_en">Email field has not right format or is empty</string>
     <string name="mail_exist_error_title_en">Email already exist</string>

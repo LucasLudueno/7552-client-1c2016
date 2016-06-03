@@ -10,8 +10,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 /* This class represent the Aplication Server. Its a test class  */
 public class MockServer {

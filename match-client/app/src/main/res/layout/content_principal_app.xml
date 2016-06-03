@@ -26,7 +26,7 @@ tools:showIn="@layout/app_bar_principal_app">
                 <ImageView
                     android:id="@+id/possibleMatchPhoto"
                     android:layout_width="match_parent"
-                    android:layout_height="200sp"
+                    android:layout_height="230sp"
                     android:layout_alignParentTop="true"
                     android:scaleType="centerCrop"
                     android:src="@drawable/no_match" />
@@ -43,9 +43,7 @@ tools:showIn="@layout/app_bar_principal_app">
                     android:layout_below="@+id/thumbnail"
                     android:padding="8dp" />
             </LinearLayout>
-
     </android.support.v7.widget.CardView>
-
 
     <RelativeLayout
         android:layout_width="match_parent"

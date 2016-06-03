@@ -1,6 +1,5 @@
 package taller2.match_client;
 
-import android.app.Activity;
 import android.content.Context;
 
 import org.json.JSONArray;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /* Match Manager, manage usar matches and conversations with th */
