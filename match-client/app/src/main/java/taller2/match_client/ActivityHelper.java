@@ -3,6 +3,7 @@ package taller2.match_client;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -12,8 +13,11 @@ import java.util.regex.Pattern;
 /* Activity Helper has methos that are used by Activities */
 public class ActivityHelper {
 
+    private static final String TAG = "ActivityHelper";
+
     /* Check internet connection */
     public static boolean checkConection(Context cntx) {
+        Log.d(TAG, "checkConection");
         ConnectivityManager connectManager = (ConnectivityManager)
                 cntx.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -26,6 +30,7 @@ public class ActivityHelper {
 
     /* Return true if the mail format is correct */
     public static boolean checkEmailFormat (String email) {
+        Log.d(TAG, "checkEmailFormat");
         String format = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
         Pattern pattern = Pattern.compile(format);
         Matcher matcher = pattern.matcher(email);
@@ -34,6 +39,7 @@ public class ActivityHelper {
 
     /* Return true if the date format is correct (dd/mm/yyyy) */
     public static boolean checkDateFormat(String date) {
+        Log.d(TAG, "checkDataFormat");
         String format = "^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{4})$";
         Pattern pattern = Pattern.compile(format);
         Matcher matcher = pattern.matcher(date);
@@ -42,6 +48,7 @@ public class ActivityHelper {
 
     /* Compare birthday with actual date and return Age */
     public static int getAge(String birthday) {
+        Log.d(TAG, "getAge");
         String year = birthday.split("/", 3)[2];    // TODO: CHECKEAR SI NO DA ERROR...
         String month = birthday.split("/", 3)[1];
         String day = birthday.split("/", 3)[0];

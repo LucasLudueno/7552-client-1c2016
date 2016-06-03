@@ -1,6 +1,7 @@
 package taller2.match_client;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ public class ChatConversation extends ArrayAdapter<ChatMessage> {
     /* Attributes */
     private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
     private ReentrantLock mutex;
+    private static final String TAG = "ChatConversation";
 
     public ChatConversation(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
@@ -24,6 +26,7 @@ public class ChatConversation extends ArrayAdapter<ChatMessage> {
 
     @Override
     public void add(ChatMessage chatMessage) {
+        Log.d(TAG, "Add Chat Message");
         mutex.lock();
             chatMessageList.add(chatMessage);
         mutex.unlock();
@@ -47,6 +50,7 @@ public class ChatConversation extends ArrayAdapter<ChatMessage> {
     /* Get a View that displays the data at the specified position in the data set. In this case a chatMsg
     *  LayoutInflater instantiates a layout XML file into its corresponding View */
     public View getView(int position, View convertView, ViewGroup parent) {
+        Log.d(TAG, "Get Chat View");
         ChatMessage chatMessage = getItem(position);
         View chatMsgView;
         mutex.lock();

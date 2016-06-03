@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class ChatActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private String matchEmail = "";
+    private static final String TAG = "ChatActivity";
 
     /* On create Activity */
     @Override
@@ -39,10 +41,13 @@ public class ChatActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        Log.i(TAG, "ChatActivity is created");
     }
 
     /* Setup Chat Tab and Match Tab */
     private void setupViewPager(ViewPager viewPager) {
+        Log.d(TAG, "Setup Chat and Match Tab");
         Bundle bundle = new Bundle();
         bundle.putString(getResources().getString(R.string.email), matchEmail);
         ChatTab chatTab = new ChatTab();
@@ -90,6 +95,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
+            Log.i(TAG, "Back to previous Activity");
             this.finish();
             return true;
         }

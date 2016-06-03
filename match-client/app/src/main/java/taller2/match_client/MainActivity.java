@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,12 +36,15 @@ public class MainActivity extends AppCompatActivity {
     private String userEmail;
     private String userPassword;
 
+    private static final String TAG = "MainActivity";
+
     /***MockServer***/
     private MockServer mockServer;
 
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "Create MainActivity");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -56,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Views
         instantiateViews();
+
+        Log.i(TAG, "MainActivity is created");
 
         mockServer = new MockServer(getApplicationContext());
         userMailView.setText("lucas@gmail.com");
@@ -130,10 +136,11 @@ public class MainActivity extends AppCompatActivity {
             data.put(getResources().getString(R.string.password), userPassword);
             data.put(getResources().getString(R.string.email), userEmail);
         } catch (JSONException e) {
-            // ERROR
-            // LOG
+            Log.w(TAG, "Can't create Json Request with Email and Password");
         }
         /*if ( ActivityHelper.checkConection() ){
+            Log.d(TAG, "Send Login to Server: " + data.toString());
+
             loadingWindow.show();
             String url = getResources().getString(R.string.server_ip);
             String uri = getResources().getString(R.string.login_uri);
@@ -149,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* When user registers, RegisterActivity is created */
     private void registerOnClick(View v) {
+        Log.i(TAG, "Create RegisterActivity");
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
         startActivity(startRegisterActivity);
     }
@@ -186,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* Check login response from Server */
     private void checkLoginResponseFromServer(String response) {
+        Log.d(TAG, "Response from Server is received: " + response);
         loadingWindow.dismiss();
         String responseCode = response.split(":", 2)[0];
         String profile = response.split(":", 2)[1];
@@ -198,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             // start principal aplication
+            Log.i(TAG, "Create Principal Activity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);

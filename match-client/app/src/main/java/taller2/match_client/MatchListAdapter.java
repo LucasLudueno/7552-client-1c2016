@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,55 +18,76 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /* This class represent an List Adapter that have match items and show match alias and photo
  * when is used in a ListView */
 public class MatchListAdapter extends BaseAdapter {
-    Context cntx;
-    ArrayList<JSONObject> matches;
-    Base64Converter bs64;
-    int MATCH_PHOTO_SIZE = 200;
+    /* Attributes */
+    private Context cntx;
+    private ArrayList<JSONObject> matches;
+    private Base64Converter bs64;
+    private ReentrantLock mutex;
+
+    private static final String TAG = "ChatConversation";
+    private static final int MATCH_PHOTO_SIZE = 200;
 
     public MatchListAdapter(Context context) {
-        this.cntx=context;
-        this.matches = new ArrayList<JSONObject>();
+        this.cntx = context;
+        matches = new ArrayList<JSONObject>();
         bs64 = new Base64Converter();
+        mutex = new ReentrantLock();
     }
 
     /* Return size */
     public int getCount() {
-        return matches.size();
+        mutex.lock();
+            int size = matches.size();
+        mutex.unlock();
+        return size;
     }
 
     /* Return item in position */
     public Object getItem(int position) {
-        return matches.get(position);
-    }   //TODO
+        mutex.lock();
+            JSONObject item = matches.get(position);
+        mutex.unlock();
+        return item;
+    }
 
     /* Return match email in indicated position */
     public String getEmail(int position) {
         String email = "";
         try {
-            email = matches.get(position).getString("email");
+            mutex.lock();
+                email = matches.get(position).getString(cntx.getResources().getString(R.string.email));
+            mutex.unlock();
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't get email from match(position)");
         }
         return email;
     }
 
     /* Add item (match) */
     public void addItem(JSONObject match) {
-        matches.add(match);
+        Log.d(TAG, "Add Chat Message");
+        mutex.lock();
+            matches.add(match);
+        mutex.unlock();
         notifyDataSetChanged();
     }
 
     /* return size */
     public long getItemId(int position) {
-        return matches.size();
+        mutex.lock();
+        int size = matches.size();
+        mutex.unlock();
+        return size;
     }
 
     /* Return View with Match alias and photo */
     public View getView(final int position, View convertView, ViewGroup parent) {
+        Log.d(TAG, "Get Match View");
         View row = null;
         LayoutInflater inflater = (LayoutInflater) this.cntx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -88,7 +110,7 @@ public class MatchListAdapter extends BaseAdapter {
         return row;
     }
 
-    /* Decode bitmap */ //TODO: CHECKEAR
+    /* Decode bitmap */ //TODO: CHECKEAR SI LO USAMOS
     public Bitmap decodeFile(Context context,int resId) {
         try {
         // decode image size
@@ -120,7 +142,7 @@ public class MatchListAdapter extends BaseAdapter {
 
     /* Return rounder image (Bitmap) with indicated width */
     public static Bitmap getRoundedShape(Bitmap scaleBitmapImage,int width) {
-        // TODO Auto-generated method stub
+        Log.d(TAG, "Get Rounded Shape");
         int targetWidth = width;
         int targetHeight = width;
         Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,

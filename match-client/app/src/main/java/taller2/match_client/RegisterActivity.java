@@ -29,7 +29,6 @@ import java.io.IOException;
 /* RegisterActivity manage the Register. When the user register, check with the server if the email already exist and
  * if don't, the user is register. */
 public class RegisterActivity extends AppCompatActivity {
-
     /* Attributes */
     private AlertDialog wrongBirthdayWindow;
     private AlertDialog wrongMailWindow;
@@ -59,6 +58,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String longitude = "";
     private JSONObject registerData;
 
+    private static final String TAG = "RegisterActivity";
+
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +86,9 @@ public class RegisterActivity extends AppCompatActivity {
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
         } catch (SecurityException e) {
-            // LOG - ERROR
+            Log.w(TAG, "Can't set LocationListener");
         }
+        Log.i(TAG, "Register Activity is created");
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -181,7 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
         latitude = Double.toString(locationListener.getLatitude());
         longitude = Double.toString(locationListener.getLongitude());
 
-        if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {    // TODO: IMPLEMENTAR UNA ESPECIE DE WHILE HASTA TENER VALORES
+        if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {
             internetDisconnectWindow.show();
             return;
         }
@@ -221,11 +223,12 @@ public class RegisterActivity extends AppCompatActivity {
             String base64 = bs64.bitmapToBase64(photodefault);
             registerData.put(getResources().getString(R.string.profilePhoto), base64);
         } catch (JSONException e) {
-            // ERROR -LOG
+            Log.w(TAG, "Can't create Json Register Request");
         }
 
         // send registerData
         if ( ActivityHelper.checkConection(getApplicationContext()) ){
+            Log.d(TAG, "Send Register Request to Server: " + registerData.toString());
             connectingToServerWindow.show();
             String url =  getResources().getString(R.string.server_ip);;
             String uri = getResources().getString(R.string.register_uri);
@@ -278,6 +281,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     /* Check register response from Server. Response includes responseCode and responseMessage*/
     private void checkRegisterResponseFromServer(String response) {
+        Log.d(TAG, "Response from Server is received: " + response);
         connectingToServerWindow.dismiss();
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
@@ -287,9 +291,10 @@ public class RegisterActivity extends AppCompatActivity {
             try {
                 FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(registerData), getApplicationContext());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Can't write profile");
             }
             // start principal activity
+            Log.d(TAG, "Create PrincipalAppActivity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startAppActivity.setAction(Intent.ACTION_MAIN);
             startAppActivity.addCategory(Intent.CATEGORY_HOME);

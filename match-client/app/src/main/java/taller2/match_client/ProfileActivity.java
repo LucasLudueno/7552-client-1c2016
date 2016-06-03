@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,20 +27,21 @@ import java.io.IOException;
 /* Perfil Activity has user perfil fields. User can change its and save changes (the fields with new values are
  * send to Server) */
 public class ProfileActivity extends AppCompatActivity {
-
     /* Attributes */
     private TextView userNameView;
     private TextView userRealNameView;
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog loadingWindow;
+    private Toast profileCreated;
     private ImageView userPhoto;
     private Button saveChangesButton;
-    private static final int SELECT_PICTURE = 1;
-    private static final int PROFILE_IMAGE_SIZE = 250;
     private String userName;
     private String userRealName;
     private JSONObject profile;
+    private static final int SELECT_PICTURE = 1;
+    private static final int PROFILE_IMAGE_SIZE = 250;
+    private static final String TAG = "ProfileActivity";
 
     /* On Create Activity */
     @Override
@@ -69,10 +71,11 @@ public class ProfileActivity extends AppCompatActivity {
             userNameView.setText(actualProfile.getString(getResources().getString(R.string.alias)));
             userPhoto.setImageBitmap(b64conv.Base64ToBitmap(actualProfile.getString(getResources().getString(R.string.photoProfile))));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't read Profile File");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't get alias and Photo from Profile File");
         }
+        Log.i(TAG, "Profile Activity is created");
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -91,6 +94,9 @@ public class ProfileActivity extends AppCompatActivity {
         loadingWindow = new ProgressDialog(this);
         loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
         loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
+
+        // profileCreated Toast
+        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en), Toast.LENGTH_LONG);
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -120,6 +126,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     /* When profile photo is pressed, gallery option to choose other is open. */
     private void changeProfilePhoto() {
+        Log.d(TAG, "Change Profile Photo");
         Intent imageDownload = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         imageDownload.putExtra("crop", "true");
         imageDownload.putExtra("aspectX", 1);
@@ -133,11 +140,11 @@ public class ProfileActivity extends AppCompatActivity {
     /* On activity result after press profile photo */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == SELECT_PICTURE && resultCode == RESULT_OK && data != null)
-        {
+        if(requestCode == SELECT_PICTURE && resultCode == RESULT_OK && data != null) {
             Bundle extras = data.getExtras();
             Bitmap image = extras.getParcelable("data");
             userPhoto.setImageBitmap(image);
+            Log.d(TAG, "Profile Photo is changed");
         }
     }
 
@@ -166,13 +173,13 @@ public class ProfileActivity extends AppCompatActivity {
             profile.remove(getResources().getString(R.string.profilePhoto));
             profile.put(getResources().getString(R.string.profilePhoto), profilePhotoBase64);
         } catch (JSONException e) {
-            // ERROR
-            // LOG
+            Log.w(TAG, "Can't create Json Profile Request");
         } catch (IOException e) {
-
+            Log.e(TAG, "Can't read Profile File");
         }
         // Sending json data to Server
-        /*if ( ActivityHelper.checkConection(getApplicationContext()) ){
+        /*if ( ActivityHelper.checkConection(getApplicationContext()) ) {
+            Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             loadingWindow.show();
             String url = getResources().getString(R.string.server_ip);
             String uri = getResources().getString(R.string.update_profile_uri);
@@ -195,18 +202,18 @@ public class ProfileActivity extends AppCompatActivity {
 
     /* Check profile response from Server. If it is ok, new profile is saved in file. */
     private void checkProfileResponseFromServer(String response) {
+        Log.d(TAG, "Response from Server is received: " + response);
         loadingWindow.dismiss();
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_upload_profile))) {
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en),
-                    Toast.LENGTH_LONG).show();
+            profileCreated.show();
             // Update Profile
             try {
                 FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile), getApplicationContext());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.w(TAG, "Can't write Profile File");
             }
         } else {
             // ERROR
@@ -233,6 +240,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     /* When back button is pressed, PrincipalAppActivity is bring to front */
     public void onBackPressed () {
+        Log.i(TAG, "Back to previous Activity");
         Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
         startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startAppActivity);

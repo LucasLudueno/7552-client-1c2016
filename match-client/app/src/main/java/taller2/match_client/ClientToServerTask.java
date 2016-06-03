@@ -1,15 +1,13 @@
 package taller2.match_client;
 
 import android.os.AsyncTask;
-import android.widget.TextView;
+import android.util.Log;
 
 /* This class represent a background task where the Client send to Server GET and POST request. */
 public class ClientToServerTask extends AsyncTask<String, Integer, String> {
-
-    /*private int call_code;
-    ClientToServerTask(int call_code) {
-        this.call_code = call_code;
-    }*/
+    /* Attributes */
+    private static final String TAG = "ClientToServerTask";
+    private static final String CANT_CONNECT_TO_SERVER_ERROR = "400:Error";
 
     @Override
     protected void onPreExecute(){
@@ -29,13 +27,20 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
         String data = params[3];
 
         String receiveString = "";
-        HttpConectionClient httpConection = new HttpConectionClient();
-        if (requestType.equals("GET") ) {
-            receiveString = httpConection.GETRequest(url, uri);
-        } else if (requestType.equals("POST") ) {
-            receiveString = httpConection.POSTRequest(url, uri, data);
-        } else {
-            // ERROR - LOG
+        HttpConnectionClient httpConnection = new HttpConnectionClient();
+        try {
+            if (requestType.equals("GET") ) {
+                Log.d(TAG, "Send GET Request");
+                receiveString = httpConnection.GETRequest(url, uri);
+            } else if (requestType.equals("POST") ) {
+                receiveString = httpConnection.POSTRequest(url, uri, data);
+                Log.d(TAG, "Send POST Request");
+            } else {
+                Log.d(TAG, "No type of Request is specified");
+            }
+        } catch (ConnectionException e) {
+            Log.w(TAG, "Can't send Resquest to Server");
+            receiveString = CANT_CONNECT_TO_SERVER_ERROR;
         }
         return receiveString;
     }

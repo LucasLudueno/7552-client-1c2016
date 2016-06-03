@@ -1,8 +1,10 @@
 package taller2.match_client;
 
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,8 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import java.io.IOException;
 
 /* Chat Tab is a Fragment that is used like a chat. It has a listView where we watch chat messages
  * and could send and receive chat messages from "match" person. */
@@ -21,6 +25,8 @@ public class ChatTab extends Fragment {
     private Button sendChat;
     private boolean userSide = true;    //true = right side
     private String matchEmail;
+
+    private static final String TAG = "ChatTab";
 
     public ChatTab() {
         // Required empty public constructor
@@ -35,6 +41,7 @@ public class ChatTab extends Fragment {
 
     @Override
     public void onActivityCreated (Bundle savedInstanceState) {
+        Log.i(TAG, "Create ChatTab");
         super.onActivityCreated(savedInstanceState);
 
         /*** Match Manager ***/
@@ -63,6 +70,8 @@ public class ChatTab extends Fragment {
                 onSendChatClick(v);
             }
         });
+
+        Log.i(TAG, "ChatTab is created");
     }
 
     /* Send Chat message to Server */
@@ -71,6 +80,8 @@ public class ChatTab extends Fragment {
         if (chatString.compareTo("") != 0) {
             chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
         }
+        //TODO: Mandar chat al Server.
+        //Log.d(TAG, "Send Chat to Server: " + chatString);
     }
 
     /* When Send button is pressed, the content of the ChatText is send */
@@ -78,5 +89,27 @@ public class ChatTab extends Fragment {
         EditText chatMsg = (EditText) getView().findViewById(R.id.userChatMsg);
         sendChatMessage(chatMsg, userSide);
         chatMsg.setText("");
+    }
+
+    /* Check SendChat response from Server */
+    private void checkSendChatResponseFromServer(String response) {
+        Log.d(TAG, "Response code from Server is received: " + response);
+
+        String responseCode = response.split(":", 2)[0];
+        String responseMsg = response.split(":", 2)[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+
+        } else {
+
+        }
+    }
+
+    /* Send Chat to Server */
+    private class SendChatTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkSendChatResponseFromServer(dataGetFromServer);
+        }
     }
 }

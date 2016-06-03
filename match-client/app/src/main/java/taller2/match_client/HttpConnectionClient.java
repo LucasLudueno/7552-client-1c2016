@@ -1,5 +1,7 @@
 package taller2.match_client;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,42 +11,42 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /* This class send GET and POST request to Server by an URL */
-public class HttpConectionClient {
+public class HttpConnectionClient {
 
     /* Attributes */
     private URL url;
     private HttpURLConnection httpConnection;
+    private static final String TAG = "HttpConnectionClient";
 
-    /* Send GET request to Server. Throws ConectionExeption in case error */    // TODO: CREAR EXCEPCION...
-    public String GETRequest(String urlString, String uriString) { //throws ConectionException{
+    /* Send GET request to Server. Throws ConnectionExeption in case error */
+    public String GETRequest(String urlString, String uriString) throws ConnectionException {
         try {
+            Log.d(TAG, "GET Request");
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("GET");
             String responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
             InputStream inputStream = httpConnection.getInputStream();              // Get response
             return responseCode + ":" + InputStreamToString(inputStream);
-
         } catch (Exception e) {
-            //throw new ConectionException("Failed to connect");
-            //Log.e("Error", "Failed to conect to Server", e);
-            return "404:Error"; // TODO: POR AHORA
-
+            Log.e(TAG, "Failed to send GET Request", e);
+            throw new ConnectionException("Failed to connect");
         } finally {
             httpConnection.disconnect();
         }
     }
 
-    /* Send POST request to Server. Throws ConectionExeption in case error */
-    public String POSTRequest(String urlString, String uriString, String data) { //throws ConectionException{
+    /* Send POST request to Server. Throws ConnectionExeption in case error */
+    public String POSTRequest(String urlString, String uriString, String data) throws ConnectionException {
         try {
+            Log.d(TAG, "POST Request");
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Accept-Language", "UTF-8");
             httpConnection.setDoInput(true);
 
-            httpConnection.setRequestProperty("Content-Type", "application/json");  //TODO: CHECKEAR SI VA EL ENCABEZADO JSON
+            httpConnection.setRequestProperty("Content-Type", "application/json");
             httpConnection.setRequestProperty("Accept", "application/json");
 
             httpConnection.setDoOutput(true);
@@ -58,12 +60,9 @@ public class HttpConectionClient {
             String responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
             InputStream inputStream = httpConnection.getInputStream();              // Get response
             return responseCode + ":" + InputStreamToString(inputStream);
-
         } catch (Exception e) {
-            //throw new ConectionException("Failed to connect");
-            //Log.e("Error", "Failed to conect to Server", e);
-            return "404:Error";
-
+            Log.e(TAG, "Failed to send POST Request", e);
+            throw new ConnectionException("Failed to connect");
         } finally {
             httpConnection.disconnect();
         }
@@ -82,7 +81,8 @@ public class HttpConectionClient {
                 read = buffer.readLine();
             }
         } catch (IOException e) {
-            return null;    // ERROR - LOG
+            Log.w(TAG, "Can't convert InputStream to String");
+            return "";
         }
         return builder.toString();
     }

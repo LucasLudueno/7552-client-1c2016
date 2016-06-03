@@ -3,6 +3,7 @@ package taller2.match_client;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ public class MatchTab extends Fragment {
     /* Attributes */
     private MatchManager matchManager;
     private String matchEmail;
+    private static final String TAG = "MatchTab";
 
     public MatchTab() {
         // Required empty public constructor
@@ -32,6 +34,7 @@ public class MatchTab extends Fragment {
 
     @Override
     public void onActivityCreated (Bundle savedInstanceState) {
+        Log.i(TAG, "Create MatchTab");
         super.onActivityCreated(savedInstanceState);
 
         /*** Match Manager ***/
@@ -54,5 +57,6 @@ public class MatchTab extends Fragment {
         photo.setImageBitmap(matchPhoto);
         int age = ActivityHelper.getAge(birthday);
         aliasAndAge.setText(alias + ", " + String.valueOf(age));
+        Log.d(TAG, "Match Tab is created");
     }
 }

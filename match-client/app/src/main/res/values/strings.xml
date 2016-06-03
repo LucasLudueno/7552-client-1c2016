@@ -33,6 +33,8 @@
     <string name="ok_response_code_get_pos_matches">200</string>
     <string name="ok_response_code_get_conversation">200</string>
     <string name="ok_response_code_send_pos_match_interest">200</string>
+    <string name="cant_connect_to_server">400:Error</string>
+
 
     <string name="userName">name</string>
     <!-- Json data Strings -->

@@ -74,6 +74,7 @@ public class PrincipalAppActivity extends AppCompatActivity
     protected static final int GET_POS_MATCH_CODE = 3;
     protected static final int MIN_POS_MATCHES_COUNT = 1;
     protected static final int POS_MATCH_COUNT_TO_REQUEST = 2;
+    private static final String TAG = "RegisterActivity";
 
     /* Cards */ // TODO: CHECKEAR USO...
     CardContainer possibleMatchBuffer;
@@ -169,6 +170,8 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
         };
         possibleMatchAdapter = new SimpleCardStackAdapter(this);*/
+
+        Log.i(TAG, "Principal Activity is created");
 
         // load match activity
         Intent startMatchActivity = new Intent(this, MatchActivity.class);

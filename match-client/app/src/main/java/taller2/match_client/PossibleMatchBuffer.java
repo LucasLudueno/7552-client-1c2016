@@ -1,5 +1,7 @@
 package taller2.match_client;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ public class PossibleMatchBuffer {
     /* Attributes */
     private ReentrantLock mutex_pos_matches;
     private ArrayList<JSONObject> possibleMatchesBuffer;
+    private static final String TAG = "BossibleMatchBuffer";
 
     PossibleMatchBuffer() {
         mutex_pos_matches = new ReentrantLock();
@@ -26,6 +29,7 @@ public class PossibleMatchBuffer {
 
     /* Add element */
     public void add(JSONObject possibleMatch) {
+        Log.d(TAG, "Add possible match");
         mutex_pos_matches.lock();
             possibleMatchesBuffer.add(possibleMatch);
         mutex_pos_matches.unlock();
@@ -33,6 +37,7 @@ public class PossibleMatchBuffer {
 
     /* Get element in position "pos" */
     public JSONObject get(int pos) {
+        Log.d(TAG, "Get possible match");
         JSONObject possibleMatch;
         mutex_pos_matches.lock();
             possibleMatch = possibleMatchesBuffer.get(pos);
@@ -42,6 +47,7 @@ public class PossibleMatchBuffer {
 
     /* Remove element in position "pos" */
     public void remove(int pos) {
+        Log.d(TAG, "Remove possible match");
         mutex_pos_matches.lock();
             possibleMatchesBuffer.remove(pos);
         mutex_pos_matches.unlock();

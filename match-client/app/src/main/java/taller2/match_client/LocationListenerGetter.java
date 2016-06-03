@@ -8,9 +8,10 @@ import android.util.Log;
 /* Location Listener Getter can get Location as Latitude and Longitude */
 public class LocationListenerGetter implements LocationListener {
 
-    /* Atributes */
+    /* Attributes */
     Double latitude = 0.0;
     Double longitude = 0.0;
+    private static final String TAG = "LocationListenerGetter";
 
     @Override
     public void onLocationChanged(Location location) {
@@ -34,10 +35,12 @@ public class LocationListenerGetter implements LocationListener {
     }
 
     public Double getLatitude() {
+        Log.d(TAG, "Get Latitude");
         return latitude;
     }
 
     public Double getLongitude() {
+        Log.d(TAG, "Get Longitude");
         return longitude;
     }
 };

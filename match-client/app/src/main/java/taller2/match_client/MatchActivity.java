@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -16,7 +17,8 @@ public class MatchActivity extends AppCompatActivity {
     private MatchListAdapter matchListAdapter;
     private ListView matchListView;
     private MatchManager matchManager;
-    private String userEmail = "";
+
+    private static final String TAG = "MatchActivity";
 
     /* On create Activity */
     @Override
@@ -31,12 +33,6 @@ public class MatchActivity extends AppCompatActivity {
         // Add back activity button in the toolbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // UserMail
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            userEmail = bundle.getString(getResources().getString(R.string.email));
-        }
 
         /***  Match Manager ***/
         matchManager = MatchManager.getInstance();
@@ -57,6 +53,7 @@ public class MatchActivity extends AppCompatActivity {
         matchListAdapter = matchManager.getMatchListAdapter();
         matchListView.setAdapter(matchListAdapter);
 
+        Log.i(TAG, "MatchActivity is created");
 
         // come back to principal activity
         Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
@@ -66,6 +63,7 @@ public class MatchActivity extends AppCompatActivity {
 
     /* When some match are taken, its chat is created */
     private void createChat(String email) {
+        Log.i(TAG, "Create ChatActivity");
         Intent startChatActivity = new Intent(this, ChatActivity.class);
         startChatActivity.putExtra(getResources().getString(R.string.email), String.valueOf(email));
         startActivity(startChatActivity);
@@ -83,6 +81,7 @@ public class MatchActivity extends AppCompatActivity {
 
     /* When back button is pressed, PrincipalAppActivity is bring to front */
     public void onBackPressed () {
+        Log.i(TAG, "Back to previous Activity");
         Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
         startAppActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startAppActivity);

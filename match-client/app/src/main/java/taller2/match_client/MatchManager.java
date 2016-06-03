@@ -1,6 +1,7 @@
 package taller2.match_client;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,7 +25,9 @@ public class MatchManager {
     private HashMap<String, JSONObject> possibleMatches;
     private Context androidContext;
     private String userEmail;
-    private MatchListAdapter matchListAdapter; // TODO: PENSAR SI LA USAMOS...
+    private MatchListAdapter matchListAdapter;
+
+    private static final String TAG = "MatchManager";
 
     MatchManager() {
         conversations = new HashMap<String, ChatConversation>();
@@ -39,8 +42,9 @@ public class MatchManager {
         return matchManager;
     }
 
-    /* Initizalize. Charge matches and conversation saved in files. */
+    /* Initialize. Charge matches and conversation saved in files. */
     public void setData(Context androidContext, String matchFile, String conversationsFile, String userMail) {
+        Log.d(TAG, "Set Data to MatchManager");
         this.androidContext = androidContext;
         matchListAdapter = new MatchListAdapter(androidContext);
         userEmail = userMail;
@@ -51,7 +55,7 @@ public class MatchManager {
             matchList = FileManager.readFile(matchFile, androidContext);
             conversationsList = FileManager.readFile(conversationsFile, androidContext);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't read Match File and Conversation File");
         }
         try {
             // add matches
@@ -61,7 +65,10 @@ public class MatchManager {
                 JSONObject match = matchesArray.getJSONObject(i);
                 addMatch(match);
             }
-
+        } catch (JSONException e) {
+            Log.w(TAG, "Error while construct matches Json");
+        }
+        try {
             // add conversations
             JSONObject matchConversations = new JSONObject(conversationsList);
             JSONArray conversationsArray = matchConversations.getJSONArray("conversations");
@@ -69,14 +76,15 @@ public class MatchManager {
                 JSONObject conversation = conversationsArray.getJSONObject(i);
                 addConversation(conversation);
             }
-
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Error while construct conversation Json");
         }
+        Log.d(TAG, "Data is setted");
     }
 
     /* Add match */
     public void addMatch(JSONObject matchData) throws JSONException {
+        Log.d(TAG, "Add Match");
         String email = "";
         email = matchData.getString(androidContext.getResources().getString(R.string.email));
         ChatConversation conversation = new ChatConversation(androidContext, R.layout.right_msg_chat);
@@ -124,13 +132,14 @@ public class MatchManager {
 
     /* Add a conversation with some match */
     public boolean addConversation(JSONObject completeConversation) {
+        Log.d(TAG, "Add Conversation");
         JSONObject conversation = null;
         String matchEmail = null;
         try {
             conversation = completeConversation.getJSONObject(androidContext.getResources().getString(R.string.conversation));
             matchEmail = conversation.getString(androidContext.getResources().getString(R.string.email));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't decode conversation");
         }
 
         mutex_matches.lock();
@@ -158,15 +167,15 @@ public class MatchManager {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            mutex_conversations.unlock();
+            Log.w(TAG, "Can't decode conversation messages");
         }
+        mutex_conversations.unlock();
         return true;
     }
 
     /* Return the match list. */
     public List<JSONObject> getMatches() {
+        Log.d(TAG, "Get Matches");
         List<JSONObject> matchList = new ArrayList<JSONObject>();
         mutex_matches.lock();
             for (JSONObject match : matches.values()) {
@@ -178,6 +187,7 @@ public class MatchManager {
 
     /* Return match */
     public JSONObject getMatch(String matchEmail) {
+        Log.d(TAG, "Get Match");
         JSONObject matchData = null;
         mutex_matches.lock();
         if (matches.containsKey(matchEmail)) {
@@ -189,6 +199,7 @@ public class MatchManager {
 
     /* Return chat conversation of match */
     public ChatConversation getConversation(String matchEmail) {
+        Log.d(TAG, "Get Conversation");
         ChatConversation conversation = null;
         mutex_conversations.lock();
             if (conversations.containsKey(matchEmail)) {

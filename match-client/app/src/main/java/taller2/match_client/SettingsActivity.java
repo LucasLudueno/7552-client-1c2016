@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,7 +28,6 @@ import java.util.List;
 /* SettingsActivity has user interest. User can change its from differents categories and save changes
    (the new interests are send to Server) */
 public class SettingsActivity extends AppCompatActivity {
-
     /* Attributes */
     JSONObject profile;
     private Spinner categoryList;
@@ -48,7 +48,10 @@ public class SettingsActivity extends AppCompatActivity {
     private CheckBox womenSelected;
 
     private AlertDialog internetDisconnectWindow;
+    private Toast profileCreated;
     private ProgressDialog loading;
+
+    private static final String TAG = "SettingsActivity";
 
     /* On create Activity */
     @Override
@@ -91,6 +94,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Include Profile interests in Spinners
         includeProfileInterest();
+
+        Log.i(TAG, "Register Activity is created");
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -176,10 +181,14 @@ public class SettingsActivity extends AppCompatActivity {
         // CheckBoxs
         menSelected = (CheckBox)findViewById(R.id.checkMen);
         womenSelected = (CheckBox)findViewById(R.id.checkWomen);
+
+        // profileCreated Toast
+        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en), Toast.LENGTH_LONG);
     }
 
     /* Add interest in actual spinner */
     void addInterest() {
+        Log.d(TAG, "Add Interest");
         String item = interest_edit.getText().toString();
         if (item.isEmpty()) {
             return;
@@ -195,6 +204,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     /* Remove interest selected from actual spinner */
     void removeInterest() {
+        Log.d(TAG, "Remove Interest");
         String category = categoryList.getSelectedItem().toString();
         ArrayAdapter<String> adapter= getCategoryAdapter(category);
         adapter.remove((String) interestList.getSelectedItem());
@@ -259,15 +269,15 @@ public class SettingsActivity extends AppCompatActivity {
             profile.remove(getResources().getString(R.string.interests));
             profile.put(getResources().getString(R.string.interests),interestArray);
         } catch (JSONException e) {
-            // ERROR
-            // LOG
+            Log.w(TAG, "Can't create Json Profile Request");
         } catch (IOException e) {
-
+            Log.e(TAG, "Can't read Profile File");
         }
 
         // Sending json data to Server
         loading.show();
         /*if ( ActivityHelper.checkConection(getApplicationContext()) ){
+            Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             SendInterestTask checkLogin = new SendInterestTask();
             checkLogin.execute("POST", url, uri, profile.toString());
         } else {
@@ -286,7 +296,7 @@ public class SettingsActivity extends AppCompatActivity {
                 jsonInterest.put(getResources().getString(R.string.value), interest);
                 data.put(jsonInterest);
             } catch (JSONException e) {
-                //e.printStackTrace();
+                Log.w(TAG, "Can't add interest in JsonProfile");
             }
         }
     }
@@ -316,25 +326,26 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't create Json Profile Request");
         } catch (IOException e) {
+            Log.e(TAG, "Can't read Profile File");
         }
     }
 
     /* Check profile response from Server */
     private void checkSettingResponseFromServer(String response) {
+        Log.d(TAG, "Response from Server is received: " + response);
         loading.dismiss();
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_upload_profile))) {
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en),
-                    Toast.LENGTH_LONG).show();
+            profileCreated.show();
             // Update Profile
             try {
                 FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile), getApplicationContext());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Can't write Profile File");
             }
         } else {
             // ERROR
