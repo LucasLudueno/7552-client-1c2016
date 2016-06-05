@@ -50,13 +50,15 @@ public class MatchTab extends Fragment {
             birthday = matchData.getString(getResources().getString(R.string.birthday));
             matchPhoto = b64conv.Base64ToBitmap(matchData.getString(getResources().getString(R.string.photoProfile)));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't get match information from Json Match Profile");
         }
-        ImageView photo = (ImageView)getView().findViewById(R.id.matchProfilePhoto);
-        TextView aliasAndAge = (TextView)getView().findViewById(R.id.matchAliasAndAge);
+        ImageView photo = (ImageView) getView().findViewById(R.id.matchProfilePhoto);
+        TextView aliasView = (TextView) getView().findViewById(R.id.matchAlias);
+        TextView ageView = (TextView) getView().findViewById(R.id.matchAge);
         photo.setImageBitmap(matchPhoto);
-        int age = ActivityHelper.getAge(birthday);
-        aliasAndAge.setText(alias + ", " + String.valueOf(age));
+        int age = ActivityHelper.calculateAge(birthday);
+        aliasView.setText(alias);
+        ageView.setText(getResources().getString(R.string.age_en) + ": " + String.valueOf(age));
         Log.d(TAG, "Match Tab is created");
     }
 }

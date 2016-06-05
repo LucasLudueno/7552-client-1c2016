@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/* SettingsActivity has user interest. User can change its from differents categories and save changes
+/* SettingsActivity has user interest. UserProfile can change its from differents categories and save changes
    (the new interests are send to Server) */
 public class SettingsActivity extends AppCompatActivity {
     /* Attributes */

@@ -14,7 +14,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 /* Match Activity show matches and open chat Activity when some match is clecked */
 public class MatchActivity extends AppCompatActivity {
-    private MatchListAdapter matchListAdapter;
+    private MatchList matchList;
     private ListView matchListView;
     private MatchManager matchManager;
 
@@ -38,20 +38,20 @@ public class MatchActivity extends AppCompatActivity {
         matchManager = MatchManager.getInstance();
 
         // MatchList
-        matchListAdapter = new MatchListAdapter(getApplicationContext());
+        matchList = new MatchList(getApplicationContext());
         matchListView = (ListView) findViewById(R.id.matchList);
         matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        matchListView.setAdapter(matchListAdapter);
+        matchListView.setAdapter(matchList);
 
         // When some match is clicked, its chat activity is created
         matchListView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                createChat(matchListAdapter.getEmail(position));
+                createChat(matchList.getEmail(position));
             }
         });
 
-        matchListAdapter = matchManager.getMatchListAdapter();
-        matchListView.setAdapter(matchListAdapter);
+        matchList = matchManager.getMatchList();
+        matchListView.setAdapter(matchList);
 
         Log.i(TAG, "MatchActivity is created");
 

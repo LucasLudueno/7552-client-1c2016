@@ -47,8 +47,8 @@ public class ActivityHelper {
     }
 
     /* Compare birthday with actual date and return Age */
-    public static int getAge(String birthday) {
-        Log.d(TAG, "getAge");
+    public static int calculateAge(String birthday) {
+        Log.d(TAG, "calculateAge");
         String year = birthday.split("/", 3)[2];    // TODO: CHECKEAR SI NO DA ERROR...
         String month = birthday.split("/", 3)[1];
         String day = birthday.split("/", 3)[0];

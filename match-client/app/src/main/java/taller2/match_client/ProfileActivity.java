@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/* Perfil Activity has user perfil fields. User can change its and save changes (the fields with new values are
+/* Perfil Activity has user perfil fields. UserProfile can change its and save changes (the fields with new values are
  * send to Server) */
 public class ProfileActivity extends AppCompatActivity {
     /* Attributes */
@@ -47,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_perfil);
+        setContentView(R.layout.activity_profile);
 
         // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.perfilToolbar);

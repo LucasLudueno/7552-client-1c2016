@@ -35,6 +35,7 @@ public class ChatActivity extends AppCompatActivity {
         if (bundle != null) {
             matchEmail = bundle.getString(getResources().getString(R.string.email));
         }
+        toolbar.setTitle(matchEmail);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);

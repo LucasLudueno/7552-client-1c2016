@@ -1,0 +1,3 @@
+<resources>
+    <integer name="card_refresh">200</integer>
+</resources>

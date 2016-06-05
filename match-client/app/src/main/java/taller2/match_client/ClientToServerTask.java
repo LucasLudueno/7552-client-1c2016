@@ -27,13 +27,13 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
         String data = params[3];
 
         String receiveString = "";
-        HttpConnectionClient httpConnection = new HttpConnectionClient();
+        RequestSender httpConnection = new RequestSender();
         try {
             if (requestType.equals("GET") ) {
                 Log.d(TAG, "Send GET Request");
-                receiveString = httpConnection.GETRequest(url, uri);
+                receiveString = httpConnection.sendGETRequest(url, uri);
             } else if (requestType.equals("POST") ) {
-                receiveString = httpConnection.POSTRequest(url, uri, data);
+                receiveString = httpConnection.sendPOSTRequest(url, uri, data);
                 Log.d(TAG, "Send POST Request");
             } else {
                 Log.d(TAG, "No type of Request is specified");

@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +23,6 @@ import java.io.IOException;
 
 /* MainActivity manage the Login. When the user login, check with the server login information */
 public class MainActivity extends AppCompatActivity {
-
     /* Attributes */
     private AlertDialog badLoginWindow;
     private AlertDialog emptyFieldsWindow;
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 FileManager.writeFile(getResources().getString(R.string.profile_filename), profile, getApplicationContext());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Can't write Profile File");
             }
             // start principal aplication
             Log.i(TAG, "Create Principal Activity");
@@ -227,30 +227,11 @@ public class MainActivity extends AppCompatActivity {
 }
 
 // REFACTOR
-// TODO: EVALUAR QUÉ MENUES VAN DENTRO DE LAS ACTIVITIES. SI NO VAN: BORRAR DESDE MENU Y DESDE ACTIVITY
-// TODO: VAUALIZAR LOS MARGENES DE SETTINGS SI CONSERVAMOS EL LAYOUT
-// TODO: VALUALIZAR MARGENES EN GENERAL DE LOS CONTENT LAYOUT SI CONSERVAMOS LOS MISMOS
 // TODO: ELIMINAR IMPORTS NO USADOS
-// TODO: ELIMINAR STRINGS HARDCODEADOS EN XML
-// TODO: ORGANIZAR CLASES
-// TODO: SEND LOGIS TASK COMO ATRIBUTO
 // TODO: METOOD ON POST EXECUTE - REFACTOR
-// TODO: ELIMINAR FUNCION CHECK-CONECTION REPETIDA
-// TODO: MANEJAR TIPOS DE RESPONSE CODE
 // TODO: CHECKEAR ATRIBUTOS
 
 // DUDAS
-// TODO: IMAGEN DE PERFIL CIRCULAR Y NOMBRE DE USUARIO ALINEADO
-// TODO: AGRUPAR RIGHT Y LEFT MSG ??
 // TODO: FONDO DE PANTALLA A CHAT ??
-// TODO: AGRUPAR PERFIL Y REGISTER ??
-// TODO: CHECKEAR REQUEST NO JSON... POR EL HEADER...
 
 // NECESARIO
-// TODO: CERRAR ACTIVITIES QUE NO SE USAN MAS
-// TODO: ENCAPSULAMIENTO DE METODOS
-// TODO: STACK DE CHAT ACTIVITY
-// TODO: TRY-CATCH ---> LOG
-// TODO: CHECK CONECTION --> CLASS
-// TODO: CHECK FORMAT --> CLASS
-// TODO: LOCATION MANAGER --> CLASS

@@ -40,12 +40,22 @@
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/matchAliasAndAge"
+                android:id="@+id/matchAlias"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Alias,edad"
+                android:text="Alias"
                 android:textColor="@color/cardview_dark_background"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/matchAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edad: "
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/cardview_dark_background"
                 android:layout_marginLeft="16dp"
                 android:layout_marginBottom="100dp"/>
         </LinearLayout>

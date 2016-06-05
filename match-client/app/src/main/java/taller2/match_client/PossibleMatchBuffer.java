@@ -12,7 +12,7 @@ public class PossibleMatchBuffer {
     /* Attributes */
     private ReentrantLock mutex_pos_matches;
     private ArrayList<JSONObject> possibleMatchesBuffer;
-    private static final String TAG = "BossibleMatchBuffer";
+    private static final String TAG = "PossibleMatchBuffer";
 
     PossibleMatchBuffer() {
         mutex_pos_matches = new ReentrantLock();
@@ -46,10 +46,15 @@ public class PossibleMatchBuffer {
     }
 
     /* Remove element in position "pos" */
-    public void remove(int pos) {
+    public boolean remove(int pos) {
         Log.d(TAG, "Remove possible match");
+        boolean canRemove = false;
         mutex_pos_matches.lock();
-            possibleMatchesBuffer.remove(pos);
+            if (possibleMatchesBuffer.size() > pos) {
+                possibleMatchesBuffer.remove(pos);
+                canRemove = true;
+            }
         mutex_pos_matches.unlock();
+        return canRemove;
     }
 }

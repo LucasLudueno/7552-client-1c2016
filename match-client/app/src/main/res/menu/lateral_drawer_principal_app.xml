@@ -6,11 +6,11 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/appsettings"
             android:paddingTop="16dp"
-            android:title="Settings" />
+            android:title="Interests" />
         <item
             android:id="@+id/nav_perfil"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Perfil" />
+            android:title="Profile" />
 
         <item
             android:id="@+id/nav_chat"

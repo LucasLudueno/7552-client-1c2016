@@ -22,17 +22,15 @@ public class MatchManager {
     private ReentrantLock mutex_matches;
     private HashMap<String, ChatConversation> conversations;
     private HashMap<String, JSONObject> matches;
-    private HashMap<String, JSONObject> possibleMatches;
     private Context androidContext;
     private String userEmail;
-    private MatchListAdapter matchListAdapter;
+    private MatchList matchList;
 
     private static final String TAG = "MatchManager";
 
     MatchManager() {
         conversations = new HashMap<String, ChatConversation>();
         matches = new HashMap<String, JSONObject>();
-        possibleMatches = new HashMap<String, JSONObject>();
         mutex_matches = new ReentrantLock();
         mutex_conversations = new ReentrantLock();
     }
@@ -46,7 +44,7 @@ public class MatchManager {
     public void setData(Context androidContext, String matchFile, String conversationsFile, String userMail) {
         Log.d(TAG, "Set Data to MatchManager");
         this.androidContext = androidContext;
-        matchListAdapter = new MatchListAdapter(androidContext);
+        matchList = new MatchList(androidContext);
         userEmail = userMail;
         String matchList = "";
         String conversationsList = "";
@@ -97,37 +95,7 @@ public class MatchManager {
             matches.put(email, matchData);
         mutex_matches.unlock();
 
-        matchListAdapter.addItem(matchData);
-    }
-
-    /* Add possible match */
-    public void addPossibleMatches(JSONArray possibleMatchList) throws JSONException {
-        for (int i = 0; i < possibleMatchList.length(); ++i) {
-            JSONObject possibleMatch = possibleMatchList.getJSONObject(i);
-            String email = possibleMatch.getString(androidContext.getResources().getString(R.string.email));
-            possibleMatches.put(email, possibleMatch);
-        }
-    }
-
-    /* Remove possible match */
-    public boolean removePossibleMatch(String pmEmail) {
-        if (possibleMatches.containsKey(pmEmail)) {
-            possibleMatches.remove(pmEmail);
-            return true;
-        }
-        return false;
-    }
-
-    /* Return possible match */
-    public JSONObject getPossibleMatch() {
-        if (possibleMatches.isEmpty()) {
-            return null;
-        }
-        Set<String> posMatches = possibleMatches.keySet();
-        List<String> list = new ArrayList<String>(posMatches);
-        int random = (int)(Math.random()*(list.size()));;
-        String posMatchEmailRandom = list.get(random);
-        return possibleMatches.get(posMatchEmailRandom);
+        matchList.addItem(matchData);
     }
 
     /* Add a conversation with some match */
@@ -210,8 +178,8 @@ public class MatchManager {
     }
 
     /* Return Match List */
-    public MatchListAdapter getMatchListAdapter() {
-        return matchListAdapter;
+    public MatchList getMatchList() {
+        return matchList;
     }
 
 }

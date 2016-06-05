@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button continueRegButton;
 
     private LocationManager locationManager;
-    private LocationListenerGetter locationListener;
+    private ActivityLocationListener locationListener;
     private int minTimeToRefresh = 5000;
 
     private String userName;
@@ -82,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Location Manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListenerGetter();
+        locationListener = new ActivityLocationListener();
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
         } catch (SecurityException e) {
