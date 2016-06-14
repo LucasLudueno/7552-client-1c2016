@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -12,11 +13,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import org.json.JSONException;
+
 /* Match Activity show matches and open chat Activity when some match is clecked */
 public class MatchActivity extends AppCompatActivity {
     private MatchList matchList;
     private ListView matchListView;
-    private MatchManager matchManager;
+    private MatchManagerProxy matchManager;
 
     private static final String TAG = "MatchActivity";
 
@@ -35,10 +38,10 @@ public class MatchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /***  Match Manager ***/
-        matchManager = MatchManager.getInstance();
+        matchManager = MatchManagerProxy.getInstance();
 
         // MatchList
-        matchList = new MatchList(getApplicationContext());
+        matchList = matchManager.getMatchList();
         matchListView = (ListView) findViewById(R.id.matchList);
         matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         matchListView.setAdapter(matchList);
@@ -49,10 +52,6 @@ public class MatchActivity extends AppCompatActivity {
                 createChat(matchList.getEmail(position));
             }
         });
-
-        matchList = matchManager.getMatchList();
-        matchListView.setAdapter(matchList);
-
         Log.i(TAG, "MatchActivity is created");
 
         // come back to principal activity
@@ -64,9 +63,23 @@ public class MatchActivity extends AppCompatActivity {
     /* When some match are taken, its chat is created */
     private void createChat(String email) {
         Log.i(TAG, "Create ChatActivity");
+        String alias = "";
+        try {
+            alias = matchManager.getMatch(email).getString(getResources().getString(R.string.alias));
+        } catch (JSONException e) {
+            Log.w(TAG, "Can't get match from matchManager");
+        }
         Intent startChatActivity = new Intent(this, ChatActivity.class);
         startChatActivity.putExtra(getResources().getString(R.string.email), String.valueOf(email));
+        startChatActivity.putExtra(getResources().getString(R.string.alias), String.valueOf(alias));
         startActivity(startChatActivity);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_match, menu);
+        return true;
     }
 
     /* Handle menu item click */

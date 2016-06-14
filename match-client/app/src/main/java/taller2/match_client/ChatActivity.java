@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import java.util.List;
 
 /* Chat Activity manage Chat Tab and Match Tab. It create then and setup view pages */
 public class ChatActivity extends AppCompatActivity {
+    private MatchTab matchTab;
+    private ChatTab chatTab;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private String matchEmail = "";
@@ -26,16 +29,20 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Match Email
+        // Match Email and Alias
+        String alias = "";
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             matchEmail = bundle.getString(getResources().getString(R.string.email));
+            alias = bundle.getString(getResources().getString(R.string.alias));
         }
-        toolbar.setTitle(matchEmail);
+
+        // Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
+        toolbar.setTitle("Chat with " + alias);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -51,8 +58,8 @@ public class ChatActivity extends AppCompatActivity {
         Log.d(TAG, "Setup Chat and Match Tab");
         Bundle bundle = new Bundle();
         bundle.putString(getResources().getString(R.string.email), matchEmail);
-        ChatTab chatTab = new ChatTab();
-        MatchTab matchTab = new MatchTab();
+        chatTab = new ChatTab();
+        matchTab = new MatchTab();
         chatTab.setArguments(bundle);
         matchTab.setArguments(bundle);
 
@@ -92,12 +99,23 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_chat, menu);
+        return true;
+    }
+
     /* Handle menu item click */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
             Log.i(TAG, "Back to previous Activity");
+            matchTab.onDestroy();
+            chatTab.onDestroy();
             this.finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);

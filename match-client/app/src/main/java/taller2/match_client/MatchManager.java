@@ -11,73 +11,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
-/* Match Manager, manage usar matches and conversations with th */
-public class MatchManager {
+/* Match Manager, manage user matches and conversations (can save and get) */
+public class MatchManager implements MatchManagerInterface {
     /* Attributes */
-    private static final MatchManager matchManager = new MatchManager();
     private ReentrantLock mutex_conversations;
     private ReentrantLock mutex_matches;
     private HashMap<String, ChatConversation> conversations;
     private HashMap<String, JSONObject> matches;
-    private Context androidContext;
-    private String userEmail;
+    private Context androidContext = null;
+    private String userEmail = "";
     private MatchList matchList;
 
     private static final String TAG = "MatchManager";
 
-    MatchManager() {
+    MatchManager(String email, Context context) {
         conversations = new HashMap<String, ChatConversation>();
         matches = new HashMap<String, JSONObject>();
         mutex_matches = new ReentrantLock();
         mutex_conversations = new ReentrantLock();
-    }
-
-    /* Return an instance */
-    public static MatchManager getInstance() {
-        return matchManager;
-    }
-
-    /* Initialize. Charge matches and conversation saved in files. */
-    public void setData(Context androidContext, String matchFile, String conversationsFile, String userMail) {
-        Log.d(TAG, "Set Data to MatchManager");
-        this.androidContext = androidContext;
-        matchList = new MatchList(androidContext);
-        userEmail = userMail;
-        String matchList = "";
-        String conversationsList = "";
-        try {
-            // read files
-            matchList = FileManager.readFile(matchFile, androidContext);
-            conversationsList = FileManager.readFile(conversationsFile, androidContext);
-        } catch (IOException e) {
-            Log.w(TAG, "Can't read Match File and Conversation File");
-        }
-        try {
-            // add matches
-            JSONObject matchData = new JSONObject(matchList);
-            JSONArray matchesArray = matchData.getJSONArray("matches");
-            for (int i = 0; i < matchesArray.length(); ++i) {
-                JSONObject match = matchesArray.getJSONObject(i);
-                addMatch(match);
-            }
-        } catch (JSONException e) {
-            Log.w(TAG, "Error while construct matches Json");
-        }
-        try {
-            // add conversations
-            JSONObject matchConversations = new JSONObject(conversationsList);
-            JSONArray conversationsArray = matchConversations.getJSONArray("conversations");
-            for (int i = 0; i < conversationsArray.length(); ++i) {
-                JSONObject conversation = conversationsArray.getJSONObject(i);
-                addConversation(conversation);
-            }
-        } catch (JSONException e) {
-            Log.w(TAG, "Error while construct conversation Json");
-        }
-        Log.d(TAG, "Data is setted");
+        matchList = new MatchList(context);
+        userEmail = email;
+        androidContext = context;
     }
 
     /* Add match */
@@ -182,4 +138,8 @@ public class MatchManager {
         return matchList;
     }
 
+    /* Return email */
+    public String getEmail() {
+        return userEmail;
+    }
 }

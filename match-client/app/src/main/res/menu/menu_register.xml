@@ -5,9 +5,8 @@
     tools:context="taller2.match_client.RegisterActivity">
 
     <item
-        android:id="@+id/action_menu_setting"
+        android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="Settings"
-        android:icon="@drawable/appsettings"
+        android:title="@string/action_register_en"
         app:showAsAction="never" />
 </menu>

@@ -17,7 +17,7 @@ import org.json.JSONObject;
  * and age and show them in activity. */
 public class MatchTab extends Fragment {
     /* Attributes */
-    private MatchManager matchManager;
+    private MatchManagerProxy matchManager;
     private String matchEmail;
     private static final String TAG = "MatchTab";
 
@@ -38,7 +38,7 @@ public class MatchTab extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         /*** Match Manager ***/
-        matchManager = MatchManager.getInstance();
+        matchManager = MatchManagerProxy.getInstance();
 
         Base64Converter b64conv = new Base64Converter();
         JSONObject matchData = matchManager.getMatch(matchEmail);

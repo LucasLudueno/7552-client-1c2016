@@ -137,4 +137,20 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!-- Action Menu -->
+    <string name="action_interests_en">Add Interests and save changes =)</string>
+    <string name="action_profile_en">Change photo and save changes =)</string>
+    <string name="action_register_en">Complete fields and Register!</string>
+    <string name="action_login_en">Complete fields and Login!</string>
+    <string name="action_chat_en">Chat with your Match :O</string>
+    <string name="action_match_en">Select a Match and chat now!</string>
+    <string name="action_principal_en">Touch heart and meet people :P</string>
+
+    <!--<string name="action_interests_en">To add an interest please choose a category, write an interest and press Add Button</string>
+    <string name="action_profile_en">To Change Profile Photo please click the photo. To change Name and UserName just write it in the appropriate text box</string>
+    <string name="action_register_en">To Register please complete all fields and press Continue button</string>
+    <string name="action_login_en">To Login please enter your email and password. If you have not an acount, please press Register Now button</string>
+    <string name="action_chat_en">To Send a chat write it and press Send button. To see Match Information swipe the screen left</string>
+    <string name="action_match_en"></string>
+    <string name="action_principal_en"></string>-->
 </resources>

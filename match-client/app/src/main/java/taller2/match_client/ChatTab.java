@@ -1,8 +1,9 @@
 package taller2.match_client;
 
-import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,19 +14,26 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
 
 /* Chat Tab is a Fragment that is used like a chat. It has a listView where we watch chat messages
  * and could send and receive chat messages from "match" person. */
 public class ChatTab extends Fragment {
     /* Attributes */
-    private MatchManager matchManager;
+    private MatchManagerProxy matchManager;
     private ChatConversation chatArrayAdapter;
     private ListView listView;
     private Button sendChat;
     private boolean userSide = true;    //true = right side
     private String matchEmail;
-
+    private String userEmail;
+    private Thread getConversationTimer;
+    //private Thread sendConversationTimer;
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 3000;  // 3 seg
+    protected static final int GET_CONVERSATION_CODE = 2;
     private static final String TAG = "ChatTab";
 
     public ChatTab() {
@@ -45,7 +53,8 @@ public class ChatTab extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         /*** Match Manager ***/
-        matchManager = MatchManager.getInstance();
+        matchManager = MatchManagerProxy.getInstance();
+        userEmail = matchManager.getEmail();
 
         // Chat Conversation
         chatArrayAdapter = matchManager.getConversation(matchEmail);
@@ -70,6 +79,10 @@ public class ChatTab extends Fragment {
                 onSendChatClick(v);
             }
         });
+
+        /* Timer */
+        getConversationTimer = new Thread(new GetConversations());
+        getConversationTimer.start();
 
         Log.i(TAG, "ChatTab is created");
     }
@@ -105,11 +118,107 @@ public class ChatTab extends Fragment {
         }
     }
 
-    /* Send Chat to Server */
-    private class SendChatTask extends ClientToServerTask {
+    /* Check response from Server after sending get conversation request. If new conversations are
+     * received, MatchManager keep this ones. */
+    private void checkGetConversationResponseFromServer(String response) {
+        Log.d(TAG, "Get Conversation Response from Server is received: " + response);
+        String responseCode = response.split(":", 2)[0];
+        String conversation = response.split(":", 2)[1];
+
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            JSONObject conversationJson = null;
+            try {
+                conversationJson = new JSONObject(conversation);
+            } catch (JSONException e) {
+                Log.w(TAG, "Can't process Matches Conversation Json received from Server");
+            }
+            matchManager.addConversation(conversationJson);
+        }
+    }
+
+    /* Send a request asking if there are new conversations */
+    private void sendGetConversationsRequestToServer() {
+        List<JSONObject> matches = matchManager.getMatches();
+        for (int i = 0; i < matches.size(); ++i) {
+            JSONObject match = matches.get(i);
+            String matchEmail = "";
+            JSONObject convRequest = new JSONObject();
+            try {
+                matchEmail = match.getString(getResources().getString(R.string.email));
+                convRequest.put(getResources().getString(R.string.email_src),
+                        matchEmail);
+                convRequest.put(getResources().getString(R.string.email_dst),
+                        userEmail);
+            } catch (JSONException e) {
+                Log.w(TAG, "Can't create GetConversation Json Request");
+            }
+            //if (ActivityHelper.checkConection(getApplicationContext())) {
+            Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
+            //SendGetConversationTask getMatchs = new SendGetConversationTask();
+            checkGetConversationResponseFromServer(
+                    MockServer.getConversation(convRequest.toString()));
+            //} else {
+
+            // }
+        }
+    }
+
+
+    /* Send Conversation to Server */
+    private class SendConversationTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
             checkSendChatResponseFromServer(dataGetFromServer);
         }
+    }
+
+    /* Get Conversation to Server */
+    private class SendGetConversationTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkGetConversationResponseFromServer(dataGetFromServer);
+        }
+    }
+
+
+    /* Thread Handler, handle get and send conversation events */
+    Handler conversationHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case GET_CONVERSATION_CODE: // Send Get conversation request to Server
+                    sendGetConversationsRequestToServer();
+                    break;
+            }
+            super.handleMessage(msg);
+        }
+    };
+
+    /* Get Conversations Thread. After a time send get conversation request to Server */
+    class GetConversations implements Runnable {
+        public void run() {
+            while (! Thread.currentThread().isInterrupted()) {
+                Log.i(TAG, "Get Conversations Thread wake up");
+                Message message = new Message();
+                message.what = GET_CONVERSATION_CODE;
+                ChatTab.this.conversationHandler.sendMessage(message);
+
+                try {
+                    Thread.sleep(GET_CONVERSATION_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            getConversationTimer.interrupt();
+            getConversationTimer.join();
+        } catch (InterruptedException e) {
+            Log.w(TAG, "Can't join threads");
+        }
+        super.onDestroy();
     }
 }

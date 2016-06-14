@@ -178,7 +178,7 @@ public class MockServer {
     }
 
     /* Represent Get conversation Request */
-    public String getConversation(String conversationRequest) {
+    public static String getConversation(String conversationRequest) {
         JSONObject conversationToSend = new JSONObject();
 
         JSONObject conversationJson = null;
@@ -206,7 +206,7 @@ public class MockServer {
     }
 
     /* Represent Send Pos Match Interest Request */
-    public String like_dont(String interest) {
+    public static String like_dont(String interest) {
         try {
             JSONObject interestJson = new JSONObject(interest);
             String emailSrc = interestJson.getString("emailSrc");
