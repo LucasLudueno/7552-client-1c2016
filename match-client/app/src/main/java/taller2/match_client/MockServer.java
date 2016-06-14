@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /* This class represent the Aplication Server. Its a test class  */
-public class MockServer {
+public class MockServer {   //TODO: LOG MOCK
     /* Attributes */
     private Context context;
     private HashMap<String, JSONObject> matches;
@@ -213,6 +213,23 @@ public class MockServer {
             String emailDst = interestJson.getString("emailDst");
         } catch (JSONException e) {
             e.printStackTrace();
+            return "201:error";
+        }
+        return "200:ok";
+    }
+
+    /* Represent Send Conversation Request */
+    public static String sendConversation(String conversation) {
+        try {
+            JSONObject conversationJson = new JSONObject(conversation);
+            String mailSrc = conversationJson.getString("emailSrc");
+            String mailDst = conversationJson.getString("emailDst");
+            JSONArray messages = conversationJson.getJSONArray("messages");
+            for (int i = 0; i < messages.length(); ++i) {
+                String msg = (messages.getJSONObject(i)).getString("msg");
+            }
+
+        } catch (JSONException e) {
             return "201:error";
         }
         return "200:ok";

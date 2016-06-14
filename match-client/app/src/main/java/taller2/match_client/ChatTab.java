@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -92,9 +93,25 @@ public class ChatTab extends Fragment {
         String chatString = chatText.getText().toString();
         if (chatString.compareTo("") != 0) {
             chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
+        } else {
+            return;
         }
+        JSONObject conversation = new JSONObject();
+        JSONArray messages = new JSONArray();
+        JSONObject msg = new JSONObject();
+        try {
+            msg.put(getResources().getString(R.string.msg),chatString);
+            messages.put(msg);
+            conversation.put(getResources().getString(R.string.email_src),userEmail);
+            conversation.put(getResources().getString(R.string.email_dst),matchEmail);
+            conversation.put(getResources().getString(R.string.messages),messages);
+        } catch (JSONException e) {
+            Log.e(TAG, "Can't construct sendConversation Json Request");
+        }
+
         //TODO: Mandar chat al Server.
-        //Log.d(TAG, "Send Chat to Server: " + chatString);
+        MockServer.sendConversation(conversation.toString());
+        Log.d(TAG, "Send Chat to Server: " + chatString);
     }
 
     /* When Send button is pressed, the content of the ChatText is send */
@@ -138,13 +155,8 @@ public class ChatTab extends Fragment {
 
     /* Send a request asking if there are new conversations */
     private void sendGetConversationsRequestToServer() {
-        List<JSONObject> matches = matchManager.getMatches();
-        for (int i = 0; i < matches.size(); ++i) {
-            JSONObject match = matches.get(i);
-            String matchEmail = "";
             JSONObject convRequest = new JSONObject();
             try {
-                matchEmail = match.getString(getResources().getString(R.string.email));
                 convRequest.put(getResources().getString(R.string.email_src),
                         matchEmail);
                 convRequest.put(getResources().getString(R.string.email_dst),
@@ -160,7 +172,6 @@ public class ChatTab extends Fragment {
             //} else {
 
             // }
-        }
     }
 
 
