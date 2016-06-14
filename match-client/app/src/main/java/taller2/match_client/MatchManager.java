@@ -41,6 +41,15 @@ public class MatchManager implements MatchManagerInterface {
         Log.d(TAG, "Add Match");
         String email = "";
         email = matchData.getString(androidContext.getResources().getString(R.string.email));
+
+        mutex_matches.lock();
+            if (matches.containsKey(email)) {
+                mutex_matches.unlock();
+                Log.w(TAG, "Try to add match that exists");
+                return;
+            }
+        mutex_matches.unlock();
+
         ChatConversation conversation = new ChatConversation(androidContext, R.layout.right_msg_chat);
 
         mutex_conversations.lock();

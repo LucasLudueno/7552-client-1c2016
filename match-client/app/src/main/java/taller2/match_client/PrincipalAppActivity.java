@@ -149,7 +149,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         matchManager.initialize(userEmail, getApplicationContext());
 
         String conversationsFileName =  "";//getResources().getString(R.string.conversation_prefix_filename) + userEmail;
-        String matchFileName = "";//getResources().getString(R.string.matches_prefix_filename) + userEmail;
+        String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
 
         Log.d(TAG, "Set Data to MatchManager");
         String matchList = "";
@@ -575,15 +575,7 @@ public class PrincipalAppActivity extends AppCompatActivity
                 for (int i = 0; i < posMatchArray.length(); ++i) {
                     JSONObject posMatch = posMatchArray.getJSONObject(i);
                     this.possibleMatchesBuffer.add(posMatch);
-
-                    /*Bitmap photo = bs64.Base64ToBitmap(posMatch.getString(getResources().getString(R.string.photoProfile)));
-                    String name = posMatch.getString(getResources().getString(R.string.alias));
-                    CardModel card = new CardModel(name, "Description goes here", photo);
-                    possibleMatchAdapter.add(card);*/
-
                 }
-                //possibleMatchBuffer = (CardContainer) findViewById(R.id.possible_match_container);
-                //possibleMatchBuffer.setAdapter(possibleMatchAdapter);
 
                 if (actualMatch == null && possibleMatchesBuffer.size() > 0) {
                     updatePosMatch();
@@ -602,6 +594,17 @@ public class PrincipalAppActivity extends AppCompatActivity
         String matches = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+            // Get matchArray from file
+            String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
+            JSONArray matchArrayFile = null;
+            try {
+                matchArrayFile = new JSONObject(FileManager.readFile(matchFileName, this)).getJSONArray("matches");
+            } catch (Exception e) {
+                matchArrayFile = new JSONArray();
+                Log.w(TAG, "Can't open match file");
+            }
+
+            // Get each match from Server response
             JSONObject matchData = null;
             JSONArray matchesArray = null;
             try {
@@ -609,7 +612,8 @@ public class PrincipalAppActivity extends AppCompatActivity
                 matchesArray = matchData.getJSONArray(getResources().getString(R.string.matches));
                 for (int i = 0; i < matchesArray.length(); ++i) {
                     JSONObject match = matchesArray.getJSONObject(i);
-                    matchManager.addMatch(match);
+                    matchManager.addMatch(match);   // Put in MatchManager
+                    matchArrayFile.put(match);      // Put in array to File
                 }
                 // Update match icon
                 if (matchesArray.length() > 0 && menu != null) {
@@ -621,6 +625,17 @@ public class PrincipalAppActivity extends AppCompatActivity
             if (matchesArray.length() > 0) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.new_matches_en),
                         Toast.LENGTH_LONG).show();
+
+                // Save matches in file
+                JSONObject matchesFileData = new JSONObject();
+                try {
+                    matchesFileData.put("matches", matchArrayFile);
+                    FileManager.writeFile(matchFileName, matchesFileData.toString(), getApplicationContext());
+                } catch (JSONException e) {
+                    Log.w(TAG, "Can't construct match file from Json");
+                } catch (IOException e) {
+                    Log.w(TAG, "Can't write match file");
+                }
             }
         }
     }
