@@ -17,7 +17,7 @@
     <string name="title_activity_chat2">Chat</string>
 
     <!-- Protocol Strings -->
-    <string name="server_ip">http://192.168.0.5:8000</string>
+    <string name="server_ip">http://192.168.0.6:8000</string>
     <string name="login_uri">/login</string>
     <string name="register_uri">/register</string>
     <string name="update_profile_uri">/updateprofile</string>
@@ -27,17 +27,17 @@
     <string name="like_uri">/like</string>
     <string name="dont_like_uri">/dontlike</string>
     <string name="ok_response_code_register">201</string>
-    <string name="ok_response_code_login">200</string>
-    <string name="ok_response_code_upload_profile">200</string>
+    <string name="ok_response_code_login">201</string>
+    <string name="ok_response_code_upload_profile">201</string>
     <string name="ok_response_code_get_matches">200</string>
     <string name="ok_response_code_get_pos_matches">200</string>
     <string name="ok_response_code_get_conversation">200</string>
+    <string name="ok_response_code_send_conversation">200</string>
     <string name="ok_response_code_send_pos_match_interest">200</string>
     <string name="cant_connect_to_server">400:Error</string>
 
-
-    <string name="userName">name</string>
     <!-- Json data Strings -->
+    <string name="userName">name</string>
     <string name="alias">alias</string>
     <string name="email">email</string>
     <string name="password">password</string>

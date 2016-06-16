@@ -18,6 +18,7 @@ public class MatchManager implements MatchManagerInterface {
     /* Attributes */
     private ReentrantLock mutex_conversations;
     private ReentrantLock mutex_matches;
+    private ConversationBuffer conversationBuffer;
     private HashMap<String, ChatConversation> conversations;
     private HashMap<String, JSONObject> matches;
     private Context androidContext = null;
@@ -28,6 +29,7 @@ public class MatchManager implements MatchManagerInterface {
 
     MatchManager(String email, Context context) {
         conversations = new HashMap<String, ChatConversation>();
+        conversationBuffer = new ConversationBuffer(context);
         matches = new HashMap<String, JSONObject>();
         mutex_matches = new ReentrantLock();
         mutex_conversations = new ReentrantLock();
@@ -64,7 +66,7 @@ public class MatchManager implements MatchManagerInterface {
     }
 
     /* Add a conversation with some match */
-    public boolean addConversation(JSONObject completeConversation) {
+    public boolean addConversation(JSONObject completeConversation, boolean isNewConversation) {
         Log.d(TAG, "Add Conversation");
         JSONObject conversation = null;
         String matchEmail = null;
@@ -89,6 +91,11 @@ public class MatchManager implements MatchManagerInterface {
             JSONArray messages = conversation.getJSONArray(androidContext.getResources().getString(R.string.messages));
             for (int i = 0; i < messages.length(); ++i) {
                 JSONObject message = messages.getJSONObject(i);
+
+                if (isNewConversation) {
+                    conversationBuffer.addConversation(matchEmail, message);
+                }
+
                 String emailSource = message.getString(androidContext.getResources().getString(R.string.send_from));
                 String stringMessage = message.getString(androidContext.getResources().getString(R.string.msg));
                 //int time = message.getInt("time");
@@ -150,5 +157,11 @@ public class MatchManager implements MatchManagerInterface {
     /* Return email */
     public String getEmail() {
         return userEmail;
+    }
+
+    /*  */
+    public void updateConversationInFile(String fileName) {
+        Log.d(TAG, "Update conversations in file");
+        conversationBuffer.writeConversations(fileName);
     }
 }

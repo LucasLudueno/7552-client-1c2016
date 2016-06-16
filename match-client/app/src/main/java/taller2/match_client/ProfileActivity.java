@@ -178,17 +178,17 @@ public class ProfileActivity extends AppCompatActivity {
             Log.e(TAG, "Can't read Profile File");
         }
         // Sending json data to Server
-        /*if ( ActivityHelper.checkConection(getApplicationContext()) ) {
+        if ( ActivityHelper.checkConection(getApplicationContext()) ) {
             Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             loadingWindow.show();
             String url = getResources().getString(R.string.server_ip);
             String uri = getResources().getString(R.string.update_profile_uri);
-            SendProfileTask checkLogin = new SendProfileTask();
-            checkLogin.execute("POST",url, uri, String.valueOf(profile));
+            SendProfileTask checkProfileUpdate = new SendProfileTask();
+            checkProfileUpdate.execute("POST",url, uri, String.valueOf(profile));
         } else {
             internetDisconnectWindow.show();
-        }*/
-        checkProfileResponseFromServer("200:ok"); //TODO: FOR NOW...
+        }
+       // checkProfileResponseFromServer("200:ok"); //TODO: FOR NOW...
     }
 
     /* Return true if format of fields is correct */

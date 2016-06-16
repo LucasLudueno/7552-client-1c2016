@@ -28,8 +28,8 @@ public class MatchManagerProxy implements MatchManagerInterface {
     }
 
     /* Add a conversation with some match */
-    public boolean addConversation(JSONObject completeConversation) {
-        return matchManager.addConversation(completeConversation);
+    public boolean addConversation(JSONObject completeConversation, boolean isNewConversation) {
+        return matchManager.addConversation(completeConversation, isNewConversation);
     }
 
     /* Return the match list. */
@@ -55,5 +55,10 @@ public class MatchManagerProxy implements MatchManagerInterface {
     /* Return User Email */
     public String getEmail() {
         return matchManager.getEmail();
+    }
+
+    /*  */
+    public void updateConversationInFile(String fileName) {
+        matchManager.updateConversationInFile(fileName);
     }
 }

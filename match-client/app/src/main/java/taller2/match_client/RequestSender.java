@@ -43,7 +43,7 @@ public class RequestSender {
             url = new URL(urlString + uriString);
             httpConnection = (HttpURLConnection) url.openConnection();
             httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Accept-Language", "UTF-8");
+            //httpConnection.setRequestProperty("Accept-Language", "UTF-8");
             httpConnection.setDoInput(true);
 
             httpConnection.setRequestProperty("Content-Type", "application/json");

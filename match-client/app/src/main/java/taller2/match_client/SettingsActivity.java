@@ -277,14 +277,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Sending json data to Server
         loading.show();
-        /*if ( ActivityHelper.checkConection(getApplicationContext()) ){
+        if ( ActivityHelper.checkConection(getApplicationContext()) ){
             Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             SendInterestTask checkLogin = new SendInterestTask();
             checkLogin.execute("POST", url, uri, profile.toString());
         } else {
             internetDisconnectWindow.show();
-        }*/
-        checkSettingResponseFromServer("200:ok");
+        }
+        //checkSettingResponseFromServer("200:ok");
     }
 
     /* Add each interest of interest Array and save they in Json Array */

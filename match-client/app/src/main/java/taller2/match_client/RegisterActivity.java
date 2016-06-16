@@ -130,7 +130,7 @@ public class RegisterActivity extends AppCompatActivity {
         continueRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                continueRegisterOnClick(v);
+                sendRegisterToServer(v);
             }
         });
 
@@ -165,7 +165,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     /* This function check fields format and if its ok, send the register information to Server to check it.
         If its ok again and the user not exists, PrincipalAppActivity is created. */
-    public void continueRegisterOnClick(View v) {
+    public void sendRegisterToServer(View v) {
         userName = userNameView.getText().toString();
         userPassword = userPasswordView.getText().toString();
         userRealName = userRealNameView.getText().toString();
@@ -207,16 +207,24 @@ public class RegisterActivity extends AppCompatActivity {
 
             // location
             JSONObject location = new JSONObject();
-            location.put(getResources().getString(R.string.latitude),latitude);
+            location.put(getResources().getString(R.string.latitude), latitude);
             location.put(getResources().getString(R.string.longitude), longitude);
             registerData.put(getResources().getString(R.string.location),location);
 
             // interests
             JSONArray interestEmptyList = new JSONArray();
-            registerData.put(getResources().getString(R.string.interests),interestEmptyList);
+            //registerData.put(getResources().getString(R.string.interests),interestEmptyList);
+
+            //JSONObject interest1 = new JSONObject("{\"category\": \"sex\", \"value\": \"women\"}");
+            //JSONObject interest2 = new JSONObject("{\"category\": \"sex\", \"value\": \"men\"}");
+            JSONObject interest1 = new JSONObject("{\"category\": \"music\", \"value\": \"Beatles\"}");
+            JSONArray interests = new JSONArray();
+            interests.put(interest1);
+            //interests.put(interest2);
+            registerData.put(getResources().getString(R.string.interests), interests);
 
             // profile photo
-            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.no_match);
+            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small);
             Base64Converter bs64 = new Base64Converter();
             String base64 = bs64.bitmapToBase64(photodefault);
             registerData.put(getResources().getString(R.string.profilePhoto), base64);
@@ -230,8 +238,8 @@ public class RegisterActivity extends AppCompatActivity {
             connectingToServerWindow.show();
             String url =  getResources().getString(R.string.server_ip);;
             String uri = getResources().getString(R.string.register_uri);
-            SendRegisterTask checkLogin = new SendRegisterTask();
-            checkLogin.execute("POST",url, uri, String.valueOf(registerData));
+            SendRegisterTask checkRegister = new SendRegisterTask();
+            checkRegister.execute("POST",url, uri, String.valueOf(registerData));
         } else {
             internetDisconnectWindow.show();
         }
@@ -294,19 +302,19 @@ public class RegisterActivity extends AppCompatActivity {
             // start principal activity
             Log.d(TAG, "Create PrincipalAppActivity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            startAppActivity.setAction(Intent.ACTION_MAIN);
+            /*startAppActivity.setAction(Intent.ACTION_MAIN);
             startAppActivity.addCategory(Intent.CATEGORY_HOME);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startAppActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
             startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
 
             // Finish actual activity
             this.finish();
         } else {
-            userMailExistWindow.show();
+            userMailExistWindow.show(); //TODO: AGREGAR MENSAJE POR CADA RESPONSE CODE
         }
     }
 

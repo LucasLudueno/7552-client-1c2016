@@ -34,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
@@ -147,13 +148,43 @@ public class PrincipalAppActivity extends AppCompatActivity
     private void setUpMatchManager() {
         matchManager = MatchManagerProxy.getInstance();
         matchManager.initialize(userEmail, getApplicationContext());
+        Log.d(TAG, "Initialize MatchManager");
 
-        String conversationsFileName =  "";//getResources().getString(R.string.conversation_prefix_filename) + userEmail;
+        // load files
+        String conversationsFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
         String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
-
-        Log.d(TAG, "Set Data to MatchManager");
         String matchList = "";
         String conversationsList = "";
+
+        // if files don't exist, then create.
+        if(!FileManager.fileExists(conversationsFileName, getApplicationContext())) {
+            Log.d(TAG, "Conversation file does not exists");
+            try {
+                JSONObject conv = new JSONObject();
+                JSONArray convArray = new JSONArray();
+                conv.put("conversations", convArray);
+                FileManager.writeFile(conversationsFileName, conv.toString(), getApplicationContext());
+            } catch (JSONException e) {
+                Log.d(TAG, "Can't construct Conversation file");
+            } catch (IOException e) {
+                Log.d(TAG, "Can't write Conversation file");
+            }
+        }
+
+        if(!FileManager.fileExists(matchFileName, getApplicationContext())) {
+            Log.d(TAG, "Match file does not exists");
+            try {
+                JSONObject match = new JSONObject();
+                JSONArray matchArray = new JSONArray();
+                match.put("matches", matchArray);
+                FileManager.writeFile(matchFileName, match.toString(), getApplicationContext());
+            } catch (JSONException e) {
+                Log.d(TAG, "Can't construct Match file");
+            } catch (IOException e) {
+                Log.d(TAG, "Can't write Match file");
+            }
+        }
+
         // read files
         try {
             matchList = FileManager.readFile(matchFileName, this);
@@ -178,7 +209,7 @@ public class PrincipalAppActivity extends AppCompatActivity
             JSONArray conversationsArray = matchConversations.getJSONArray("conversations");
             for (int i = 0; i < conversationsArray.length(); ++i) {
                 JSONObject conversation = conversationsArray.getJSONObject(i);
-                matchManager.addConversation(conversation);
+                matchManager.addConversation(conversation, false);
             }
         } catch (JSONException e) {
             Log.w(TAG, "Error while construct conversation Json");
@@ -593,7 +624,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         String responseCode = response.split(":", 2)[0];
         String matches = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_get_matches))) {
             // Get matchArray from file
             String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
             JSONArray matchArrayFile = null;
@@ -647,14 +678,14 @@ public class PrincipalAppActivity extends AppCompatActivity
         String responseCode = response.split(":", 2)[0];
         String conversation = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_get_conversation))) {
             JSONObject conversationJson = null;
             try {
                 conversationJson = new JSONObject(conversation);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't process Matches Conversation Json received from Server");
             }
-            matchManager.addConversation(conversationJson);
+            matchManager.addConversation(conversationJson, true);
         }
     }
 
@@ -689,6 +720,9 @@ public class PrincipalAppActivity extends AppCompatActivity
             switch (msg.what) {
                 case GET_MATCH_CODE:    // Send Get match request to Server
                     sendGetMatchesRequestToServer();
+                    String conversationsFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
+
+                    matchManager.updateConversationInFile(conversationsFileName);
                     break;
                 case GET_CONVERSATION_CODE: // Send Get conversation request to Server
                     sendGetConversationsRequestToServer();

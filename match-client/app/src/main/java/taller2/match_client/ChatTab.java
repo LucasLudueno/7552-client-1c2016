@@ -91,11 +91,11 @@ public class ChatTab extends Fragment {
     /* Send Chat message to Server */
     private void sendChatMessage(EditText chatText, boolean side) {
         String chatString = chatText.getText().toString();
-        if (chatString.compareTo("") != 0) {
-            chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
-        } else {
+        if (chatString.compareTo("") == 0) {
             return;
         }
+        //chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
+
         JSONObject conversation = new JSONObject();
         JSONArray messages = new JSONArray();
         JSONObject msg = new JSONObject();
@@ -107,6 +107,21 @@ public class ChatTab extends Fragment {
             conversation.put(getResources().getString(R.string.messages),messages);
         } catch (JSONException e) {
             Log.e(TAG, "Can't construct sendConversation Json Request");
+        }
+
+        //Conversation to MatchManager  //TODO: CHECKEAR EFICIENCIA
+        try {
+            messages = new JSONArray();
+            JSONObject conversationMM = new JSONObject();
+            JSONObject conversationJson = new JSONObject();
+            msg.put(getResources().getString(R.string.send_from),userEmail);
+            messages.put(msg);
+            conversationJson.put(getResources().getString(R.string.email), matchEmail);
+            conversationJson.put(getResources().getString(R.string.messages), messages);
+            conversationMM.put("conversation", conversationJson);
+            matchManager.addConversation(conversationMM, true);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         //TODO: Mandar chat al Server.
@@ -122,13 +137,13 @@ public class ChatTab extends Fragment {
     }
 
     /* Check SendChat response from Server */
-    private void checkSendChatResponseFromServer(String response) {
+    private void checkSendConversationResponseFromServer(String response) {
         Log.d(TAG, "Response code from Server is received: " + response);
 
         String responseCode = response.split(":", 2)[0];
         String responseMsg = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_send_conversation))) {
 
         } else {
 
@@ -142,14 +157,14 @@ public class ChatTab extends Fragment {
         String responseCode = response.split(":", 2)[0];
         String conversation = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+        if (responseCode.equals(getResources().getString(R.string.ok_response_code_get_conversation))) {
             JSONObject conversationJson = null;
             try {
                 conversationJson = new JSONObject(conversation);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't process Matches Conversation Json received from Server");
             }
-            matchManager.addConversation(conversationJson);
+            matchManager.addConversation(conversationJson, true);
         }
     }
 
@@ -179,7 +194,7 @@ public class ChatTab extends Fragment {
     private class SendConversationTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){
-            checkSendChatResponseFromServer(dataGetFromServer);
+            checkSendConversationResponseFromServer(dataGetFromServer);
         }
     }
 

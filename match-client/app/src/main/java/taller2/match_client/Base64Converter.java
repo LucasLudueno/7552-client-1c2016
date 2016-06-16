@@ -18,13 +18,13 @@ public class Base64Converter {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream .toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP);//Base64.DEFAULT);
     }
 
     /* Convert base 64 string in bitmap */
     public Bitmap Base64ToBitmap(String base64) {
         Log.d(TAG, "base64ToBitmap");
-        byte[] imageAsBytes = Base64.decode(base64.getBytes(),Base64.DEFAULT);
+        byte[] imageAsBytes = Base64.decode(base64.getBytes(),Base64.NO_WRAP);
         return BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
     }
 }

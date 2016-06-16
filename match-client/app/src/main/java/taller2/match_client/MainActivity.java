@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "MainActivity is created");
 
-        mockServer = new MockServer(getApplicationContext());
-        userMailView.setText("lucas@gmail.com");
+        //mockServer = new MockServer(getApplicationContext());
+        //userMailView.setText("lucas@gmail.com");
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -139,20 +139,19 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.w(TAG, "Can't create Json Request with Email and Password");
         }
-        /*if ( ActivityHelper.checkConection() ){
+        if ( ActivityHelper.checkConection(getApplicationContext()) ){
             Log.d(TAG, "Send Login to Server: " + data.toString());
-
             loadingWindow.show();
             String url = getResources().getString(R.string.server_ip);
             String uri = getResources().getString(R.string.login_uri);
             SendLoginTask checkLogin = new SendLoginTask();
-            checkLogin.execute("POST",url, uri, data.toString());   //CON ESTAS LINEAS MANDAS AL SERVER EL LOGIN
+            checkLogin.execute("POST",url, uri, data.toString());
         } else {
             internetDisconnectWindow.show();
-        }*/
+        }
 
         /*** MockServer ***/
-        checkLoginResponseFromServer(mockServer.Login(data));
+        //checkLoginResponseFromServer(mockServer.Login(data));
     }
 
     /* When user registers, RegisterActivity is created */
@@ -202,8 +201,17 @@ public class MainActivity extends AppCompatActivity {
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
             // update profile
+            JSONObject profileJson = null;
+            String profileComplete = "";
             try {
-                FileManager.writeFile(getResources().getString(R.string.profile_filename), profile, getApplicationContext());
+                profileJson = new JSONObject(profile);
+                profileComplete = profileJson.getString("user").toString();
+            } catch (JSONException e) {
+                Log.e(TAG, "Can't get Profile from Server response");
+            }
+
+            try {
+                FileManager.writeFile(getResources().getString(R.string.profile_filename), profileComplete, getApplicationContext());
             } catch (IOException e) {
                 Log.e(TAG, "Can't write Profile File");
             }

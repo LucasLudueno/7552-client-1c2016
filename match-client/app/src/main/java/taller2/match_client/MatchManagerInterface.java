@@ -13,7 +13,7 @@ public interface MatchManagerInterface {
     public void addMatch(JSONObject matchData) throws JSONException;
 
     /* Add a conversation with some match */
-    public boolean addConversation(JSONObject completeConversation);
+    public boolean addConversation(JSONObject completeConversation, boolean isNewConversation);
 
     /* Return the match list. */
     public List<JSONObject> getMatches();
@@ -26,4 +26,8 @@ public interface MatchManagerInterface {
 
     /* Return Match List */
     public MatchList getMatchList();
+
+    /* Update conversations into conversation file */
+    public void updateConversationInFile(String fileName);
+
 }

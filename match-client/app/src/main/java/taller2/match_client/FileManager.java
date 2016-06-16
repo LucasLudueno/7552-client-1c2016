@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,5 +37,11 @@ public class FileManager {
         FileOutputStream outputStream = cntx.openFileOutput(fileName, Context.MODE_PRIVATE);
         outputStream.write(content.getBytes());
         outputStream.close();
+    }
+
+    /* Return if file exists */
+    public static boolean fileExists(String fileName, Context cntx) {
+        File file = cntx.getFileStreamPath(fileName);
+        return file.exists();
     }
 }
