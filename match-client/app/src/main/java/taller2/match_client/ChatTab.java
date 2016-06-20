@@ -1,5 +1,6 @@
 package taller2.match_client;
 
+import android.app.AlertDialog;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +33,8 @@ public class ChatTab extends Fragment {
     private String matchEmail;
     private String userEmail;
     private Thread getConversationTimer;
+    private AlertDialog internetDisconnectWindow;
+    private AlertDialog unavailableServiceWindow;
     //private Thread sendConversationTimer;
     protected static final int GET_CONVERSATION_SLEEP_TIME = 3000;  // 3 seg
     protected static final int GET_CONVERSATION_CODE = 2;
@@ -63,6 +66,16 @@ public class ChatTab extends Fragment {
         listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         listView.setAdapter(chatArrayAdapter);
 
+        // internetDisconnectWindows
+        internetDisconnectWindow = new AlertDialog.Builder(getContext()).create();
+        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+
+        // UnavailableServiceWindow
+        unavailableServiceWindow = new AlertDialog.Builder(getContext()).create();
+        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+
         // To scroll the list view to bottom on data change
         chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -90,6 +103,11 @@ public class ChatTab extends Fragment {
 
     /* Send Chat message to Server */
     private void sendChatMessage(EditText chatText, boolean side) {
+        if (!ActivityHelper.checkConection(getContext())) {
+            internetDisconnectWindow.show();
+            return;
+        }
+
         String chatString = chatText.getText().toString();
         if (chatString.compareTo("") == 0) {
             return;
@@ -124,8 +142,12 @@ public class ChatTab extends Fragment {
             e.printStackTrace();
         }
 
-        //TODO: Mandar chat al Server.
-        MockServer.sendConversation(conversation.toString());
+        //Send conversation to Server
+        String url = getResources().getString(R.string.server_ip);
+        String uri = getResources().getString(R.string.send_conversation_uri);;
+        SendConversationTask sendConversation = new SendConversationTask();
+        sendConversation.execute("POST", url, uri, conversation.toString());
+        //MockServer.sendConversation(conversation.toString());
         Log.d(TAG, "Send Chat to Server: " + chatString);
     }
 
@@ -138,7 +160,7 @@ public class ChatTab extends Fragment {
 
     /* Check SendChat response from Server */
     private void checkSendConversationResponseFromServer(String response) {
-        Log.d(TAG, "Response code from Server is received: " + response);
+        Log.d(TAG, "Response of SendConversation from Server is received: " + response);
 
         String responseCode = response.split(":", 2)[0];
         String responseMsg = response.split(":", 2)[1];
@@ -146,7 +168,7 @@ public class ChatTab extends Fragment {
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_send_conversation))) {
 
         } else {
-
+            unavailableServiceWindow.show();
         }
     }
 
@@ -172,23 +194,23 @@ public class ChatTab extends Fragment {
     private void sendGetConversationsRequestToServer() {
             JSONObject convRequest = new JSONObject();
             try {
-                convRequest.put(getResources().getString(R.string.email_src),
-                        matchEmail);
-                convRequest.put(getResources().getString(R.string.email_dst),
-                        userEmail);
+                convRequest.put(getResources().getString(R.string.email_src), matchEmail);
+                convRequest.put(getResources().getString(R.string.email_dst), userEmail);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't create GetConversation Json Request");
             }
-            //if (ActivityHelper.checkConection(getApplicationContext())) {
-            Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
-            //SendGetConversationTask getMatchs = new SendGetConversationTask();
-            checkGetConversationResponseFromServer(
-                    MockServer.getConversation(convRequest.toString()));
-            //} else {
+            if (ActivityHelper.checkConection(getContext())) {
+                Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
+                String url = getResources().getString(R.string.server_ip);
+                String uri = getResources().getString(R.string.get_conversation_uri);;
+                SendGetConversationTask getConversation = new SendGetConversationTask();
+                //getConversation.execute("POST", url, uri, convRequest.toString());
 
-            // }
+                checkGetConversationResponseFromServer(MockServer.getConversation(convRequest.toString())); //TODO: MOCK TEST
+            } else {
+                // No hay internet
+            }
     }
-
 
     /* Send Conversation to Server */
     private class SendConversationTask extends ClientToServerTask {

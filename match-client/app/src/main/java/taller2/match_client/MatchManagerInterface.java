@@ -1,6 +1,6 @@
 package taller2.match_client;
 
-import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +27,6 @@ public interface MatchManagerInterface {
     /* Return Match List */
     public MatchList getMatchList();
 
-    /* Update conversations into conversation file */
+    /* Update Conversations */
     public void updateConversationInFile(String fileName);
-
 }

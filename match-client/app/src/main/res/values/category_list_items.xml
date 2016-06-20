@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="category_list_items">
-        <item>music/band</item>
+        <item>musicband</item>
         <item>music</item>
         <item>travel</item>
         <item>food</item>

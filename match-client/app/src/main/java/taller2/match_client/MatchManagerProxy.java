@@ -1,6 +1,7 @@
 package taller2.match_client;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +58,7 @@ public class MatchManagerProxy implements MatchManagerInterface {
         return matchManager.getEmail();
     }
 
-    /*  */
+    /* Update Conversations */
     public void updateConversationInFile(String fileName) {
         matchManager.updateConversationInFile(fileName);
     }

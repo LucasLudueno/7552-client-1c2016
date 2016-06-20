@@ -39,10 +39,10 @@ public class MockServer {   //TODO: LOG MOCK
             interests.put(interest3);
             interests.put(interest4);
 
-            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"Seba\",\"email\":\"seba@gmail.com\",\"birthday\":\"13/08/1991\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"Fede\",\"email\":\"fede@gmail.com\",\"birthday\":\"13/08/1991\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"Eze\",\"email\":\"eze@gmail.com\",\"birthday\":\"2/10/1993\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject lucas = new JSONObject("{\"birthday\":\"13/08/1993\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"Lucas\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
+            JSONObject seba = new JSONObject("{\"name\":\"seba\",\"alias\":\"Seba\",\"email\":\"seba@gmail.com\",\"age\":\"23\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject fede = new JSONObject("{\"name\":\"fede\",\"alias\":\"Fede\",\"email\":\"fede@gmail.com\",\"age\":\"23\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject eze = new JSONObject("{\"name\":\"eze\",\"alias\":\"Eze\",\"email\":\"eze@gmail.com\",\"age\":\"22\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject lucas = new JSONObject("{\"age\":\"22\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\" },\"email\":\"lucas@gmail.com\",\"alias\":\"Lucas\",\"name\":\"lucas\",\"password\":\"contraseña\"}");
 
             Base64Converter bs64 = new Base64Converter();
 
@@ -62,10 +62,10 @@ public class MockServer {   //TODO: LOG MOCK
             lucas.put(context.getResources().getString(R.string.profilePhoto), base64_lucas);
             lucas.put(context.getResources().getString(R.string.interests), interests);
 
-            matches.put("seba@gmail.com", seba);
-            matches.put("fede@gmail.com", fede);
-            matches.put("eze@gmail.com", eze);
-            matches.put("lucas@gmail.com", lucas);
+            matches.put("seba@gmail.com", (new JSONObject()).put("user",seba));
+            matches.put("fede@gmail.com", (new JSONObject()).put("user",fede));
+            matches.put("eze@gmail.com",  (new JSONObject()).put("user",eze));
+            matches.put("lucas@gmail.com", (new JSONObject()).put("user",lucas));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -75,12 +75,12 @@ public class MockServer {   //TODO: LOG MOCK
         /*** POSSIBLE MATCHES ***/
         possibleMatches = new ArrayList<JSONObject>();
         try {
-            JSONObject pmatch1 = new JSONObject("{\"name\":\"Wolverine\",\"alias\":\"Wolverine\",\"email\":\"wolverine@gmail.com\",\"birthday\":\"13/08/100\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch2 = new JSONObject("{\"name\":\"Yoda\",\"alias\":\"Yoda\",\"email\":\"yoda@gmail.com\",\"birthday\":\"13/08/2006\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch3 = new JSONObject("{\"name\":\"Terminator\",\"alias\":\"Terminator\",\"email\":\"terminator@gmail.com\",\"birthday\":\"13/08/1000\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch4 = new JSONObject("{\"name\":\"Anonymous\",\"alias\":\"Anonymous\",\"email\":\"anonymous@gmail.com\",\"birthday\":\"13/08/2002\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch5 = new JSONObject("{\"name\":\"Mario\",\"alias\":\"Mario\",\"email\":\"mario@gmail.com\",\"birthday\":\"13/08/1800\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
-            JSONObject pmatch6 = new JSONObject("{\"name\":\"Soldier\",\"alias\":\"Soldier\",\"email\":\"soldier@gmail.com\",\"birthday\":\"13/08/1995\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch1 = new JSONObject("{\"name\":\"Wolverine\",\"alias\":\"Wolverine\",\"email\":\"wolverine@gmail.com\",\"age\":\"50\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch2 = new JSONObject("{\"name\":\"Yoda\",\"alias\":\"Yoda\",\"email\":\"yoda@gmail.com\",\"age\":\"42\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch3 = new JSONObject("{\"name\":\"Terminator\",\"alias\":\"Terminator\",\"email\":\"terminator@gmail.com\",\"age\":\"35\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch4 = new JSONObject("{\"name\":\"Anonymous\",\"alias\":\"Anonymous\",\"email\":\"anonymous@gmail.com\",\"age\":\"39\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch5 = new JSONObject("{\"name\":\"Mario\",\"alias\":\"Mario\",\"email\":\"mario@gmail.com\",\"age\":\"91\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
+            JSONObject pmatch6 = new JSONObject("{\"name\":\"Soldier\",\"alias\":\"Soldier\",\"email\":\"soldier@gmail.com\",\"age\":\"102\",\"sex\":\"Male\",\"location\":{ \"longitude\":\"-58.37\",\"latitude\":\"-34.69\"},\"password\":\"contraseña\"}");
 
             Base64Converter bs64 = new Base64Converter();
             Bitmap pmatch1BitmapPhoto = BitmapFactory.decodeResource(context.getResources(), R.drawable.pmatch1);
@@ -103,12 +103,12 @@ public class MockServer {   //TODO: LOG MOCK
             pmatch5.put(context.getResources().getString(R.string.profilePhoto), pmatch5Photo);
             pmatch6.put(context.getResources().getString(R.string.profilePhoto), pmatch6Photo);
 
-            possibleMatches.add(pmatch1);
-            possibleMatches.add(pmatch2);
-            possibleMatches.add(pmatch3);
-            possibleMatches.add(pmatch4);
-            possibleMatches.add(pmatch5);
-            possibleMatches.add(pmatch6);
+            possibleMatches.add((new JSONObject()).put("user",pmatch1));
+            possibleMatches.add((new JSONObject()).put("user",pmatch2));
+            possibleMatches.add((new JSONObject()).put("user",pmatch3));
+            possibleMatches.add((new JSONObject()).put("user",pmatch4));
+            possibleMatches.add((new JSONObject()).put("user",pmatch5));
+            possibleMatches.add((new JSONObject()).put("user",pmatch6));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -147,9 +147,9 @@ public class MockServer {   //TODO: LOG MOCK
             matchesToSend.put("matches",match_array); // array de matches
         } catch (JSONException e) {
             e.printStackTrace();
-            return "201:error";
+            return "200:error";
         }
-        return "200:" + matchesToSend.toString();
+        return "201:" + matchesToSend.toString();
     }
 
     /* Represent Get Possible Matches Request */
@@ -172,9 +172,9 @@ public class MockServer {   //TODO: LOG MOCK
             possibleMatchesToSend.put("possibleMatches", possibleMatchesArray);
         } catch (JSONException e) {
             e.printStackTrace();
-            return "201:error";
+            return "200:error";
         }
-        return "200:" + possibleMatchesToSend.toString();
+        return "201:" + possibleMatchesToSend.toString();
     }
 
     /* Represent Get conversation Request */
@@ -200,9 +200,9 @@ public class MockServer {   //TODO: LOG MOCK
             conversationToSend.put("conversation", conversation);
         } catch (JSONException e) {
             e.printStackTrace();
-            return "201:error";
+            return "200:error";
         }
-        return "200:" + conversationToSend.toString();
+        return "201:" + conversationToSend.toString();
     }
 
     /* Represent Send Pos Match Interest Request */
@@ -213,9 +213,9 @@ public class MockServer {   //TODO: LOG MOCK
             String emailDst = interestJson.getString("emailDst");
         } catch (JSONException e) {
             e.printStackTrace();
-            return "201:error";
+            return "200:error";
         }
-        return "200:ok";
+        return "201:ok";
     }
 
     /* Represent Send Conversation Request */
@@ -230,8 +230,8 @@ public class MockServer {   //TODO: LOG MOCK
             }
 
         } catch (JSONException e) {
-            return "201:error";
+            return "200:error";
         }
-        return "200:ok";
+        return "201:ok";
     }
 }

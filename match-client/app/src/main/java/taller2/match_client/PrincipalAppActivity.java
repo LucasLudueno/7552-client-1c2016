@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -59,7 +60,6 @@ public class PrincipalAppActivity extends AppCompatActivity
     private Menu menu = null;
     private Animation left_up_animation;
     private Animation right_up_animation;
-    private CountDownTimer timeToRefreshCard;
     private TextView likeShape;
     private TextView dontLikeShape;
     private FloatingActionButton likeIcon;
@@ -68,14 +68,18 @@ public class PrincipalAppActivity extends AppCompatActivity
     private Thread getMatchTimer;
     private Thread getPosMatchTimer;
     private Thread getConversationTimer;
+    private Thread updateConversationTimer;
 
     private String userEmail = "";
+    private boolean areConversationLoad = false;
     protected static final int GET_MATCH_SLEEP_TIME = 60000;         // 1 min
     protected static final int GET_POS_MATCH_SLEEP_TIME = 60000;      // 1 min
     protected static final int GET_CONVERSATION_SLEEP_TIME = 30000;  // 30 seg
+    protected static final int UPDATE_CONVERSATION_SLEEP_TIME = 5000;  // 5 seg
     protected static final int GET_MATCH_CODE = 1;
     protected static final int GET_CONVERSATION_CODE = 2;
     protected static final int GET_POS_MATCH_CODE = 3;
+    protected static final int UPDATE_CONVERSATIONS_CODE = 4;
     protected static final int MIN_POS_MATCHES_COUNT = 1;
     protected static final int POS_MATCH_COUNT_TO_REQUEST = 2;
     private static final String TAG = "PrincipalActivity";
@@ -122,13 +126,13 @@ public class PrincipalAppActivity extends AppCompatActivity
         updateHeadProfile();
 
         /*** Match Manager: load saved matches and conversations ***/
-        setUpMatchManager();
+        matchManager = MatchManagerProxy.getInstance();
+        matchManager.initialize(userEmail, getApplicationContext());
+        Log.d(TAG, "Initialize MatchManager");
 
         // Timers
         getMatchTimer = new Thread(new GetMatches());
         getMatchTimer.start();
-        getConversationTimer = new Thread(new GetConversations());
-        getConversationTimer.start();
         getPosMatchTimer = new Thread(new GetPossibleMatches());
         getPosMatchTimer.start();
 
@@ -144,16 +148,10 @@ public class PrincipalAppActivity extends AppCompatActivity
         startActivity(startMatchActivity);
     }
 
-    /* Set up matches and conversation in Match Manager */
-    private void setUpMatchManager() {
-        matchManager = MatchManagerProxy.getInstance();
-        matchManager.initialize(userEmail, getApplicationContext());
-        Log.d(TAG, "Initialize MatchManager");
-
-        // load files
+    /* Set up conversation in Match Manager */
+    private void loadConversationsFromFile() {
+        // load conversations
         String conversationsFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
-        String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
-        String matchList = "";
         String conversationsList = "";
 
         // if files don't exist, then create.
@@ -171,38 +169,13 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
         }
 
-        if(!FileManager.fileExists(matchFileName, getApplicationContext())) {
-            Log.d(TAG, "Match file does not exists");
-            try {
-                JSONObject match = new JSONObject();
-                JSONArray matchArray = new JSONArray();
-                match.put("matches", matchArray);
-                FileManager.writeFile(matchFileName, match.toString(), getApplicationContext());
-            } catch (JSONException e) {
-                Log.d(TAG, "Can't construct Match file");
-            } catch (IOException e) {
-                Log.d(TAG, "Can't write Match file");
-            }
-        }
-
-        // read files
+        // read file
         try {
-            matchList = FileManager.readFile(matchFileName, this);
             conversationsList = FileManager.readFile(conversationsFileName, this);
         } catch (IOException e) {
             Log.w(TAG, "Can't read Match File and Conversation File");
         }
-        // add matches
-        try {
-            JSONObject matchData = new JSONObject(matchList);
-            JSONArray matchesArray = matchData.getJSONArray("matches");
-            for (int i = 0; i < matchesArray.length(); ++i) {
-                JSONObject match = matchesArray.getJSONObject(i);
-                matchManager.addMatch(match);
-            }
-        } catch (JSONException e) {
-            Log.w(TAG, "Error while construct matches Json");
-        }
+
         // add conversations
         try {
             JSONObject matchConversations = new JSONObject(conversationsList);
@@ -214,6 +187,13 @@ public class PrincipalAppActivity extends AppCompatActivity
         } catch (JSONException e) {
             Log.w(TAG, "Error while construct conversation Json");
         }
+
+        areConversationLoad = true;
+        //Start timers
+        getConversationTimer = new Thread(new GetConversations());
+        getConversationTimer.start();
+        updateConversationTimer = new Thread(new UpdateConversations());
+        updateConversationTimer.start();
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -243,20 +223,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         likeShape = (TextView)findViewById(R.id.likeShape);
         dontLikeShape = (TextView)findViewById(R.id.dontLikeShape);
 
-        // Time to refresh card
-        timeToRefreshCard = new CountDownTimer(getResources().getInteger(R.integer.card_refresh), 1) {
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                likeShape.setVisibility(View.INVISIBLE);
-                dontLikeShape.setVisibility(View.INVISIBLE);
-                likeIcon.setEnabled(true);
-                dontlikeIcon.setEnabled(true);
-                sendInterestOfPosMatchToServer(getResources().getString(R.string.dont_like_uri));
-            }
-        };
-
         // Like Icon
         likeIcon = (FloatingActionButton) findViewById(R.id.likeIcon);
         likeIcon.setOnClickListener(new View.OnClickListener() {
@@ -268,7 +234,8 @@ public class PrincipalAppActivity extends AppCompatActivity
                     likeIcon.setEnabled(false);
                     dontlikeIcon.setEnabled(false);
                 }
-                timeToRefreshCard.start(); //TODO: ESTAN LOS DOS CON DONT LIKE
+                (new LikeDontTimer(getResources().getInteger(R.integer.card_refresh), 1,
+                        getResources().getString(R.string.like_uri))).start();
             }
         });
 
@@ -283,7 +250,8 @@ public class PrincipalAppActivity extends AppCompatActivity
                     likeIcon.setEnabled(false);
                     dontlikeIcon.setEnabled(false);
                 }
-                timeToRefreshCard.start();
+                (new LikeDontTimer(getResources().getInteger(R.integer.card_refresh), 1,
+                        getResources().getString(R.string.dont_like_uri))).start();
             }
         });
 
@@ -292,7 +260,13 @@ public class PrincipalAppActivity extends AppCompatActivity
         matchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendGetPossibleMatchRequestToServer();
+                if (ActivityHelper.checkConection(getApplicationContext())) {
+                    sendGetPossibleMatchRequestToServer();
+                } else {
+                    if (possibleMatchesBuffer.size() <= 0) {
+                        internetDisconnectWindow.show();
+                    }
+                }
                 updatePosMatch();
             }
         });
@@ -312,6 +286,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         //possibleMatchPhoto.getLayoutParams().width = (5 * height) / 10;
 
         possibleMatchAlias = (TextView)findViewById(R.id.possibleMatchAlias);
+        possibleMatchCard.setVisibility(View.INVISIBLE);
     }
 
     /* Update UserProfile profile photo and Alias in NavigationHead */
@@ -332,9 +307,9 @@ public class PrincipalAppActivity extends AppCompatActivity
             alias = profile.getString(getResources().getString(R.string.alias));
             userPhotoInB64 = profile.getString(getResources().getString(R.string.profilePhoto));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't open Json Profile");
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't open Profile File");
         }
         Base64Converter bs64 = new Base64Converter();
         Bitmap userPhotoBitmap = MatchList.getRoundedShape(bs64.Base64ToBitmap(userPhotoInB64), 150);
@@ -372,6 +347,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         finishAplication.addCategory(Intent.CATEGORY_HOME);
         finishAplication.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(finishAplication);
+        System.exit(0);
     }
 
     /* Inflate Menu when menu button is pressed */
@@ -465,8 +441,15 @@ public class PrincipalAppActivity extends AppCompatActivity
         Log.d(TAG, "Set possible match in Card");
         try {
             String alias = actualMatch.getString(getResources().getString(R.string.alias));
-            String age = String.valueOf(ActivityHelper.calculateAge(actualMatch.getString(getResources().getString(R.string.birthday))));
-            possibleMatchPhoto.setImageBitmap(bs64.Base64ToBitmap(actualMatch.getString(getResources().getString(R.string.photoProfile))));
+            String age = String.valueOf(actualMatch.getInt(getResources().getString(R.string.age)));
+            String photoInB64 = actualMatch.getString(getResources().getString(R.string.photoProfile));
+
+            if (photoInB64.length() > 50) {
+                possibleMatchPhoto.setImageBitmap(bs64.Base64ToBitmap(actualMatch.getString(getResources().getString(R.string.photoProfile))));
+            } else {
+                // TODO: SACAR
+                possibleMatchPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small));
+            }
             possibleMatchAlias.setText(alias + ", " + age);
         } catch (JSONException e) {
             Log.w(TAG, "Can't get age, alias or profile photo from actual match (JsonObject)");
@@ -487,19 +470,15 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         // send request if there are not possible matches
         if (possibleMatchesBuffer.size() <= MIN_POS_MATCHES_COUNT) {
-                    /*if (ActivityHelper.checkConection(getApplicationContext())) {
+                    if (ActivityHelper.checkConection(getApplicationContext())) {
                         String url = getResources().getString(R.string.server_ip);
                         String uri = getResources().getString(R.string.get_pos_matches_uri);;
-                        SendGetPossibleMatchsTask getPossibleMatches = new SendGetPossibleMatchsTask();
+                        SendGetPossibleMatchesTask getPossibleMatches = new SendGetPossibleMatchesTask();
                         getPossibleMatches.execute("POST", url, uri, posMatchRequest.toString());
-                    } else {
-                        internetDisconnectWindow.show();
-                    }*/
-            Log.d(TAG, "Send Get possible matches Request to Server: " + posMatchRequest.toString());
-            checkGetPosMatchResponseFromServer(mockServer.getPossibleMatches(posMatchRequest.toString()));
-        } /*else {
-            updatePosMatch();
-        }*/
+                        Log.d(TAG, "Send Get possible matches Request to Server: " + posMatchRequest.toString());
+                    }
+            //checkGetPosMatchResponseFromServer(mockServer.getPossibleMatches(posMatchRequest.toString())); //TODO: SACAR
+        }
     }
 
     /* When user touch like or dont like icon, if there is a possible match on screen,
@@ -509,7 +488,7 @@ public class PrincipalAppActivity extends AppCompatActivity
             noMatchesAvailableInFront.show();
             return;
         }
-        //if (ActivityHelper.checkConection(getApplicationContext())) {
+        if (ActivityHelper.checkConection(getApplicationContext())) {
             JSONObject interestMatches = new JSONObject();
             String pos_match_email = "";
             try {
@@ -521,15 +500,16 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
             connectingToServerWindow.show();
             Log.d(TAG, "Send interest of possible match Request to Server: " + interestMatches.toString());
-            /*String url = getResources().getString(R.string.server_ip);
+            String url = getResources().getString(R.string.server_ip);
             String uri = sendUri;
             SendInterestOfPosMatchTask sendPosMatchInterest = new SendInterestOfPosMatchTask();
-            sendPosMatchInterest.execute("POST", url, uri, pos_match_email);*/
+            sendPosMatchInterest.execute("POST", url, uri, pos_match_email);
 
-            checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));
-        //} else {
-            //internetDisconnectWindow.show();
-        //}
+            //checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));  //TODO: Test
+        } else {
+            internetDisconnectWindow.show();
+            possibleMatchCard.setVisibility(View.VISIBLE);
+        }
     }
 
     /* Send a request to Server asking if there are new Matches */
@@ -540,13 +520,16 @@ public class PrincipalAppActivity extends AppCompatActivity
         } catch (JSONException e) {
             Log.w(TAG, "Can't create GetMatches Json Request");
         }
-        //if (ActivityHelper.checkConection(getApplicationContext())) {
-        Log.d(TAG, "Send Get match Request to Server: " + userMailJson.toString());
-        //SendGetMatchsTask getMatchs = new SendGetMatchsTask();
-        checkGetMatchResponseFromServer(mockServer.getMatches(userMailJson.toString()));
-        //} else {
-
-        // }
+        if (ActivityHelper.checkConection(getApplicationContext())) {
+            Log.d(TAG, "Send Get match Request to Server: " + userMailJson.toString());
+            String url = getResources().getString(R.string.server_ip);
+            String uri = getResources().getString(R.string.get_matches_uri);;
+            SendGetMatchesTask getMatches = new SendGetMatchesTask();
+            //getMatches.execute("POST", url, uri, userMailJson.toString());
+            checkGetMatchResponseFromServer(mockServer.getMatches(userMailJson.toString()));  //TODO: MOCK TEST
+        } else {
+            // No hay internet
+        }
     }
 
     /* Send a request asking if there are new conversations */
@@ -565,14 +548,16 @@ public class PrincipalAppActivity extends AppCompatActivity
             } catch (JSONException e) {
                 Log.w(TAG, "Can't create GetConversation Json Request");
             }
-            //if (ActivityHelper.checkConection(getApplicationContext())) {
-            Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
-            //SendGetConversationTask getMatchs = new SendGetConversationTask();
-            checkGetConversationResponseFromServer(
-                    mockServer.getConversation(convRequest.toString()));
-            //} else {
-
-            // }
+            if (ActivityHelper.checkConection(getApplicationContext())) {
+                Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
+                String url = getResources().getString(R.string.server_ip);
+                String uri = getResources().getString(R.string.get_conversation_uri);;
+                SendGetConversationTask getConversation = new SendGetConversationTask();
+                //getConversation.execute("POST", url, uri, convRequest.toString());
+                checkGetConversationResponseFromServer( mockServer.getConversation(convRequest.toString()));    //TODO: Test
+            } else {
+                // No hay internet
+            }
         }
     }
 
@@ -585,9 +570,14 @@ public class PrincipalAppActivity extends AppCompatActivity
         connectingToServerWindow.dismiss();
 
         if (responseCode.compareTo(getResources().getString(R.string.ok_response_code_send_pos_match_interest)) == 0) {
-            //possibleMatchesBuffer.remove(actualMatch);
             actualMatch = null;
-            updatePosMatch();
+            if (possibleMatchesBuffer.size() <= 0) {
+                sendGetPossibleMatchRequestToServer();
+            } else {
+                updatePosMatch();
+            }
+        } else {
+            possibleMatchCard.setVisibility(View.VISIBLE);
         }
     }
 
@@ -604,7 +594,7 @@ public class PrincipalAppActivity extends AppCompatActivity
                 JSONArray posMatchArray = possibleMatchesjson.getJSONArray(getResources().getString(R.string.possible_matches));
 
                 for (int i = 0; i < posMatchArray.length(); ++i) {
-                    JSONObject posMatch = posMatchArray.getJSONObject(i);
+                    JSONObject posMatch = (posMatchArray.getJSONObject(i)).getJSONObject("user");
                     this.possibleMatchesBuffer.add(posMatch);
                 }
 
@@ -625,16 +615,6 @@ public class PrincipalAppActivity extends AppCompatActivity
         String matches = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_get_matches))) {
-            // Get matchArray from file
-            String matchFileName = getResources().getString(R.string.matches_prefix_filename) + userEmail;
-            JSONArray matchArrayFile = null;
-            try {
-                matchArrayFile = new JSONObject(FileManager.readFile(matchFileName, this)).getJSONArray("matches");
-            } catch (Exception e) {
-                matchArrayFile = new JSONArray();
-                Log.w(TAG, "Can't open match file");
-            }
-
             // Get each match from Server response
             JSONObject matchData = null;
             JSONArray matchesArray = null;
@@ -642,9 +622,8 @@ public class PrincipalAppActivity extends AppCompatActivity
                 matchData = new JSONObject(matches);
                 matchesArray = matchData.getJSONArray(getResources().getString(R.string.matches));
                 for (int i = 0; i < matchesArray.length(); ++i) {
-                    JSONObject match = matchesArray.getJSONObject(i);
+                    JSONObject match = (matchesArray.getJSONObject(i)).getJSONObject("user");
                     matchManager.addMatch(match);   // Put in MatchManager
-                    matchArrayFile.put(match);      // Put in array to File
                 }
                 // Update match icon
                 if (matchesArray.length() > 0 && menu != null) {
@@ -656,17 +635,10 @@ public class PrincipalAppActivity extends AppCompatActivity
             if (matchesArray.length() > 0) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.new_matches_en),
                         Toast.LENGTH_LONG).show();
+            }
 
-                // Save matches in file
-                JSONObject matchesFileData = new JSONObject();
-                try {
-                    matchesFileData.put("matches", matchArrayFile);
-                    FileManager.writeFile(matchFileName, matchesFileData.toString(), getApplicationContext());
-                } catch (JSONException e) {
-                    Log.w(TAG, "Can't construct match file from Json");
-                } catch (IOException e) {
-                    Log.w(TAG, "Can't write match file");
-                }
+            if (!areConversationLoad) {
+                loadConversationsFromFile();
             }
         }
     }
@@ -714,21 +686,30 @@ public class PrincipalAppActivity extends AppCompatActivity
         }
     }
 
+    /* Get Conversation to Server */
+    private class SendGetConversationTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkGetConversationResponseFromServer(dataGetFromServer);
+        }
+    }
+
     /* Thread Handler, handle get match and get conversation events */
     Handler matchManagerHandler = new Handler() { // TODO: RECOMENDACION DE STATIC ?? MUTEX ?
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case GET_MATCH_CODE:    // Send Get match request to Server
                     sendGetMatchesRequestToServer();
-                    String conversationsFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
-
-                    matchManager.updateConversationInFile(conversationsFileName);
                     break;
                 case GET_CONVERSATION_CODE: // Send Get conversation request to Server
                     sendGetConversationsRequestToServer();
                     break;
                 case GET_POS_MATCH_CODE: // Send Get Possible Match request to Server
                     sendGetPossibleMatchRequestToServer();
+                    break;
+                case UPDATE_CONVERSATIONS_CODE: // Send Get Possible Match request to Server
+                    String conversationsFileName =  getResources().getString(R.string.conversation_prefix_filename) + userEmail;
+                    matchManager.updateConversationInFile(conversationsFileName);
                     break;
             }
             super.handleMessage(msg);
@@ -786,6 +767,48 @@ public class PrincipalAppActivity extends AppCompatActivity
                     Thread.currentThread().interrupt();
                 }
             }
+        }
+    }
+
+    /* Update conversations Thread. After a time update conversations */
+    class UpdateConversations implements Runnable {
+        public void run() {
+            while (! Thread.currentThread().isInterrupted()) {
+                Log.i(TAG, "Update conversations in file");
+                Message message = new Message();
+                message.what = UPDATE_CONVERSATIONS_CODE;
+                PrincipalAppActivity.this.matchManagerHandler.sendMessage(message);
+
+                try {
+                    Thread.sleep(UPDATE_CONVERSATION_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    /* Timer to wait animation card */
+    class LikeDontTimer extends CountDownTimer {
+        String uri = "";
+        public LikeDontTimer(long millisInFuture, long countDownInterval, String uri) {
+            super(millisInFuture, countDownInterval);
+            this.uri = uri;
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+
+        }
+
+        @Override
+        public void onFinish() {
+            likeShape.setVisibility(View.INVISIBLE);
+            dontLikeShape.setVisibility(View.INVISIBLE);
+            likeIcon.setEnabled(true);
+            dontlikeIcon.setEnabled(true);
+            possibleMatchCard.setVisibility(View.INVISIBLE);
+            sendInterestOfPosMatchToServer(uri);
         }
     }
 

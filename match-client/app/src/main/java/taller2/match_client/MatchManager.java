@@ -159,7 +159,7 @@ public class MatchManager implements MatchManagerInterface {
         return userEmail;
     }
 
-    /*  */
+    /* Update Conversations */
     public void updateConversationInFile(String fileName) {
         Log.d(TAG, "Update conversations in file");
         conversationBuffer.writeConversations(fileName);

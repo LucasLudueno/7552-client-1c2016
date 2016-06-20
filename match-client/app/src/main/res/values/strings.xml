@@ -22,19 +22,21 @@
     <string name="register_uri">/register</string>
     <string name="update_profile_uri">/updateprofile</string>
     <string name="get_conversation_uri">/getconversation</string>
+    <string name="send_conversation_uri">/sendconversation</string>
     <string name="get_matches_uri">/getmatches</string>
     <string name="get_pos_matches_uri">/getpossiblematches</string>
     <string name="like_uri">/like</string>
-    <string name="dont_like_uri">/dontlike</string>
+    <string name="dont_like_uri">/dislike</string>
     <string name="ok_response_code_register">201</string>
     <string name="ok_response_code_login">201</string>
-    <string name="ok_response_code_upload_profile">201</string>
-    <string name="ok_response_code_get_matches">200</string>
-    <string name="ok_response_code_get_pos_matches">200</string>
-    <string name="ok_response_code_get_conversation">200</string>
-    <string name="ok_response_code_send_conversation">200</string>
-    <string name="ok_response_code_send_pos_match_interest">200</string>
-    <string name="cant_connect_to_server">400:Error</string>
+    <string name="ok_response_code_upload_profile">200</string>
+    <string name="ok_response_code_get_matches">201</string>
+    <string name="ok_response_code_get_pos_matches">201</string>
+    <string name="ok_response_code_get_conversation">201</string>
+    <string name="ok_response_code_send_conversation">201</string>
+    <string name="ok_response_code_send_pos_match_interest">201</string>
+    <string name="existing_user_code">500</string>
+    <string name="cant_connect_to_server">401:Cant connect with Server</string>
 
     <!-- Json data Strings -->
     <string name="userName">name</string>
@@ -42,6 +44,7 @@
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="birthday">birthday</string>
+    <string name="age">age</string>
     <string name="photoProfile">photo_profile</string>
     <string name="interest">interest</string>
     <string name="latitude">latitude</string>
@@ -63,8 +66,8 @@
     <string name="send_from">sendFrom</string>
 
     <!-- General Activity strings-->
-    <string name="male_en">Male</string>
-    <string name="female_en">Female</string>
+    <string name="male_en">male</string>
+    <string name="female_en">female</string>
     <string name="please_wait_en">Please wait...</string>
 
     <!-- MainActivity messages -->
@@ -76,6 +79,8 @@
     <string name="fields_empty_error_en">Some fields are empty. Please complete the fields before continue</string>
     <string name="internet_disconnect_error_title_en">Internet disconnect</string>
     <string name="internet_disconnect_error_en">Please connect internet to continue</string>
+    <string name="unavailable_service_title_en">Unavailable Service</string>
+    <string name="unavailable_service_error_en">Please try in few minutes</string>
     <string name="log_processing_en">Login processing</string>
     <string name="login_button_en">LOGIN</string>
     <string name="register_button_en">REGISTER NOW</string>
@@ -106,6 +111,7 @@
     <!-- ProfileActivity messages -->
     <string name="save_changes_button_en">SAVE CHANGES</string>
     <string name="profile_uploaded_en">Profile Uploaded</string>
+    <string name="updating_profile_en">Updating profile</string>
 
     <!-- SettingsActivity messages -->
     <string name="interests_uploaded_en">Interests Uploaded</string>
@@ -119,7 +125,7 @@
     <string name="women">women</string>
     <string name="men_en">Men</string>
     <string name="women_en">Women</string>
-    <string name="music_band_category">music/band</string>
+    <string name="music_band_category">musicband</string>
     <string name="music_category">music</string>
     <string name="outdooors_category">outdoors</string>
     <string name="sport_category">sport</string>

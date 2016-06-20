@@ -43,11 +43,11 @@ public class MatchTab extends Fragment {
         Base64Converter b64conv = new Base64Converter();
         JSONObject matchData = matchManager.getMatch(matchEmail);
         String alias = "";
-        String birthday = "";
+        int age = 0;
         Bitmap matchPhoto = null;
         try {
             alias = matchData.getString(getResources().getString(R.string.alias));
-            birthday = matchData.getString(getResources().getString(R.string.birthday));
+            age = matchData.getInt(getResources().getString(R.string.age));
             matchPhoto = b64conv.Base64ToBitmap(matchData.getString(getResources().getString(R.string.photoProfile)));
         } catch (JSONException e) {
             Log.w(TAG, "Can't get match information from Json Match Profile");
@@ -56,7 +56,6 @@ public class MatchTab extends Fragment {
         TextView aliasView = (TextView) getView().findViewById(R.id.matchAlias);
         TextView ageView = (TextView) getView().findViewById(R.id.matchAge);
         photo.setImageBitmap(matchPhoto);
-        int age = ActivityHelper.calculateAge(birthday);
         aliasView.setText(alias);
         ageView.setText(getResources().getString(R.string.age_en) + ": " + String.valueOf(age));
         Log.d(TAG, "Match Tab is created");

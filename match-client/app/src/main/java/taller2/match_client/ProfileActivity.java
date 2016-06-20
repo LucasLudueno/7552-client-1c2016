@@ -2,9 +2,11 @@ package taller2.match_client;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -29,16 +31,20 @@ import java.io.IOException;
 public class ProfileActivity extends AppCompatActivity {
     /* Attributes */
     private TextView userNameView;
-    private TextView userRealNameView;
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog loadingWindow;
+    private AlertDialog unavailableServiceWindow;
     private Toast profileCreated;
     private ImageView userPhoto;
     private Button saveChangesButton;
     private String userName;
-    private String userRealName;
     private JSONObject profile;
+
+    private LocationManager locationManager;
+    private ActivityLocationListener locationListener;
+    private int minTimeToRefresh = 5000;
+
     private static final int SELECT_PICTURE = 1;
     private static final int PROFILE_IMAGE_SIZE = 250;
     private static final String TAG = "ProfileActivity";
@@ -63,11 +69,19 @@ public class ProfileActivity extends AppCompatActivity {
         // Views
         instantiateViews();
 
+        // Location Manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new ActivityLocationListener();
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
+        } catch (SecurityException e) {
+            Log.w(TAG, "Can't set LocationListener");
+        }
+
         /* Load Profile into Activity */
         try {
             Base64Converter b64conv = new Base64Converter();
             JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
-            userRealNameView.setText(actualProfile.getString(getResources().getString(R.string.userName)));
             userNameView.setText(actualProfile.getString(getResources().getString(R.string.alias)));
             userPhoto.setImageBitmap(b64conv.Base64ToBitmap(actualProfile.getString(getResources().getString(R.string.photoProfile))));
         } catch (JSONException e) {
@@ -93,7 +107,7 @@ public class ProfileActivity extends AppCompatActivity {
         // loadingWindow
         loadingWindow = new ProgressDialog(this);
         loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
-        loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
+        loadingWindow.setMessage(getResources().getString(R.string.updating_profile_en));
 
         // profileCreated Toast
         profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en), Toast.LENGTH_LONG);
@@ -121,7 +135,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         // TextViews
         userNameView = (EditText)findViewById(R.id.userNamePerfil);
-        userRealNameView = (EditText)findViewById(R.id.userRealNamePerfil);
+
+        // UnavailableServiceWindow
+        unavailableServiceWindow = new AlertDialog.Builder(this).create();
+        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
     }
 
     /* When profile photo is pressed, gallery option to choose other is open. */
@@ -151,12 +169,16 @@ public class ProfileActivity extends AppCompatActivity {
     /* Updated profile is sending to Server. */
     private void sendUpdateProfileToServer() {
         userName = userNameView.getText().toString();
-        userRealName = userRealNameView.getText().toString();
 
         // check format fields
         if (!checkFormatFields()) {
             return;
         }
+
+        // Latitude and longitude
+        Double latitude = locationListener.getLatitude();
+        Double longitude = locationListener.getLongitude();
+
         // profile photo ---> base64
         BitmapDrawable drawable = (BitmapDrawable) userPhoto.getDrawable();
         Bitmap bitmapProfilePhoto = drawable.getBitmap();
@@ -168,10 +190,17 @@ public class ProfileActivity extends AppCompatActivity {
             profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename),getApplicationContext()));
             profile.remove(getResources().getString(R.string.alias));
             profile.put(getResources().getString(R.string.alias), userName);
-            profile.remove(getResources().getString(R.string.userName));
-            profile.put(getResources().getString(R.string.userName), userRealName);
             profile.remove(getResources().getString(R.string.profilePhoto));
             profile.put(getResources().getString(R.string.profilePhoto), profilePhotoBase64);
+
+            if (! ((latitude == 0.0) || (longitude == 0)) )  {
+                JSONObject location = new JSONObject();
+                location.put(getResources().getString(R.string.latitude), latitude);
+                location.put(getResources().getString(R.string.longitude), longitude);
+                profile.remove(getResources().getString(R.string.location));
+                profile.put(getResources().getString(R.string.location),location);
+            }
+
         } catch (JSONException e) {
             Log.w(TAG, "Can't create Json Profile Request");
         } catch (IOException e) {
@@ -188,12 +217,12 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             internetDisconnectWindow.show();
         }
-       // checkProfileResponseFromServer("200:ok"); //TODO: FOR NOW...
+       // checkProfileResponseFromServer("200:ok"); //TODO: Test
     }
 
     /* Return true if format of fields is correct */
     private boolean checkFormatFields() {
-        if (userName.isEmpty() || userRealName.isEmpty()) {
+        if (userName.isEmpty()) {
             emptyFieldsWindow.show();
             return false;
         }
@@ -216,7 +245,7 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.w(TAG, "Can't write Profile File");
             }
         } else {
-            // ERROR
+            unavailableServiceWindow.show();
         }
     }
 

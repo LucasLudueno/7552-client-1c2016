@@ -2,7 +2,9 @@ package taller2.match_client;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -49,8 +51,13 @@ public class SettingsActivity extends AppCompatActivity {
     private CheckBox womenSelected;
 
     private AlertDialog internetDisconnectWindow;
+    private AlertDialog unavailableServiceWindow;
     private Toast profileCreated;
     private ProgressDialog loading;
+
+    private LocationManager locationManager;
+    private ActivityLocationListener locationListener;
+    private int minTimeToRefresh = 5000;
 
     private static final String TAG = "SettingsActivity";
 
@@ -96,6 +103,15 @@ public class SettingsActivity extends AppCompatActivity {
         // Include Profile interests in Spinners
         includeProfileInterest();
 
+        // Location Manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new ActivityLocationListener();
+        try {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
+        } catch (SecurityException e) {
+            Log.w(TAG, "Can't set LocationListener");
+        }
+
         Log.i(TAG, "Register Activity is created");
     }
 
@@ -109,7 +125,12 @@ public class SettingsActivity extends AppCompatActivity {
         // loadingWindow
         loading = new ProgressDialog(this);
         loading.setTitle(getResources().getString(R.string.please_wait_en));
-        loading.setMessage(getResources().getString(R.string.log_processing_en));
+        loading.setMessage(getResources().getString(R.string.updating_profile_en));
+
+        // UnavailableServiceWindow
+        unavailableServiceWindow = new AlertDialog.Builder(this).create();
+        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -216,11 +237,11 @@ public class SettingsActivity extends AppCompatActivity {
     ArrayAdapter<String> getCategoryAdapter(String category) {
         ArrayAdapter<String> adapter = null;
 
-        switch (category) {     // TODO: HACE FALTA AGREGAR LOS NOMBRES EN STRING.XML ?
+        switch (category) {
             case "music":
                 adapter = listMusicAdapter;
                 break;
-            case "music/band":
+            case "musicband":
                 adapter = listMusicBandAdapter;
                 break;
             case "sport":
@@ -245,6 +266,10 @@ public class SettingsActivity extends AppCompatActivity {
         String url = getResources().getString(R.string.server_ip);
         String uri = getResources().getString(R.string.update_profile_uri);
 
+        // Latitude and longitude
+        Double latitude = locationListener.getLatitude();
+        Double longitude = locationListener.getLongitude();
+
         try {
             profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
             JSONArray interestArray = new JSONArray();
@@ -258,17 +283,26 @@ public class SettingsActivity extends AppCompatActivity {
             if (menSelected.isChecked()) {
                 JSONObject interest = new JSONObject();
                 interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.men_en));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.men));
                 interestArray.put(interest);
             }
             if (womenSelected.isChecked()) {
                 JSONObject interest = new JSONObject();
                 interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women_en));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women));
                 interestArray.put(interest);
             }
             profile.remove(getResources().getString(R.string.interests));
-            profile.put(getResources().getString(R.string.interests),interestArray);
+            profile.put(getResources().getString(R.string.interests), interestArray);
+
+            if (! ((latitude == 0.0) || (longitude == 0)) )  {
+                JSONObject location = new JSONObject();
+                location.put(getResources().getString(R.string.latitude), latitude);
+                location.put(getResources().getString(R.string.longitude), longitude);
+                profile.remove(getResources().getString(R.string.location));
+                profile.put(getResources().getString(R.string.location),location);
+            }
+
         } catch (JSONException e) {
             Log.w(TAG, "Can't create Json Profile Request");
         } catch (IOException e) {
@@ -276,9 +310,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         // Sending json data to Server
-        loading.show();
         if ( ActivityHelper.checkConection(getApplicationContext()) ){
             Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
+            loading.show();
             SendInterestTask checkLogin = new SendInterestTask();
             checkLogin.execute("POST", url, uri, profile.toString());
         } else {
@@ -349,7 +383,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Log.e(TAG, "Can't write Profile File");
             }
         } else {
-            // ERROR
+            unavailableServiceWindow.show();
         }
     }
 

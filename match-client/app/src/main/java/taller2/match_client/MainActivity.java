@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog emptyFieldsWindow;
     private AlertDialog internetDisconnectWindow;
     private AlertDialog wrongMailWindow;
+    private AlertDialog unavailableServiceWindow;
     private ProgressDialog loadingWindow;
     private EditText userMailView;
     private EditText userPasswordView;
@@ -94,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
         loadingWindow = new ProgressDialog(this);
         loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
         loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
+
+        // UnavailableServiceWindow
+        unavailableServiceWindow = new AlertDialog.Builder(this).create();
+        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -221,8 +227,10 @@ public class MainActivity extends AppCompatActivity {
             startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
             this.finish();
-        } else {
+        } else if (responseCode.equals(getResources().getString(R.string.existing_user_code))) {
             badLoginWindow.show();
+        } else {
+            unavailableServiceWindow.show();
         }
     }
 
@@ -244,3 +252,4 @@ public class MainActivity extends AppCompatActivity {
 // TODO: FONDO DE PANTALLA A CHAT ??
 
 // NECESARIO
+// TODO: MANEJAR LOS RESPONSE CODES

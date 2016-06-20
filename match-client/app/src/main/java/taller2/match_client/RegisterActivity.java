@@ -32,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private AlertDialog wrongMailWindow;
     private AlertDialog emptyFieldsWindow;
     private AlertDialog userMailExistWindow;
+    private AlertDialog unavailableServiceWindow;
     private AlertDialog internetDisconnectWindow;
     private ProgressDialog connectingToServerWindow;
     private EditText userNameView;
@@ -116,6 +117,11 @@ public class RegisterActivity extends AppCompatActivity {
         emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
         emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
 
+        // UnavailableServiceWindow
+        unavailableServiceWindow = new AlertDialog.Builder(this).create();
+        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+
         // loadingWindow
         connectingToServerWindow = new ProgressDialog(this);
         connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
@@ -194,6 +200,9 @@ public class RegisterActivity extends AppCompatActivity {
             userSex = getResources().getString(R.string.male_en);
         }
 
+        // calculate Age
+        int userAge = ActivityHelper.calculateAge(userBirthday);
+
         // construct registerData
         try {
             // register fields
@@ -202,7 +211,8 @@ public class RegisterActivity extends AppCompatActivity {
             registerData.put(getResources().getString(R.string.password), userPassword);
             registerData.put(getResources().getString(R.string.userName), userRealName);
             registerData.put(getResources().getString(R.string.email), userEmail);
-            registerData.put(getResources().getString(R.string.birthday), userBirthday);
+            //registerData.put(getResources().getString(R.string.birthday), userBirthday);    //TODO: SACAR
+            registerData.put(getResources().getString(R.string.age),userAge);
             registerData.put(getResources().getString(R.string.sex), userSex);
 
             // location
@@ -213,15 +223,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             // interests
             JSONArray interestEmptyList = new JSONArray();
-            //registerData.put(getResources().getString(R.string.interests),interestEmptyList);
-
-            //JSONObject interest1 = new JSONObject("{\"category\": \"sex\", \"value\": \"women\"}");
-            //JSONObject interest2 = new JSONObject("{\"category\": \"sex\", \"value\": \"men\"}");
-            JSONObject interest1 = new JSONObject("{\"category\": \"music\", \"value\": \"Beatles\"}");
-            JSONArray interests = new JSONArray();
-            interests.put(interest1);
-            //interests.put(interest2);
-            registerData.put(getResources().getString(R.string.interests), interests);
+            registerData.put(getResources().getString(R.string.interests),interestEmptyList);
 
             // profile photo
             Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small);
@@ -302,19 +304,15 @@ public class RegisterActivity extends AppCompatActivity {
             // start principal activity
             Log.d(TAG, "Create PrincipalAppActivity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            /*startAppActivity.setAction(Intent.ACTION_MAIN);
-            startAppActivity.addCategory(Intent.CATEGORY_HOME);
-            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startAppActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startAppActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
             startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
 
             // Finish actual activity
             this.finish();
+        } else if (responseCode.equals(getResources().getString(R.string.existing_user_code))){
+            userMailExistWindow.show();
         } else {
-            userMailExistWindow.show(); //TODO: AGREGAR MENSAJE POR CADA RESPONSE CODE
+            unavailableServiceWindow.show();
         }
     }
 
