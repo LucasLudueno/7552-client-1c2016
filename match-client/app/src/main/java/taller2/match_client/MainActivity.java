@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private String userEmail;
     private String userPassword;
 
+    static String ipServer; //TODO: SACAR
+
     private static final String TAG = "MainActivity";
 
     /***MockServer***/
@@ -125,10 +127,16 @@ public class MainActivity extends AppCompatActivity {
         // TextViews
         userMailView = (EditText)findViewById(R.id.userMailLogin);
         userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
+
+
+
+        ((EditText)findViewById(R.id.ip)).setText(getResources().getString(R.string.server_ip));
     }
 
     /* When an user login, if the userName and the password are correct (that is checked with Server) PrincipalAppActivity is created. */
     private void loginOnClick(View v) {
+        ipServer = ((EditText)findViewById(R.id.ip)).getText().toString(); //TODO: SACAR
+
         userEmail = userMailView.getText().toString();
         userPassword = userPasswordView.getText().toString();
 
@@ -148,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         if ( ActivityHelper.checkConection(getApplicationContext()) ){
             Log.d(TAG, "Send Login to Server: " + data.toString());
             loadingWindow.show();
-            String url = getResources().getString(R.string.server_ip);
+            String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
             String uri = getResources().getString(R.string.login_uri);
             SendLoginTask checkLogin = new SendLoginTask();
             checkLogin.execute("POST",url, uri, data.toString());
@@ -162,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
 
     /* When user registers, RegisterActivity is created */
     private void registerOnClick(View v) {
+        ipServer = ((EditText)findViewById(R.id.ip)).getText().toString(); //TODO: SACAR
+
         Log.i(TAG, "Create RegisterActivity");
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
         startActivity(startRegisterActivity);

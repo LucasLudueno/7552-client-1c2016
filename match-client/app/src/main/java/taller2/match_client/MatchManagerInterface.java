@@ -10,7 +10,7 @@ import java.util.List;
 /* Interface for MatchManager */
 public interface MatchManagerInterface {
     /* Add match */
-    public void addMatch(JSONObject matchData) throws JSONException;
+    public boolean addMatch(JSONObject matchData) throws JSONException;
 
     /* Add a conversation with some match */
     public boolean addConversation(JSONObject completeConversation, boolean isNewConversation);

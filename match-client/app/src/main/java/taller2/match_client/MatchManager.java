@@ -39,7 +39,7 @@ public class MatchManager implements MatchManagerInterface {
     }
 
     /* Add match */
-    public void addMatch(JSONObject matchData) throws JSONException {
+    public boolean addMatch(JSONObject matchData) throws JSONException {
         Log.d(TAG, "Add Match");
         String email = "";
         email = matchData.getString(androidContext.getResources().getString(R.string.email));
@@ -48,7 +48,7 @@ public class MatchManager implements MatchManagerInterface {
             if (matches.containsKey(email)) {
                 mutex_matches.unlock();
                 Log.w(TAG, "Try to add match that exists");
-                return;
+                return false;
             }
         mutex_matches.unlock();
 
@@ -63,6 +63,8 @@ public class MatchManager implements MatchManagerInterface {
         mutex_matches.unlock();
 
         matchList.addItem(matchData);
+
+        return true;
     }
 
     /* Add a conversation with some match */
@@ -82,6 +84,7 @@ public class MatchManager implements MatchManagerInterface {
         mutex_matches.unlock();
 
         if (!containsKey) {
+            Log.d(TAG, "Don't contains this Match");
             return false;
         }
 

@@ -137,7 +137,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         getPosMatchTimer.start();
 
         /*** Mock Server***/
-        mockServer = new MockServer(getApplicationContext());
+        //mockServer = new MockServer(getApplicationContext());
 
         Log.i(TAG, "Principal Activity is created");
 
@@ -260,14 +260,15 @@ public class PrincipalAppActivity extends AppCompatActivity
         matchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ActivityHelper.checkConection(getApplicationContext())) {
-                    sendGetPossibleMatchRequestToServer();
-                } else {
-                    if (possibleMatchesBuffer.size() <= 0) {
+                if (possibleMatchesBuffer.size() <= 0) {
+                    if (ActivityHelper.checkConection(getApplicationContext())) {
+                        sendGetPossibleMatchRequestToServer();
+                    } else {
                         internetDisconnectWindow.show();
                     }
+                } else {
+                    updatePosMatch();
                 }
-                updatePosMatch();
             }
         });
 
@@ -287,6 +288,9 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         possibleMatchAlias = (TextView)findViewById(R.id.possibleMatchAlias);
         possibleMatchCard.setVisibility(View.INVISIBLE);
+
+        View v = findViewById(R.id.drawer_layout); // Change background
+        v.setBackground(getResources().getDrawable(R.drawable.no_possible_match));
     }
 
     /* Update UserProfile profile photo and Alias in NavigationHead */
@@ -471,7 +475,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         // send request if there are not possible matches
         if (possibleMatchesBuffer.size() <= MIN_POS_MATCHES_COUNT) {
                     if (ActivityHelper.checkConection(getApplicationContext())) {
-                        String url = getResources().getString(R.string.server_ip);
+                        String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
                         String uri = getResources().getString(R.string.get_pos_matches_uri);;
                         SendGetPossibleMatchesTask getPossibleMatches = new SendGetPossibleMatchesTask();
                         getPossibleMatches.execute("POST", url, uri, posMatchRequest.toString());
@@ -500,10 +504,10 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
             connectingToServerWindow.show();
             Log.d(TAG, "Send interest of possible match Request to Server: " + interestMatches.toString());
-            String url = getResources().getString(R.string.server_ip);
+            String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
             String uri = sendUri;
             SendInterestOfPosMatchTask sendPosMatchInterest = new SendInterestOfPosMatchTask();
-            sendPosMatchInterest.execute("POST", url, uri, pos_match_email);
+            sendPosMatchInterest.execute("POST", url, uri, interestMatches.toString());
 
             //checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));  //TODO: Test
         } else {
@@ -522,11 +526,11 @@ public class PrincipalAppActivity extends AppCompatActivity
         }
         if (ActivityHelper.checkConection(getApplicationContext())) {
             Log.d(TAG, "Send Get match Request to Server: " + userMailJson.toString());
-            String url = getResources().getString(R.string.server_ip);
+            String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
             String uri = getResources().getString(R.string.get_matches_uri);;
             SendGetMatchesTask getMatches = new SendGetMatchesTask();
-            //getMatches.execute("POST", url, uri, userMailJson.toString());
-            checkGetMatchResponseFromServer(mockServer.getMatches(userMailJson.toString()));  //TODO: MOCK TEST
+            getMatches.execute("POST", url, uri, userMailJson.toString());
+            //checkGetMatchResponseFromServer(mockServer.getMatches(userMailJson.toString()));  //TODO: MOCK TEST
         } else {
             // No hay internet
         }
@@ -550,11 +554,11 @@ public class PrincipalAppActivity extends AppCompatActivity
             }
             if (ActivityHelper.checkConection(getApplicationContext())) {
                 Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
-                String url = getResources().getString(R.string.server_ip);
+                String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
                 String uri = getResources().getString(R.string.get_conversation_uri);;
                 SendGetConversationTask getConversation = new SendGetConversationTask();
-                //getConversation.execute("POST", url, uri, convRequest.toString());
-                checkGetConversationResponseFromServer( mockServer.getConversation(convRequest.toString()));    //TODO: Test
+                getConversation.execute("POST", url, uri, convRequest.toString());
+                //checkGetConversationResponseFromServer( mockServer.getConversation(convRequest.toString()));    //TODO: Test
             } else {
                 // No hay internet
             }
@@ -573,6 +577,8 @@ public class PrincipalAppActivity extends AppCompatActivity
             actualMatch = null;
             if (possibleMatchesBuffer.size() <= 0) {
                 sendGetPossibleMatchRequestToServer();
+                View v = findViewById(R.id.drawer_layout); // Change background
+                v.setBackground(getResources().getDrawable(R.drawable.no_possible_match));
             } else {
                 updatePosMatch();
             }
@@ -615,6 +621,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         String matches = response.split(":", 2)[1];
 
         if (responseCode.equals(getResources().getString(R.string.ok_response_code_get_matches))) {
+            int newMatchesCount = 0;
             // Get each match from Server response
             JSONObject matchData = null;
             JSONArray matchesArray = null;
@@ -623,16 +630,18 @@ public class PrincipalAppActivity extends AppCompatActivity
                 matchesArray = matchData.getJSONArray(getResources().getString(R.string.matches));
                 for (int i = 0; i < matchesArray.length(); ++i) {
                     JSONObject match = (matchesArray.getJSONObject(i)).getJSONObject("user");
-                    matchManager.addMatch(match);   // Put in MatchManager
+                    if(matchManager.addMatch(match)) {   // Put in MatchManager
+                        ++newMatchesCount;
+                    }
                 }
-                // Update match icon
-                if (matchesArray.length() > 0 && menu != null) {
-                    menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_person_add_white_36dp));
-                }
+
             } catch (JSONException e) {
                 Log.w(TAG, "Can't process Matches Json received from Server");
             }
-            if (matchesArray.length() > 0) {
+            if (newMatchesCount > 0) {
+                // Update match icon
+                menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_person_add_white_36dp));
+
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.new_matches_en),
                         Toast.LENGTH_LONG).show();
             }

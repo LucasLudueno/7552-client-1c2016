@@ -58,4 +58,12 @@
         android:paddingLeft="@dimen/button_med_hight_padding_margin"
         android:paddingRight="@dimen/button_med_hight_padding_margin" />
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ip"
+        android:background="@drawable/text_design_login"
+        android:layout_above="@+id/userMailLogin"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

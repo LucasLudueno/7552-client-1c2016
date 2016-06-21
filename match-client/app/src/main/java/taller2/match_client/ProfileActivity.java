@@ -210,7 +210,7 @@ public class ProfileActivity extends AppCompatActivity {
         if ( ActivityHelper.checkConection(getApplicationContext()) ) {
             Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             loadingWindow.show();
-            String url = getResources().getString(R.string.server_ip);
+            String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
             String uri = getResources().getString(R.string.update_profile_uri);
             SendProfileTask checkProfileUpdate = new SendProfileTask();
             checkProfileUpdate.execute("POST",url, uri, String.valueOf(profile));

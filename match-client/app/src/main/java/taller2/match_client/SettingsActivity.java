@@ -263,7 +263,7 @@ public class SettingsActivity extends AppCompatActivity {
     /* Updated profile is sending to Server. */
     private void sendUpdateProfileToServer() {
         // Json Data
-        String url = getResources().getString(R.string.server_ip);
+        String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
         String uri = getResources().getString(R.string.update_profile_uri);
 
         // Latitude and longitude

@@ -36,7 +36,7 @@ public class ChatTab extends Fragment {
     private AlertDialog internetDisconnectWindow;
     private AlertDialog unavailableServiceWindow;
     //private Thread sendConversationTimer;
-    protected static final int GET_CONVERSATION_SLEEP_TIME = 3000;  // 3 seg
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 10000;  // 10 seg
     protected static final int GET_CONVERSATION_CODE = 2;
     private static final String TAG = "ChatTab";
 
@@ -143,12 +143,18 @@ public class ChatTab extends Fragment {
         }
 
         //Send conversation to Server
-        String url = getResources().getString(R.string.server_ip);
+        JSONObject conversationToServer = new JSONObject();
+        try {
+            conversationToServer.put("conversation", conversation);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
         String uri = getResources().getString(R.string.send_conversation_uri);;
         SendConversationTask sendConversation = new SendConversationTask();
-        sendConversation.execute("POST", url, uri, conversation.toString());
+        sendConversation.execute("POST", url, uri, conversationToServer.toString());
         //MockServer.sendConversation(conversation.toString());
-        Log.d(TAG, "Send Chat to Server: " + chatString);
+        Log.d(TAG, "Send Chat to Server: " + conversationToServer.toString());
     }
 
     /* When Send button is pressed, the content of the ChatText is send */
@@ -201,12 +207,12 @@ public class ChatTab extends Fragment {
             }
             if (ActivityHelper.checkConection(getContext())) {
                 Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
-                String url = getResources().getString(R.string.server_ip);
+                String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip);//TODO: SACAR
                 String uri = getResources().getString(R.string.get_conversation_uri);;
                 SendGetConversationTask getConversation = new SendGetConversationTask();
-                //getConversation.execute("POST", url, uri, convRequest.toString());
+                getConversation.execute("POST", url, uri, convRequest.toString());
 
-                checkGetConversationResponseFromServer(MockServer.getConversation(convRequest.toString())); //TODO: MOCK TEST
+                //checkGetConversationResponseFromServer(MockServer.getConversation(convRequest.toString())); //TODO: MOCK TEST
             } else {
                 // No hay internet
             }

@@ -24,8 +24,8 @@ public class MatchManagerProxy implements MatchManagerInterface {
     }
 
     /* Add match */
-    public void addMatch(JSONObject matchData) throws JSONException {
-        matchManager.addMatch(matchData);
+    public boolean addMatch(JSONObject matchData) throws JSONException {
+        return matchManager.addMatch(matchData);
     }
 
     /* Add a conversation with some match */

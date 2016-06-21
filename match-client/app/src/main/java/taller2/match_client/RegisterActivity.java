@@ -238,7 +238,7 @@ public class RegisterActivity extends AppCompatActivity {
         if ( ActivityHelper.checkConection(getApplicationContext()) ){
             Log.d(TAG, "Send Register Request to Server: " + registerData.toString());
             connectingToServerWindow.show();
-            String url =  getResources().getString(R.string.server_ip);;
+            String url =  MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
             String uri = getResources().getString(R.string.register_uri);
             SendRegisterTask checkRegister = new SendRegisterTask();
             checkRegister.execute("POST",url, uri, String.valueOf(registerData));
