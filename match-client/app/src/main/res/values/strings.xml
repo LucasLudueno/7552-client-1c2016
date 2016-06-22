@@ -63,6 +63,7 @@
     <string name="conversation">conversation</string>
     <string name="messages">messages</string>
     <string name="msg">msg</string>
+    <string name="any">any</string>
     <string name="send_from">sendFrom</string>
 
     <!-- General Activity strings-->

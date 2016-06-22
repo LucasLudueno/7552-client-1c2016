@@ -280,18 +280,24 @@ public class SettingsActivity extends AppCompatActivity {
             addInterestInJsonArray(getResources().getString(R.string.food_category), listFoodAdapter, interestArray);
             addInterestInJsonArray(getResources().getString(R.string.travel_category), listTravelAdapter, interestArray);
 
-            if (menSelected.isChecked()) {
+            if ( (menSelected.isChecked() && womenSelected.isChecked()) ||
+                    (!menSelected.isChecked() && !womenSelected.isChecked())) {
+                JSONObject interest = new JSONObject();
+                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.any));
+                interestArray.put(interest);
+            } else if (womenSelected.isChecked()) {
+                JSONObject interest = new JSONObject();
+                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
+                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women));
+                interestArray.put(interest);
+            } else if (menSelected.isChecked()) {
                 JSONObject interest = new JSONObject();
                 interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
                 interest.put(getResources().getString(R.string.value), getResources().getString(R.string.men));
                 interestArray.put(interest);
             }
-            if (womenSelected.isChecked()) {
-                JSONObject interest = new JSONObject();
-                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women));
-                interestArray.put(interest);
-            }
+
             profile.remove(getResources().getString(R.string.interests));
             profile.put(getResources().getString(R.string.interests), interestArray);
 
@@ -300,7 +306,7 @@ public class SettingsActivity extends AppCompatActivity {
                 location.put(getResources().getString(R.string.latitude), latitude);
                 location.put(getResources().getString(R.string.longitude), longitude);
                 profile.remove(getResources().getString(R.string.location));
-                profile.put(getResources().getString(R.string.location),location);
+                profile.put(getResources().getString(R.string.location), location);
             }
 
         } catch (JSONException e) {
@@ -350,9 +356,11 @@ public class SettingsActivity extends AppCompatActivity {
                 if (category.compareTo(getResources().getString(R.string.sex)) == 0) {
                     if (value.compareTo(getResources().getString(R.string.men)) == 0) {
                         menSelected.setChecked(true);
-                    }
-                    if (value.compareTo(getResources().getString(R.string.women)) == 0) {
+                    } else if (value.compareTo(getResources().getString(R.string.women)) == 0) {
                         womenSelected.setChecked(true);
+                    } else if (value.compareTo(getResources().getString(R.string.any)) == 0) {
+                        womenSelected.setChecked(true);
+                        menSelected.setChecked(true);
                     }
                 }
                 ArrayAdapter<String> adapter= getCategoryAdapter(category);

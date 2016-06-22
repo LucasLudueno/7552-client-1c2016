@@ -211,7 +211,6 @@ public class RegisterActivity extends AppCompatActivity {
             registerData.put(getResources().getString(R.string.password), userPassword);
             registerData.put(getResources().getString(R.string.userName), userRealName);
             registerData.put(getResources().getString(R.string.email), userEmail);
-            //registerData.put(getResources().getString(R.string.birthday), userBirthday);    //TODO: SACAR
             registerData.put(getResources().getString(R.string.age),userAge);
             registerData.put(getResources().getString(R.string.sex), userSex);
 
@@ -222,8 +221,12 @@ public class RegisterActivity extends AppCompatActivity {
             registerData.put(getResources().getString(R.string.location),location);
 
             // interests
-            JSONArray interestEmptyList = new JSONArray();
-            registerData.put(getResources().getString(R.string.interests),interestEmptyList);
+            JSONArray interests = new JSONArray();
+            JSONObject sexInterest = new JSONObject();
+            sexInterest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex));
+            sexInterest.put(getResources().getString(R.string.value), getResources().getString(R.string.any));
+            interests.put(sexInterest);
+            registerData.put(getResources().getString(R.string.interests),interests);
 
             // profile photo
             Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small);
