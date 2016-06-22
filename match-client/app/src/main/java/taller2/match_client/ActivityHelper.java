@@ -46,10 +46,10 @@ public class ActivityHelper {
         return matcher.matches();
     }
 
-    /* Compare birthday with actual date and return Age */
+    /* Compare birthday with actual date and return Age. Birthday must be: dd/mm/yyyy */
     public static int calculateAge(String birthday) {
         Log.d(TAG, "calculateAge");
-        String year = birthday.split("/", 3)[2];    // TODO: CHECKEAR SI NO DA ERROR...
+        String year = birthday.split("/", 3)[2];
         String month = birthday.split("/", 3)[1];
         String day = birthday.split("/", 3)[0];
 

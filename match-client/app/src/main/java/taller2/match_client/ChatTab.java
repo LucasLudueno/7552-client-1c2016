@@ -35,7 +35,6 @@ public class ChatTab extends Fragment {
     private Thread getConversationTimer;
     private AlertDialog internetDisconnectWindow;
     private AlertDialog unavailableServiceWindow;
-    //private Thread sendConversationTimer;
     protected static final int GET_CONVERSATION_SLEEP_TIME = 10000;  // 10 seg
     protected static final int GET_CONVERSATION_CODE = 2;
     private static final String TAG = "ChatTab";
@@ -108,11 +107,11 @@ public class ChatTab extends Fragment {
             return;
         }
 
+        // Clean Message field
         String chatString = chatText.getText().toString();
         if (chatString.compareTo("") == 0) {
             return;
         }
-        //chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
 
         JSONObject conversation = new JSONObject();
         JSONArray messages = new JSONArray();
@@ -127,7 +126,7 @@ public class ChatTab extends Fragment {
             Log.e(TAG, "Can't construct sendConversation Json Request");
         }
 
-        //Conversation to MatchManager  //TODO: CHECKEAR EFICIENCIA
+        //Conversation to MatchManager
         try {
             messages = new JSONArray();
             JSONObject conversationMM = new JSONObject();
@@ -136,7 +135,7 @@ public class ChatTab extends Fragment {
             messages.put(msg);
             conversationJson.put(getResources().getString(R.string.email), matchEmail);
             conversationJson.put(getResources().getString(R.string.messages), messages);
-            conversationMM.put("conversation", conversationJson);
+            conversationMM.put(getResources().getString(R.string.conversation), conversationJson);
             matchManager.addConversation(conversationMM, true);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -145,7 +144,7 @@ public class ChatTab extends Fragment {
         //Send conversation to Server
         JSONObject conversationToServer = new JSONObject();
         try {
-            conversationToServer.put("conversation", conversation);
+            conversationToServer.put(getResources().getString(R.string.conversation), conversation);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -153,7 +152,7 @@ public class ChatTab extends Fragment {
         String uri = getResources().getString(R.string.send_conversation_uri);;
         SendConversationTask sendConversation = new SendConversationTask();
         sendConversation.execute("POST", url, uri, conversationToServer.toString());
-        //MockServer.sendConversation(conversation.toString());
+        //MockServer.sendConversation(conversation.toString());                            //TODO: MOCK TEST
         Log.d(TAG, "Send Chat to Server: " + conversationToServer.toString());
     }
 
@@ -171,9 +170,7 @@ public class ChatTab extends Fragment {
         String responseCode = response.split(":", 2)[0];
         String responseMsg = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_send_conversation))) {
-
-        } else {
+        if (!responseCode.equals(getResources().getString(R.string.ok_response_code_send_conversation))) {
             unavailableServiceWindow.show();
         }
     }
@@ -200,21 +197,18 @@ public class ChatTab extends Fragment {
     private void sendGetConversationsRequestToServer() {
             JSONObject convRequest = new JSONObject();
             try {
-                convRequest.put(getResources().getString(R.string.email_src), matchEmail);
-                convRequest.put(getResources().getString(R.string.email_dst), userEmail);
+                convRequest.put(getResources().getString(R.string.email_src), userEmail);
+                convRequest.put(getResources().getString(R.string.email_dst), matchEmail);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't create GetConversation Json Request");
             }
             if (ActivityHelper.checkConection(getContext())) {
                 Log.d(TAG, "Send GetConversation Request to Server: " + convRequest.toString());
-                String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip);//TODO: SACAR
+                String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip);            //TODO: SACAR
                 String uri = getResources().getString(R.string.get_conversation_uri);;
                 SendGetConversationTask getConversation = new SendGetConversationTask();
                 getConversation.execute("POST", url, uri, convRequest.toString());
-
                 //checkGetConversationResponseFromServer(MockServer.getConversation(convRequest.toString())); //TODO: MOCK TEST
-            } else {
-                // No hay internet
             }
     }
 
@@ -226,7 +220,7 @@ public class ChatTab extends Fragment {
         }
     }
 
-    /* Get Conversation to Server */
+    /* Send GetConversation to Server */
     private class SendGetConversationTask extends ClientToServerTask {
         @Override
         protected void onPostExecute(String dataGetFromServer){

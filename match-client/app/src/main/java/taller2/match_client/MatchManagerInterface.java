@@ -1,7 +1,5 @@
 package taller2.match_client;
 
-import android.util.Log;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,6 +7,7 @@ import java.util.List;
 
 /* Interface for MatchManager */
 public interface MatchManagerInterface {
+
     /* Add match */
     public boolean addMatch(JSONObject matchData) throws JSONException;
 

@@ -18,7 +18,7 @@ public class MatchManagerProxy implements MatchManagerInterface {
         return matchManagerProxy;
     }
 
-    /* Initialize */
+    /* Initialize MatchManager */
     public void initialize(String userEmail, Context context) {
         matchManager = new MatchManager(userEmail, context);
     }

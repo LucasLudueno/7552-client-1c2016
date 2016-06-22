@@ -21,7 +21,6 @@ public class ConversationBuffer {
     private Context context;
     private ReentrantLock mutex;
     private HashMap<String, List<JSONObject>> buffer;
-
     private static final String TAG = "ConversationBuffer";
 
     ConversationBuffer(Context context) {
@@ -59,7 +58,7 @@ public class ConversationBuffer {
         JSONArray conversationsArray = null;
         try {
             matchConversations = new JSONObject(conversationsList);
-            conversationsArray = matchConversations.getJSONArray("conversations");
+            conversationsArray = matchConversations.getJSONArray(context.getResources().getString(R.string.conversations));
         } catch (JSONException e) {
             Log.w(TAG, "Error while construct conversation Json");
         }
@@ -68,7 +67,7 @@ public class ConversationBuffer {
                 // combine messages between buffer and file
                 for (int i = 0; i < conversationsArray.length(); ++i) {
                     JSONObject conversationStructure = conversationsArray.getJSONObject(i);
-                    JSONObject conversation = conversationStructure.getJSONObject("conversation");
+                    JSONObject conversation = conversationStructure.getJSONObject(context.getResources().getString(R.string.conversation));
                     String matchEmail = conversation.getString(context.getResources().getString(R.string.email));
                     JSONArray messages = conversation.getJSONArray(context.getResources().getString(R.string.messages));
                     if (buffer.containsKey(matchEmail)) {
@@ -81,7 +80,7 @@ public class ConversationBuffer {
                     newConversation.put(context.getResources().getString(R.string.email), matchEmail);
                     newConversation.put(context.getResources().getString(R.string.messages), messages);
                     JSONObject conversationJson = new JSONObject();
-                    conversationJson.put("conversation", newConversation);
+                    conversationJson.put(context.getResources().getString(R.string.conversation), newConversation);
                     newConversationArray.put(conversationJson);
                 }
 
@@ -95,13 +94,13 @@ public class ConversationBuffer {
                     newConversation.put(context.getResources().getString(R.string.email), matchEmail);
                     newConversation.put(context.getResources().getString(R.string.messages), messages);
                     JSONObject conversationJson = new JSONObject();
-                    conversationJson.put("conversation", newConversation);
+                    conversationJson.put(context.getResources().getString(R.string.conversation), newConversation);
                     newConversationArray.put(conversationJson);
                 }
                 buffer.clear();
 
                 // Write file
-                newConversationFile.put("conversations", newConversationArray);
+                newConversationFile.put(context.getResources().getString(R.string.conversations), newConversationArray);
                 try {
                     FileManager.writeFile(fileName, newConversationFile.toString(), context);
                 } catch (IOException e) {

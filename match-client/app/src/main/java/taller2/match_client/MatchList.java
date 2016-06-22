@@ -105,39 +105,9 @@ public class MatchList extends BaseAdapter {
             e.printStackTrace();
         }
         Bitmap photo = bs64.Base64ToBitmap(matchPhotoString);
-        matchName.setText(matchNameString);                                                 // Match Name
-        matchPhoto.setImageBitmap(getRoundedShape(photo, MATCH_PHOTO_SIZE));                // Match Photo
+        matchName.setText(matchNameString);                                            // Match Name
+        matchPhoto.setImageBitmap(getRoundedShape(photo, MATCH_PHOTO_SIZE));           // Match Photo
         return row;
-    }
-
-    /* Decode bitmap */ //TODO: CHECKEAR SI LO USAMOS
-    public Bitmap decodeFile(Context context,int resId) {
-        try {
-        // decode image size
-            Context mcontext=context;
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            BitmapFactory.decodeResource(mcontext.getResources(), resId, o);
-        // Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE = 200;
-            int width_tmp = o.outWidth, height_tmp = o.outHeight;
-            int scale = 1;
-            while (true)
-            {
-                if (width_tmp / 2 < REQUIRED_SIZE
-                        || height_tmp / 2 < REQUIRED_SIZE)
-                    break;
-                width_tmp /= 2;
-                height_tmp /= 2;
-                scale++;
-            }
-        // decode with inSampleSize
-            BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
-            return BitmapFactory.decodeResource(mcontext.getResources(), resId, o2);
-        } catch (Exception e) {
-        }
-        return null;
     }
 
     /* Return rounder image (Bitmap) with indicated width */

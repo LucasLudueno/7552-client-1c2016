@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
-/* This class is a Monitor of a Possible Match Buffer */
+/* This class contains a buffer of possibles matches. Can add and remove them */
 public class PossibleMatchBuffer {
     /* Attributes */
     private ReentrantLock mutex_pos_matches;

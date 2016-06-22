@@ -30,7 +30,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Match Email and Alias
+        // Get Match Email and Alias from Intent
         String alias = "";
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -40,7 +40,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
-        toolbar.setTitle("Chat with " + alias);
+        toolbar.setTitle(alias);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -109,7 +109,7 @@ public class ChatActivity extends AppCompatActivity {
     /* Handle menu item click */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {    // Back to previus Activity
+        if (item.getItemId() == android.R.id.home) {    // Back to previous Activity
             Log.i(TAG, "Back to previous Activity");
             matchTab.onDestroy();
             chatTab.onDestroy();

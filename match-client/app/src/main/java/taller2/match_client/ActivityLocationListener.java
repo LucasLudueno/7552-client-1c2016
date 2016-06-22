@@ -35,7 +35,7 @@ public class ActivityLocationListener implements LocationListener {
     }
 
     public Double getLatitude() {
-        Log.d(TAG, "Get Latitude");
+        Log.d(TAG, "Get Latitude ");
         return latitude;
     }
 

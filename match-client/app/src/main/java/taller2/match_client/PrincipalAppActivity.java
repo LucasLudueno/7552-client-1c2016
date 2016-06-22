@@ -546,9 +546,9 @@ public class PrincipalAppActivity extends AppCompatActivity
             try {
                 matchEmail = match.getString(getResources().getString(R.string.email));
                 convRequest.put(getResources().getString(R.string.email_src),
-                        matchEmail);
-                convRequest.put(getResources().getString(R.string.email_dst),
                         userEmail);
+                convRequest.put(getResources().getString(R.string.email_dst),
+                        matchEmail);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't create GetConversation Json Request");
             }
@@ -600,7 +600,7 @@ public class PrincipalAppActivity extends AppCompatActivity
                 JSONArray posMatchArray = possibleMatchesjson.getJSONArray(getResources().getString(R.string.possible_matches));
 
                 for (int i = 0; i < posMatchArray.length(); ++i) {
-                    JSONObject posMatch = (posMatchArray.getJSONObject(i)).getJSONObject("user");
+                    JSONObject posMatch = (posMatchArray.getJSONObject(i)).getJSONObject(getResources().getString(R.string.user));
                     this.possibleMatchesBuffer.add(posMatch);
                 }
 
@@ -629,7 +629,7 @@ public class PrincipalAppActivity extends AppCompatActivity
                 matchData = new JSONObject(matches);
                 matchesArray = matchData.getJSONArray(getResources().getString(R.string.matches));
                 for (int i = 0; i < matchesArray.length(); ++i) {
-                    JSONObject match = (matchesArray.getJSONObject(i)).getJSONObject("user");
+                    JSONObject match = (matchesArray.getJSONObject(i)).getJSONObject(getResources().getString(R.string.user));
                     if(matchManager.addMatch(match)) {   // Put in MatchManager
                         ++newMatchesCount;
                     }

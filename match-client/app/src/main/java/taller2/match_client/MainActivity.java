@@ -67,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "MainActivity is created");
 
-        //mockServer = new MockServer(getApplicationContext());
-        //userMailView.setText("lucas@gmail.com");
+        //mockServer = new MockServer(getApplicationContext());     //MOCK TEST
     }
 
     /* Create windows that are showed to users to comunicate something (error, information) */
@@ -128,12 +127,11 @@ public class MainActivity extends AppCompatActivity {
         userMailView = (EditText)findViewById(R.id.userMailLogin);
         userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
 
-
-
-        ((EditText)findViewById(R.id.ip)).setText(getResources().getString(R.string.server_ip));
+        ((EditText)findViewById(R.id.ip)).setText(getResources().getString(R.string.server_ip));    //TODO: SACAR
     }
 
-    /* When an user login, if the userName and the password are correct (that is checked with Server) PrincipalAppActivity is created. */
+    /* When an user login, if the userName and the password are correct (that is checked with Server)
+     * PrincipalAppActivity is created. */
     private void loginOnClick(View v) {
         ipServer = ((EditText)findViewById(R.id.ip)).getText().toString(); //TODO: SACAR
 
@@ -165,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /*** MockServer ***/
-        //checkLoginResponseFromServer(mockServer.Login(data));
+        //checkLoginResponseFromServer(mockServer.Login(data));     //MOCK TEST
     }
 
     /* When user registers, RegisterActivity is created */
@@ -188,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.action_settings) {
             return true;
         }
@@ -221,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
             String profileComplete = "";
             try {
                 profileJson = new JSONObject(profile);
-                profileComplete = profileJson.getString("user").toString();
+                profileComplete = profileJson.getString(getResources().getString(R.string.user)).toString();
             } catch (JSONException e) {
                 Log.e(TAG, "Can't get Profile from Server response");
             }
@@ -234,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
             // start principal aplication
             Log.i(TAG, "Create Principal Activity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
+            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail));
             startActivity(startAppActivity);
             this.finish();
         } else if (responseCode.equals(getResources().getString(R.string.existing_user_code))) {
@@ -255,11 +252,8 @@ public class MainActivity extends AppCompatActivity {
 
 // REFACTOR
 // TODO: ELIMINAR IMPORTS NO USADOS
-// TODO: METOOD ON POST EXECUTE - REFACTOR
-// TODO: CHECKEAR ATRIBUTOS
 
 // DUDAS
-// TODO: FONDO DE PANTALLA A CHAT ??
 
 // NECESARIO
 // TODO: MANEJAR LOS RESPONSE CODES

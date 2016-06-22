@@ -33,6 +33,7 @@ public class ChatConversation extends ArrayAdapter<ChatMessage> {
         super.add(chatMessage);
     }
 
+    /* Return item count */
     public int getCount() {
         mutex.lock();
             int size = chatMessageList.size();
@@ -40,6 +41,7 @@ public class ChatConversation extends ArrayAdapter<ChatMessage> {
         return size;
     }
 
+    /* Return item */
     public ChatMessage getItem(int index) {
         mutex.lock();
             ChatMessage chatMessage = chatMessageList.get(index);

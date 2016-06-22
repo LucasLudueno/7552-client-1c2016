@@ -7,7 +7,9 @@ import android.util.Log;
 public class ClientToServerTask extends AsyncTask<String, Integer, String> {
     /* Attributes */
     private static final String TAG = "ClientToServerTask";
-    private static final String CANT_CONNECT_TO_SERVER_ERROR = "400:Error";
+    private static final String CANT_CONNECT_TO_SERVER_ERROR = "401:Cant connect with Server";
+    private static final String GET_TYPE = "GET";
+    private static final String POST_TYPE = "POST";
 
     @Override
     protected void onPreExecute(){
@@ -29,17 +31,17 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
         String receiveString = "";
         RequestSender httpConnection = new RequestSender();
         try {
-            if (requestType.equals("GET") ) {
+            if (requestType.equals(GET_TYPE) ) {
                 Log.d(TAG, "Send GET Request");
                 receiveString = httpConnection.sendGETRequest(url, uri);
-            } else if (requestType.equals("POST") ) {
+            } else if (requestType.equals(POST_TYPE) ) {
                 receiveString = httpConnection.sendPOSTRequest(url, uri, data);
                 Log.d(TAG, "Send POST Request");
             } else {
-                Log.d(TAG, "No type of Request is specified");
+                Log.d(TAG, "Invalid type of Request is specified");
             }
         } catch (ConnectionException e) {
-            Log.w(TAG, "Can't send Resquest to Server");
+            Log.w(TAG, "Can't send Request to Server");
             receiveString = CANT_CONNECT_TO_SERVER_ERROR;
         }
         return receiveString;
