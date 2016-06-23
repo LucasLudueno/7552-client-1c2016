@@ -53,7 +53,8 @@ public class ClientToServerTask extends AsyncTask<String, Integer, String> {
     }
 
     @Override
-    protected void onCancelled(){
+    protected void onCancelled() {
         // Handle what you want to do if you cancel this task
+        this.cancel(true);
     }
 }

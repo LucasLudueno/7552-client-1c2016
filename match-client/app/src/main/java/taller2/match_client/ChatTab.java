@@ -19,6 +19,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import taller2.match_client.Helpers.ActivityHelper;
 import taller2.match_client.Match_Manage.ChatConversation;
 import taller2.match_client.Match_Manage.MatchManagerProxy;
@@ -38,9 +41,11 @@ public class ChatTab extends Fragment {
     private Thread getConversationTimer;
     private AlertDialog internetDisconnectWindow;
     private AlertDialog unavailableServiceWindow;
-    protected static final int GET_CONVERSATION_SLEEP_TIME = 10000;  // 10 seg
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 3000;  // 3 seg
     protected static final int GET_CONVERSATION_CODE = 2;
     private static final String TAG = "ChatTab";
+
+    private List<ClientToServerTask> requests;
 
     public ChatTab() {
         // Required empty public constructor
@@ -95,6 +100,9 @@ public class ChatTab extends Fragment {
                 onSendChatClick(v);
             }
         });
+
+        // Request List
+        requests = new ArrayList<ClientToServerTask>();
 
         /* Timer */
         getConversationTimer = new Thread(new GetConversations());
@@ -154,6 +162,7 @@ public class ChatTab extends Fragment {
         String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
         String uri = getResources().getString(taller2.match_client.R.string.send_conversation_uri);;
         SendConversationTask sendConversation = new SendConversationTask();
+        requests.add(sendConversation);
         sendConversation.execute("POST", url, uri, conversationToServer.toString());
         //MockServer.sendConversation(conversation.toString());                            // MOCK TEST
         Log.d(TAG, "Send Chat to Server: " + conversationToServer.toString());
@@ -173,7 +182,7 @@ public class ChatTab extends Fragment {
         String responseCode = response.split(":", 2)[0];
         String responseMsg = response.split(":", 2)[1];
 
-        if (!responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_send_conversation))) {
+        if (responseCode.compareTo(getResources().getString(taller2.match_client.R.string.ok_response_code_send_conversation)) != 0) {
             unavailableServiceWindow.show();
         }
     }
@@ -210,6 +219,7 @@ public class ChatTab extends Fragment {
                 String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip);            //TODO: SACAR
                 String uri = getResources().getString(taller2.match_client.R.string.get_conversation_uri);;
                 SendGetConversationTask getConversation = new SendGetConversationTask();
+                requests.add(getConversation);
                 getConversation.execute("POST", url, uri, convRequest.toString());
                 //checkGetConversationResponseFromServer(MockServer.getConversation(convRequest.toString())); // MOCK TEST
             }
@@ -269,6 +279,12 @@ public class ChatTab extends Fragment {
             getConversationTimer.join();
         } catch (InterruptedException e) {
             Log.w(TAG, "Can't join threads");
+        }
+
+        // Cancel all request
+        for (int i = 0; i < requests.size(); ++i) {
+            ClientToServerTask request = requests.get(i);
+            request.cancel(true);
         }
         super.onDestroy();
     }
