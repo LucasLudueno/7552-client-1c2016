@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +35,8 @@ public class RegisterActivity extends AppCompatActivity {
     private AlertDialog userMailExistWindow;
     private AlertDialog unavailableServiceWindow;
     private AlertDialog internetDisconnectWindow;
+    private AlertDialog gpsDisconnectWindow;
+    private AlertDialog waitForLocation;
     private ProgressDialog connectingToServerWindow;
     private EditText userNameView;
     private EditText userMailView;
@@ -44,8 +47,10 @@ public class RegisterActivity extends AppCompatActivity {
     private CheckBox userMaleView;
     private Button continueRegButton;
 
-    private LocationManager locationManager;
-    private ActivityLocationListener locationListener;
+    private LocationManager locationManagerInternet;
+    private LocationManager locationManagerGps;
+    private ActivityLocationListener locationListenerGps;
+    private ActivityLocationListener locationListenerInternet;
     private int minTimeToRefresh = 5000;
 
     private String userName;
@@ -58,6 +63,9 @@ public class RegisterActivity extends AppCompatActivity {
     private JSONObject registerData;
 
     private static final String TAG = "RegisterActivity";
+
+
+    Location location;
 
     /* On create Activity */
     @Override
@@ -80,10 +88,14 @@ public class RegisterActivity extends AppCompatActivity {
         instantiateViews();
 
         // Location Manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new ActivityLocationListener();
+        locationManagerInternet = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManagerGps = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        locationListenerInternet = new ActivityLocationListener();
+        locationListenerGps = new ActivityLocationListener();
         try {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListener);
+            locationManagerInternet.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListenerInternet);
+            locationManagerGps.requestLocationUpdates("gps", minTimeToRefresh, 0, locationListenerGps);
         } catch (SecurityException e) {
             Log.w(TAG, "Can't set LocationListener");
         }
@@ -127,6 +139,16 @@ public class RegisterActivity extends AppCompatActivity {
         connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
         connectingToServerWindow.setMessage(getResources().getString(R.string.reg_processing_en));
         connectingToServerWindow.setMax(100);
+
+        // waitForLocationWindow
+        waitForLocation = new AlertDialog.Builder(this).create();
+        waitForLocation.setTitle(getResources().getString(R.string.wait_for_location_error_title_en));
+        waitForLocation.setMessage(getResources().getString(R.string.wait_for_location_error_en));
+
+        // gpsDisconnectWindow
+        gpsDisconnectWindow = new AlertDialog.Builder(this).create();
+        gpsDisconnectWindow.setTitle(getResources().getString(R.string.gps_disconnect_error_title_en));
+        gpsDisconnectWindow.setMessage(getResources().getString(R.string.gps_disconnect_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -136,7 +158,7 @@ public class RegisterActivity extends AppCompatActivity {
         continueRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRegisterToServer(v);
+                checkLocation();
             }
         });
 
@@ -169,9 +191,43 @@ public class RegisterActivity extends AppCompatActivity {
         userBirthdayView = (EditText) findViewById(R.id.userBirthdate);
     }
 
+    /*  Check Location */
+    private void checkLocation() {
+        if (!ActivityHelper.checkConection(getApplicationContext()) ) {
+            internetDisconnectWindow.show();
+            return;
+        }
+
+        if(!locationManagerGps.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            gpsDisconnectWindow.show();
+            return;
+        }
+
+        // check latitude and longitude from gps and internet
+        Double latitudeInternet = locationListenerInternet.getLatitude();
+        Double longitudeInternet = locationListenerInternet.getLongitude();
+        Double latitudeGps = locationListenerGps.getLatitude();
+        Double longitudeGps = locationListenerGps.getLongitude();
+
+        if ((latitudeInternet.compareTo(0.0) == 0) ||((longitudeInternet.compareTo(0.0) == 0)))  {
+            if ((latitudeGps.compareTo(0.0) == 0) ||((longitudeGps.compareTo(0.0) == 0)))  {
+                waitForLocation.show();
+                return;
+            } else {
+                latitude = Double.toString(locationListenerGps.getLatitude());
+                longitude = Double.toString(locationListenerGps.getLongitude());
+                sendRegisterToServer();
+            }
+        } else {
+            latitude = Double.toString(locationListenerInternet.getLatitude());
+            longitude = Double.toString(locationListenerInternet.getLongitude());
+            sendRegisterToServer();
+        }
+    }
+
     /* This function check fields format and if its ok, send the register information to Server to check it.
         If its ok again and the user not exists, PrincipalAppActivity is created. */
-    public void sendRegisterToServer(View v) {
+    public void sendRegisterToServer() {
         userName = userNameView.getText().toString();
         userPassword = userPasswordView.getText().toString();
         userRealName = userRealNameView.getText().toString();
@@ -180,15 +236,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         // check format fields
         if (!checkFormatFields()) {
-            return;
-        }
-
-        // check latitude and longitude
-        latitude = Double.toString(locationListener.getLatitude());
-        longitude = Double.toString(locationListener.getLongitude());
-
-        if ((latitude.compareTo("") == 0) ||((longitude.compareTo("") == 0)))  {
-            internetDisconnectWindow.show();
             return;
         }
 

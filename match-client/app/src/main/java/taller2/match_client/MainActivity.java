@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
 
         ((EditText)findViewById(R.id.ip)).setText(getResources().getString(R.string.server_ip));    //TODO: SACAR
+        ((EditText)findViewById(R.id.ip)).setVisibility(View.INVISIBLE);
     }
 
     /* When an user login, if the userName and the password are correct (that is checked with Server)

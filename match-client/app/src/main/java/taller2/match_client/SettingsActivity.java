@@ -301,7 +301,7 @@ public class SettingsActivity extends AppCompatActivity {
             profile.remove(getResources().getString(R.string.interests));
             profile.put(getResources().getString(R.string.interests), interestArray);
 
-            if (! ((latitude == 0.0) || (longitude == 0)) )  {
+            if (! ((latitude == 0.0) || (longitude == 0.0)) )  {
                 JSONObject location = new JSONObject();
                 location.put(getResources().getString(R.string.latitude), latitude);
                 location.put(getResources().getString(R.string.longitude), longitude);

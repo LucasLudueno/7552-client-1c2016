@@ -82,6 +82,10 @@
     <string name="fields_empty_error_en">Some fields are empty. Please complete the fields before continue</string>
     <string name="internet_disconnect_error_title_en">Internet disconnect</string>
     <string name="internet_disconnect_error_en">Please connect internet to continue</string>
+    <string name="gps_disconnect_error_title_en">Gps disconnect</string>
+    <string name="gps_disconnect_error_en">Please connect Gps to continue</string>
+    <string name="wait_for_location_error_title_en">Location Unavailable</string>
+    <string name="wait_for_location_error_en">Please wait a while until we have your location and continue</string>
     <string name="unavailable_service_title_en">Unavailable Service</string>
     <string name="unavailable_service_error_en">Please try in few minutes</string>
     <string name="log_processing_en">Login processing</string>

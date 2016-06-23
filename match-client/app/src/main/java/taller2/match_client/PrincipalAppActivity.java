@@ -638,7 +638,7 @@ public class PrincipalAppActivity extends AppCompatActivity
             } catch (JSONException e) {
                 Log.w(TAG, "Can't process Matches Json received from Server");
             }
-            if (newMatchesCount > 0) {
+            if ( (newMatchesCount > 0) && areConversationLoad) {
                 // Update match icon
                 menu.getItem(1).setIcon(getResources().getDrawable(R.drawable.ic_person_add_white_36dp));
 

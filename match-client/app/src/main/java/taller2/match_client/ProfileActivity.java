@@ -26,7 +26,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/* Perfil Activity has user perfil fields. UserProfile can change its and save changes (the fields with new values are
+/* Profile Activity has user profile fields. UserProfile can change its and save changes (the fields with new values are
  * send to Server) */
 public class ProfileActivity extends AppCompatActivity {
     /* Attributes */
@@ -193,7 +193,7 @@ public class ProfileActivity extends AppCompatActivity {
             profile.remove(getResources().getString(R.string.profilePhoto));
             profile.put(getResources().getString(R.string.profilePhoto), profilePhotoBase64);
 
-            if (! ((latitude == 0.0) || (longitude == 0)) )  {
+            if (! ((latitude == 0.0) || (longitude == 0.0)) )  {
                 JSONObject location = new JSONObject();
                 location.put(getResources().getString(R.string.latitude), latitude);
                 location.put(getResources().getString(R.string.longitude), longitude);
