@@ -64,9 +64,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
-
-    Location location;
-
     /* On create Activity */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -295,7 +292,6 @@ public class RegisterActivity extends AppCompatActivity {
         } else {
             internetDisconnectWindow.show();
         }
-        //checkRegisterResponse("201:ok");
     }
 
     /* Check if the format fields is correct to continue */

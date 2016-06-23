@@ -52,7 +52,6 @@ public class PrincipalAppActivity extends AppCompatActivity
     private TextView possibleMatchAlias;
     private CardView possibleMatchCard;
     private Toast noMatchesAvailableInFront;
-    private Toast noMatchesAvailableForDay;
     private MatchManagerProxy matchManager;
     private JSONObject actualMatch = null;
     private PossibleMatchBuffer possibleMatchesBuffer;
@@ -72,9 +71,9 @@ public class PrincipalAppActivity extends AppCompatActivity
 
     private String userEmail = "";
     private boolean areConversationLoad = false;
-    protected static final int GET_MATCH_SLEEP_TIME = 60000;         // 1 min
-    protected static final int GET_POS_MATCH_SLEEP_TIME = 60000;      // 1 min
-    protected static final int GET_CONVERSATION_SLEEP_TIME = 30000;  // 30 seg
+    protected static final int GET_MATCH_SLEEP_TIME = 20000;           // 20 seg
+    protected static final int GET_POS_MATCH_SLEEP_TIME = 10000;       // 10 seg
+    protected static final int GET_CONVERSATION_SLEEP_TIME = 20000;    // 30 seg
     protected static final int UPDATE_CONVERSATION_SLEEP_TIME = 5000;  // 5 seg
     protected static final int GET_MATCH_CODE = 1;
     protected static final int GET_CONVERSATION_CODE = 2;
@@ -210,7 +209,6 @@ public class PrincipalAppActivity extends AppCompatActivity
 
         // Toast
         noMatchesAvailableInFront = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_possible_matches_are_available_en), Toast.LENGTH_LONG);
-        noMatchesAvailableForDay = Toast.makeText(getApplicationContext(), getResources().getString(R.string.no_more_pos_matches_available_en), Toast.LENGTH_LONG);
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
@@ -340,9 +338,11 @@ public class PrincipalAppActivity extends AppCompatActivity
             getMatchTimer.interrupt();
             getConversationTimer.interrupt();
             getPosMatchTimer.interrupt();
+            updateConversationTimer.interrupt();
             getMatchTimer.join();
             getConversationTimer.join();
             getPosMatchTimer.join();
+            updateConversationTimer.join();
         } catch (InterruptedException e) {
             Log.w(TAG, "Can't join threads");
         }
@@ -394,8 +394,6 @@ public class PrincipalAppActivity extends AppCompatActivity
             Intent startSettingActivity = new Intent(this, SettingsActivity.class);
             startSettingActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startSettingActivity);
-        } else if (id == R.id.nav_information) {
-
         } else if (id == R.id.nav_perfil) {
             Intent startProfileActivity = new Intent(this, ProfileActivity.class);
             startProfileActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -428,7 +426,6 @@ public class PrincipalAppActivity extends AppCompatActivity
             actualMatch = possibleMatchesBuffer.get(random);
             possibleMatchesBuffer.remove(random);
 
-            // TODO: CHECKEAR VERSIONES ANTERIORES ANDROID
             View v = findViewById(R.id.drawer_layout); // Change background
             v.setBackground(getResources().getDrawable(R.drawable.white_background));
         } else {
@@ -448,10 +445,9 @@ public class PrincipalAppActivity extends AppCompatActivity
             String age = String.valueOf(actualMatch.getInt(getResources().getString(R.string.age)));
             String photoInB64 = actualMatch.getString(getResources().getString(R.string.photoProfile));
 
-            if (photoInB64.length() > 50) {
+            if (photoInB64.length() > 50) {   // TODO: ESTO SE DEJA SOLO POR SI SE DIÓ DE ALTA UN USUARIO SIN FOTO DE PERFIL
                 possibleMatchPhoto.setImageBitmap(bs64.Base64ToBitmap(actualMatch.getString(getResources().getString(R.string.photoProfile))));
             } else {
-                // TODO: SACAR
                 possibleMatchPhoto.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small));
             }
             possibleMatchAlias.setText(alias + ", " + age);
@@ -481,7 +477,7 @@ public class PrincipalAppActivity extends AppCompatActivity
                         getPossibleMatches.execute("POST", url, uri, posMatchRequest.toString());
                         Log.d(TAG, "Send Get possible matches Request to Server: " + posMatchRequest.toString());
                     }
-            //checkGetPosMatchResponseFromServer(mockServer.getPossibleMatches(posMatchRequest.toString())); //TODO: SACAR
+            //checkGetPosMatchResponseFromServer(mockServer.getPossibleMatches(posMatchRequest.toString())); //TODO: MOCK TEST
         }
     }
 
@@ -509,7 +505,7 @@ public class PrincipalAppActivity extends AppCompatActivity
             SendInterestOfPosMatchTask sendPosMatchInterest = new SendInterestOfPosMatchTask();
             sendPosMatchInterest.execute("POST", url, uri, interestMatches.toString());
 
-            //checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));  //TODO: Test
+            //checkInterestPosMatchResponseFromServer(mockServer.like_dont(interestMatches.toString()));  //TODO: MOCK TEST
         } else {
             internetDisconnectWindow.show();
             possibleMatchCard.setVisibility(View.VISIBLE);
@@ -704,7 +700,7 @@ public class PrincipalAppActivity extends AppCompatActivity
     }
 
     /* Thread Handler, handle get match and get conversation events */
-    Handler matchManagerHandler = new Handler() { // TODO: RECOMENDACION DE STATIC ?? MUTEX ?
+    Handler matchManagerHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case GET_MATCH_CODE:    // Send Get match request to Server

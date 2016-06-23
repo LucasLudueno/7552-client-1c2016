@@ -3,6 +3,7 @@ package taller2.match_client;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,12 +12,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/* This class represent the Aplication Server. Its a test class  */
-public class MockServer {   //TODO: LOG MOCK
+/* This class represent the Application Server. Its a test class use to
+  * Login, Register, GetConversations, GetPossibleMatches and GetMatches */
+public class MockServer {
     /* Attributes */
     private Context context;
     private HashMap<String, JSONObject> matches;
     private ArrayList<JSONObject> possibleMatches;
+
+    private static final String TAG = "RegisterActivity";
 
     public MockServer(Context context) {
         this.context = context;
@@ -25,6 +29,7 @@ public class MockServer {   //TODO: LOG MOCK
     }
 
     private void createMatchList() {
+        Log.i(TAG, "Create Match List");
         /*** MATCHES ***/
         matches = new HashMap<String, JSONObject>();
         try {
@@ -67,11 +72,12 @@ public class MockServer {   //TODO: LOG MOCK
             matches.put("eze@gmail.com",  (new JSONObject()).put("user",eze));
             matches.put("lucas@gmail.com", (new JSONObject()).put("user",lucas));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't create match list");
         }
     }
 
     private void createPossibleMatchList() {
+        Log.i(TAG, "Create Pos Match List");
         /*** POSSIBLE MATCHES ***/
         possibleMatches = new ArrayList<JSONObject>();
         try {
@@ -110,12 +116,13 @@ public class MockServer {   //TODO: LOG MOCK
             possibleMatches.add((new JSONObject()).put("user",pmatch5));
             possibleMatches.add((new JSONObject()).put("user",pmatch6));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.w(TAG, "Can't create pos match list");
         }
     }
 
     /* Represent Login Request */
     public String Login(JSONObject data) {
+        Log.i(TAG, "Mock Login");
         String userEmail = "";
         try {
             userEmail = data.getString("email");
@@ -132,6 +139,7 @@ public class MockServer {   //TODO: LOG MOCK
 
     /* Represent Get Matches Request */
     public String getMatches(String userMailJson) {
+        Log.i(TAG, "Mock getMatches");
         JSONArray match_array = new JSONArray();
         int count = 1;
         for (int i = 0; i < count; ++i) {
@@ -154,6 +162,7 @@ public class MockServer {   //TODO: LOG MOCK
 
     /* Represent Get Possible Matches Request */
     public String getPossibleMatches(String pmatchRequest) {
+        Log.i(TAG, "Mock Get Possible Matches");
         JSONObject possibleMatchesToSend = new JSONObject();
         JSONArray possibleMatchesArray = new JSONArray();
         int count = 0;
@@ -179,8 +188,8 @@ public class MockServer {   //TODO: LOG MOCK
 
     /* Represent Get conversation Request */
     public static String getConversation(String conversationRequest) {
+        Log.i(TAG, "Mock Get Conversation");
         JSONObject conversationToSend = new JSONObject();
-
         JSONObject conversationJson = null;
         String emailSrc = null;
         try {
@@ -207,6 +216,7 @@ public class MockServer {   //TODO: LOG MOCK
 
     /* Represent Send Pos Match Interest Request */
     public static String like_dont(String interest) {
+        Log.i(TAG, "Mock Like Dont");
         try {
             JSONObject interestJson = new JSONObject(interest);
             String emailSrc = interestJson.getString("emailSrc");
@@ -220,6 +230,7 @@ public class MockServer {   //TODO: LOG MOCK
 
     /* Represent Send Conversation Request */
     public static String sendConversation(String conversation) {
+        Log.i(TAG, "Mock Send Conversation");
         try {
             JSONObject conversationJson = new JSONObject(conversation);
             String mailSrc = conversationJson.getString("emailSrc");

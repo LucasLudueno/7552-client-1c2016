@@ -217,7 +217,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             internetDisconnectWindow.show();
         }
-       // checkProfileResponseFromServer("200:ok"); //TODO: Test
+       // checkProfileResponseFromServer("200:ok"); //TODO: TEST
     }
 
     /* Return true if format of fields is correct */
