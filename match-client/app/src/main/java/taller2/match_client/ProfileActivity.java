@@ -26,6 +26,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import taller2.match_client.Helpers.ActivityHelper;
+import taller2.match_client.Helpers.ActivityLocationListener;
+import taller2.match_client.Helpers.Base64Converter;
+import taller2.match_client.Helpers.FileManager;
+import taller2.match_client.Request.ClientToServerTask;
+
 /* Profile Activity has user profile fields. UserProfile can change its and save changes (the fields with new values are
  * send to Server) */
 public class ProfileActivity extends AppCompatActivity {
@@ -53,10 +59,10 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(taller2.match_client.R.layout.activity_profile);
 
         // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.perfilToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(taller2.match_client.R.id.perfilToolbar);
         setSupportActionBar(toolbar);
 
         // Add the back activity button in the toolbar
@@ -81,9 +87,9 @@ public class ProfileActivity extends AppCompatActivity {
         /* Load Profile into Activity */
         try {
             Base64Converter b64conv = new Base64Converter();
-            JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
-            userNameView.setText(actualProfile.getString(getResources().getString(R.string.alias)));
-            userPhoto.setImageBitmap(b64conv.Base64ToBitmap(actualProfile.getString(getResources().getString(R.string.photoProfile))));
+            JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(taller2.match_client.R.string.profile_filename), getApplicationContext()));
+            userNameView.setText(actualProfile.getString(getResources().getString(taller2.match_client.R.string.alias)));
+            userPhoto.setImageBitmap(b64conv.Base64ToBitmap(actualProfile.getString(getResources().getString(taller2.match_client.R.string.photoProfile))));
         } catch (JSONException e) {
             Log.w(TAG, "Can't read Profile File");
         } catch (IOException e) {
@@ -96,27 +102,27 @@ public class ProfileActivity extends AppCompatActivity {
     private void createHelpWindows() {
         // emptyFieldsWindow
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
-        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
-        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
+        emptyFieldsWindow.setTitle(getResources().getString(taller2.match_client.R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(taller2.match_client.R.string.fields_empty_error_en));
 
         // internetDisconnectWindow
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
-        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+        internetDisconnectWindow.setTitle(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_en));
 
         // loadingWindow
         loadingWindow = new ProgressDialog(this);
-        loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
-        loadingWindow.setMessage(getResources().getString(R.string.updating_profile_en));
+        loadingWindow.setTitle(getResources().getString(taller2.match_client.R.string.please_wait_en));
+        loadingWindow.setMessage(getResources().getString(taller2.match_client.R.string.updating_profile_en));
 
         // profileCreated Toast
-        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en), Toast.LENGTH_LONG);
+        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(taller2.match_client.R.string.profile_uploaded_en), Toast.LENGTH_LONG);
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
     private void instantiateViews() {
         // When the image is clicked, the gallery is open and user can choose other profile photo
-        userPhoto = (ImageView)findViewById(R.id.userPerfilPhoto);
+        userPhoto = (ImageView)findViewById(taller2.match_client.R.id.userPerfilPhoto);
         userPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,7 +131,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         // Save changes button
-        saveChangesButton = (Button) findViewById(R.id.savePerfilButton);
+        saveChangesButton = (Button) findViewById(taller2.match_client.R.id.savePerfilButton);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,12 +140,12 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         // TextViews
-        userNameView = (EditText)findViewById(R.id.userNamePerfil);
+        userNameView = (EditText)findViewById(taller2.match_client.R.id.userNamePerfil);
 
         // UnavailableServiceWindow
         unavailableServiceWindow = new AlertDialog.Builder(this).create();
-        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
-        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+        unavailableServiceWindow.setTitle(getResources().getString(taller2.match_client.R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(taller2.match_client.R.string.unavailable_service_error_en));
     }
 
     /* When profile photo is pressed, gallery option to choose other is open. */
@@ -187,18 +193,18 @@ public class ProfileActivity extends AppCompatActivity {
 
         // construct Profile
         try {
-            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename),getApplicationContext()));
-            profile.remove(getResources().getString(R.string.alias));
-            profile.put(getResources().getString(R.string.alias), userName);
-            profile.remove(getResources().getString(R.string.profilePhoto));
-            profile.put(getResources().getString(R.string.profilePhoto), profilePhotoBase64);
+            profile = new JSONObject(FileManager.readFile(getResources().getString(taller2.match_client.R.string.profile_filename),getApplicationContext()));
+            profile.remove(getResources().getString(taller2.match_client.R.string.alias));
+            profile.put(getResources().getString(taller2.match_client.R.string.alias), userName);
+            profile.remove(getResources().getString(taller2.match_client.R.string.profilePhoto));
+            profile.put(getResources().getString(taller2.match_client.R.string.profilePhoto), profilePhotoBase64);
 
             if (! ((latitude == 0.0) || (longitude == 0.0)) )  {
                 JSONObject location = new JSONObject();
-                location.put(getResources().getString(R.string.latitude), latitude);
-                location.put(getResources().getString(R.string.longitude), longitude);
-                profile.remove(getResources().getString(R.string.location));
-                profile.put(getResources().getString(R.string.location),location);
+                location.put(getResources().getString(taller2.match_client.R.string.latitude), latitude);
+                location.put(getResources().getString(taller2.match_client.R.string.longitude), longitude);
+                profile.remove(getResources().getString(taller2.match_client.R.string.location));
+                profile.put(getResources().getString(taller2.match_client.R.string.location),location);
             }
 
         } catch (JSONException e) {
@@ -211,13 +217,13 @@ public class ProfileActivity extends AppCompatActivity {
             Log.d(TAG, "Send Profile to Server: " + String.valueOf(profile));
             loadingWindow.show();
             String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
-            String uri = getResources().getString(R.string.update_profile_uri);
+            String uri = getResources().getString(taller2.match_client.R.string.update_profile_uri);
             SendProfileTask checkProfileUpdate = new SendProfileTask();
             checkProfileUpdate.execute("POST",url, uri, String.valueOf(profile));
         } else {
             internetDisconnectWindow.show();
         }
-       // checkProfileResponseFromServer("200:ok"); //TODO: TEST
+       // checkProfileResponseFromServer("200:ok"); // TEST
     }
 
     /* Return true if format of fields is correct */
@@ -236,11 +242,11 @@ public class ProfileActivity extends AppCompatActivity {
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_upload_profile))) {
+        if (responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_upload_profile))) {
             profileCreated.show();
             // Update Profile
             try {
-                FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile), getApplicationContext());
+                FileManager.writeFile(getResources().getString(taller2.match_client.R.string.profile_filename), String.valueOf(profile), getApplicationContext());
             } catch (IOException e) {
                 Log.w(TAG, "Can't write Profile File");
             }
@@ -260,7 +266,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_profile, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_profile, menu);
         return true;
     }
 
@@ -270,7 +276,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
-        } else if (item.getItemId() == R.id.action_settings) {
+        } else if (item.getItemId() == taller2.match_client.R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);

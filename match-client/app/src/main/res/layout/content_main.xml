@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/activity_general_margin"
-    tools:context="taller2.match_client.MainActivity"
+    tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
     <EditText

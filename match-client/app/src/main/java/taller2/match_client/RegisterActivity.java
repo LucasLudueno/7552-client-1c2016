@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +23,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import taller2.match_client.Helpers.ActivityHelper;
+import taller2.match_client.Helpers.ActivityLocationListener;
+import taller2.match_client.Helpers.Base64Converter;
+import taller2.match_client.Helpers.FileManager;
+import taller2.match_client.Request.ClientToServerTask;
 
 /* RegisterActivity manage the Register. When the user register, check with the server if the email already exist and
  * if don't, the user is register. */
@@ -68,10 +73,10 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(taller2.match_client.R.layout.activity_register);
 
         // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.registerToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(taller2.match_client.R.id.registerToolbar);
         setSupportActionBar(toolbar);
 
         // Add the back activity button in the toolbar
@@ -103,55 +108,55 @@ public class RegisterActivity extends AppCompatActivity {
     private void createHelpWindows() {
         // wrongFieldsWindow
         wrongBirthdayWindow = new AlertDialog.Builder(this).create();
-        wrongBirthdayWindow.setTitle(getResources().getString(R.string.birthdate_wrong_format_error_title_en));
-        wrongBirthdayWindow.setMessage(getResources().getString(R.string.birthdate_wrong_format_error_en));
+        wrongBirthdayWindow.setTitle(getResources().getString(taller2.match_client.R.string.birthdate_wrong_format_error_title_en));
+        wrongBirthdayWindow.setMessage(getResources().getString(taller2.match_client.R.string.birthdate_wrong_format_error_en));
 
         // emailWrongFormatWindow
         wrongMailWindow = new AlertDialog.Builder(this).create();
-        wrongMailWindow.setTitle(getResources().getString(R.string.mail_wrong_format_error_title_en));
-        wrongMailWindow.setMessage(getResources().getString(R.string.mail_wrong_format_error_en));
+        wrongMailWindow.setTitle(getResources().getString(taller2.match_client.R.string.mail_wrong_format_error_title_en));
+        wrongMailWindow.setMessage(getResources().getString(taller2.match_client.R.string.mail_wrong_format_error_en));
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
-        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+        internetDisconnectWindow.setTitle(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_en));
 
         // userNameExistWindow
         userMailExistWindow= new AlertDialog.Builder(this).create();
-        userMailExistWindow.setTitle(getResources().getString(R.string.mail_exist_error_title_en));
-        userMailExistWindow.setMessage(getResources().getString(R.string.mail_exist_error_en));
+        userMailExistWindow.setTitle(getResources().getString(taller2.match_client.R.string.mail_exist_error_title_en));
+        userMailExistWindow.setMessage(getResources().getString(taller2.match_client.R.string.mail_exist_error_en));
 
         // emptyFieldsWindow
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
-        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
-        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
+        emptyFieldsWindow.setTitle(getResources().getString(taller2.match_client.R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(taller2.match_client.R.string.fields_empty_error_en));
 
         // UnavailableServiceWindow
         unavailableServiceWindow = new AlertDialog.Builder(this).create();
-        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
-        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+        unavailableServiceWindow.setTitle(getResources().getString(taller2.match_client.R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(taller2.match_client.R.string.unavailable_service_error_en));
 
         // loadingWindow
         connectingToServerWindow = new ProgressDialog(this);
-        connectingToServerWindow.setTitle(getResources().getString(R.string.please_wait_en));
-        connectingToServerWindow.setMessage(getResources().getString(R.string.reg_processing_en));
+        connectingToServerWindow.setTitle(getResources().getString(taller2.match_client.R.string.please_wait_en));
+        connectingToServerWindow.setMessage(getResources().getString(taller2.match_client.R.string.reg_processing_en));
         connectingToServerWindow.setMax(100);
 
         // waitForLocationWindow
         waitForLocation = new AlertDialog.Builder(this).create();
-        waitForLocation.setTitle(getResources().getString(R.string.wait_for_location_error_title_en));
-        waitForLocation.setMessage(getResources().getString(R.string.wait_for_location_error_en));
+        waitForLocation.setTitle(getResources().getString(taller2.match_client.R.string.wait_for_location_error_title_en));
+        waitForLocation.setMessage(getResources().getString(taller2.match_client.R.string.wait_for_location_error_en));
 
         // gpsDisconnectWindow
         gpsDisconnectWindow = new AlertDialog.Builder(this).create();
-        gpsDisconnectWindow.setTitle(getResources().getString(R.string.gps_disconnect_error_title_en));
-        gpsDisconnectWindow.setMessage(getResources().getString(R.string.gps_disconnect_error_en));
+        gpsDisconnectWindow.setTitle(getResources().getString(taller2.match_client.R.string.gps_disconnect_error_title_en));
+        gpsDisconnectWindow.setMessage(getResources().getString(taller2.match_client.R.string.gps_disconnect_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
     private void instantiateViews() {
         // Continue Button
-        continueRegButton = (Button) findViewById(R.id.ContinueRegisterButton);
+        continueRegButton = (Button) findViewById(taller2.match_client.R.id.ContinueRegisterButton);
         continueRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,8 +165,8 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         // Male and Female CheckBox
-        userFemaleView = (CheckBox) findViewById(R.id.userIsFemale);
-        userMaleView = (CheckBox) findViewById(R.id.userIsMale);
+        userFemaleView = (CheckBox) findViewById(taller2.match_client.R.id.userIsFemale);
+        userMaleView = (CheckBox) findViewById(taller2.match_client.R.id.userIsMale);
 
         userFemaleView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,11 +186,11 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         // TextViews
-        userNameView = (EditText) findViewById(R.id.userName);
-        userPasswordView = (EditText) findViewById(R.id.userPassword);
-        userRealNameView = (EditText) findViewById(R.id.userRealName);
-        userMailView = (EditText) findViewById(R.id.userMail);
-        userBirthdayView = (EditText) findViewById(R.id.userBirthdate);
+        userNameView = (EditText) findViewById(taller2.match_client.R.id.userName);
+        userPasswordView = (EditText) findViewById(taller2.match_client.R.id.userPassword);
+        userRealNameView = (EditText) findViewById(taller2.match_client.R.id.userRealName);
+        userMailView = (EditText) findViewById(taller2.match_client.R.id.userMail);
+        userBirthdayView = (EditText) findViewById(taller2.match_client.R.id.userBirthdate);
     }
 
     /*  Check Location */
@@ -239,9 +244,9 @@ public class RegisterActivity extends AppCompatActivity {
         // check sex
         String userSex = "";
         if (userFemaleView.isChecked()) {
-            userSex = getResources().getString(R.string.female_en);
+            userSex = getResources().getString(taller2.match_client.R.string.female_en);
         } else {
-            userSex = getResources().getString(R.string.male_en);
+            userSex = getResources().getString(taller2.match_client.R.string.male_en);
         }
 
         // calculate Age
@@ -251,32 +256,32 @@ public class RegisterActivity extends AppCompatActivity {
         try {
             // register fields
             registerData = new JSONObject();
-            registerData.put(getResources().getString(R.string.alias), userName);
-            registerData.put(getResources().getString(R.string.password), userPassword);
-            registerData.put(getResources().getString(R.string.userName), userRealName);
-            registerData.put(getResources().getString(R.string.email), userEmail);
-            registerData.put(getResources().getString(R.string.age),userAge);
-            registerData.put(getResources().getString(R.string.sex), userSex);
+            registerData.put(getResources().getString(taller2.match_client.R.string.alias), userName);
+            registerData.put(getResources().getString(taller2.match_client.R.string.password), userPassword);
+            registerData.put(getResources().getString(taller2.match_client.R.string.userName), userRealName);
+            registerData.put(getResources().getString(taller2.match_client.R.string.email), userEmail);
+            registerData.put(getResources().getString(taller2.match_client.R.string.age),userAge);
+            registerData.put(getResources().getString(taller2.match_client.R.string.sex), userSex);
 
             // location
             JSONObject location = new JSONObject();
-            location.put(getResources().getString(R.string.latitude), latitude);
-            location.put(getResources().getString(R.string.longitude), longitude);
-            registerData.put(getResources().getString(R.string.location),location);
+            location.put(getResources().getString(taller2.match_client.R.string.latitude), latitude);
+            location.put(getResources().getString(taller2.match_client.R.string.longitude), longitude);
+            registerData.put(getResources().getString(taller2.match_client.R.string.location),location);
 
             // interests
             JSONArray interests = new JSONArray();
             JSONObject sexInterest = new JSONObject();
-            sexInterest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex));
-            sexInterest.put(getResources().getString(R.string.value), getResources().getString(R.string.any));
+            sexInterest.put(getResources().getString(taller2.match_client.R.string.category), getResources().getString(taller2.match_client.R.string.sex));
+            sexInterest.put(getResources().getString(taller2.match_client.R.string.value), getResources().getString(taller2.match_client.R.string.any));
             interests.put(sexInterest);
-            registerData.put(getResources().getString(R.string.interests),interests);
+            registerData.put(getResources().getString(taller2.match_client.R.string.interests),interests);
 
             // profile photo
-            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), R.drawable.standard_photo_profile_small);
+            Bitmap photodefault = BitmapFactory.decodeResource(getResources(), taller2.match_client.R.drawable.standard_photo_profile_small);
             Base64Converter bs64 = new Base64Converter();
             String base64 = bs64.bitmapToBase64(photodefault);
-            registerData.put(getResources().getString(R.string.profilePhoto), base64);
+            registerData.put(getResources().getString(taller2.match_client.R.string.profilePhoto), base64);
         } catch (JSONException e) {
             Log.w(TAG, "Can't create Json Register Request");
         }
@@ -286,7 +291,7 @@ public class RegisterActivity extends AppCompatActivity {
             Log.d(TAG, "Send Register Request to Server: " + registerData.toString());
             connectingToServerWindow.show();
             String url =  MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
-            String uri = getResources().getString(R.string.register_uri);
+            String uri = getResources().getString(taller2.match_client.R.string.register_uri);
             SendRegisterTask checkRegister = new SendRegisterTask();
             checkRegister.execute("POST",url, uri, String.valueOf(registerData));
         } else {
@@ -320,7 +325,7 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_register, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_register, menu);
         return true;
     }
 
@@ -340,22 +345,22 @@ public class RegisterActivity extends AppCompatActivity {
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_register))) {
+        if (responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_register))) {
             // save registerdata in file
             try {
-                FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(registerData), getApplicationContext());
+                FileManager.writeFile(getResources().getString(taller2.match_client.R.string.profile_filename), String.valueOf(registerData), getApplicationContext());
             } catch (IOException e) {
                 Log.e(TAG, "Can't write profile");
             }
             // start principal activity
             Log.d(TAG, "Create PrincipalAppActivity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
+            startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
             startActivity(startAppActivity);
 
             // Finish actual activity
             this.finish();
-        } else if (responseCode.equals(getResources().getString(R.string.existing_user_code))){
+        } else if (responseCode.equals(getResources().getString(taller2.match_client.R.string.existing_user_code))){
             userMailExistWindow.show();
         } else {
             unavailableServiceWindow.show();

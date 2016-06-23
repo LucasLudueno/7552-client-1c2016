@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -13,13 +12,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+
+import taller2.match_client.Helpers.ActivityHelper;
+import taller2.match_client.Helpers.FileManager;
+import taller2.match_client.Request.ClientToServerTask;
+import taller2.match_client.Test.MockServer;
 
 
 /* MainActivity manage the Login. When the user login, check with the server login information */
@@ -50,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "Create MainActivity");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(taller2.match_client.R.layout.activity_main);
 
         // Create internal files
-        File file = new File(this.getFilesDir(), getResources().getString(R.string.profile_filename));
+        File file = new File(this.getFilesDir(), getResources().getString(taller2.match_client.R.string.profile_filename));
 
         // Toolbar
-        Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(taller2.match_client.R.id.mainToolbar);
         setSupportActionBar(mainToolbar);
 
         // Help Windows
@@ -74,39 +77,39 @@ public class MainActivity extends AppCompatActivity {
     private void createHelpWindows() {
         // emailWrongFormatWindow
         wrongMailWindow = new AlertDialog.Builder(this).create();
-        wrongMailWindow.setTitle(getResources().getString(R.string.mail_wrong_format_error_title_en));
-        wrongMailWindow.setMessage(getResources().getString(R.string.mail_wrong_format_error_en));
+        wrongMailWindow.setTitle(getResources().getString(taller2.match_client.R.string.mail_wrong_format_error_title_en));
+        wrongMailWindow.setMessage(getResources().getString(taller2.match_client.R.string.mail_wrong_format_error_en));
 
         // badLoginWindow
         badLoginWindow = new AlertDialog.Builder(this).create();
-        badLoginWindow.setTitle(getResources().getString(R.string.fields_incorrect_error_title_en));
-        badLoginWindow.setMessage(getResources().getString(R.string.fields_incorrect_error_en));
+        badLoginWindow.setTitle(getResources().getString(taller2.match_client.R.string.fields_incorrect_error_title_en));
+        badLoginWindow.setMessage(getResources().getString(taller2.match_client.R.string.fields_incorrect_error_en));
 
         // emptyFieldsWindow
         emptyFieldsWindow = new AlertDialog.Builder(this).create();
-        emptyFieldsWindow.setTitle(getResources().getString(R.string.fields_empty_error_title_en));
-        emptyFieldsWindow.setMessage(getResources().getString(R.string.fields_empty_error_en));
+        emptyFieldsWindow.setTitle(getResources().getString(taller2.match_client.R.string.fields_empty_error_title_en));
+        emptyFieldsWindow.setMessage(getResources().getString(taller2.match_client.R.string.fields_empty_error_en));
 
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
-        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+        internetDisconnectWindow.setTitle(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_en));
 
         // loadingWindow
         loadingWindow = new ProgressDialog(this);
-        loadingWindow.setTitle(getResources().getString(R.string.please_wait_en));
-        loadingWindow.setMessage(getResources().getString(R.string.log_processing_en));
+        loadingWindow.setTitle(getResources().getString(taller2.match_client.R.string.please_wait_en));
+        loadingWindow.setMessage(getResources().getString(taller2.match_client.R.string.log_processing_en));
 
         // UnavailableServiceWindow
         unavailableServiceWindow = new AlertDialog.Builder(this).create();
-        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
-        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+        unavailableServiceWindow.setTitle(getResources().getString(taller2.match_client.R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(taller2.match_client.R.string.unavailable_service_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
     private void instantiateViews() {
         // Login Button
-        login = (Button)findViewById(R.id.loginButton);
+        login = (Button)findViewById(taller2.match_client.R.id.loginButton);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Register Button
-        register = (Button)findViewById(R.id.registerButton);
+        register = (Button)findViewById(taller2.match_client.R.id.registerButton);
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,16 +127,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // TextViews
-        userMailView = (EditText)findViewById(R.id.userMailLogin);
-        userPasswordView = (EditText)findViewById(R.id.userPasswordLogin);
+        userMailView = (EditText)findViewById(taller2.match_client.R.id.userMailLogin);
+        userPasswordView = (EditText)findViewById(taller2.match_client.R.id.userPasswordLogin);
 
-        ((EditText)findViewById(R.id.ip)).setText(getResources().getString(R.string.server_ip));    //TODO: SACAR
+        ((EditText)findViewById(taller2.match_client.R.id.ip)).setText(getResources().getString(taller2.match_client.R.string.server_ip));    //TODO: SACAR
     }
 
     /* When an user login, if the userName and the password are correct (that is checked with Server)
      * PrincipalAppActivity is created. */
     private void loginOnClick(View v) {
-        ipServer = ((EditText)findViewById(R.id.ip)).getText().toString(); //TODO: SACAR
+        ipServer = ((EditText)findViewById(taller2.match_client.R.id.ip)).getText().toString(); //TODO: SACAR
 
         userEmail = userMailView.getText().toString();
         userPassword = userPasswordView.getText().toString();
@@ -146,8 +149,8 @@ public class MainActivity extends AppCompatActivity {
         // construct json login
         JSONObject data = new JSONObject();
         try {
-            data.put(getResources().getString(R.string.password), userPassword);
-            data.put(getResources().getString(R.string.email), userEmail);
+            data.put(getResources().getString(taller2.match_client.R.string.password), userPassword);
+            data.put(getResources().getString(taller2.match_client.R.string.email), userEmail);
         } catch (JSONException e) {
             Log.w(TAG, "Can't create Json Request with Email and Password");
         }
@@ -155,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Send Login to Server: " + data.toString());
             loadingWindow.show();
             String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
-            String uri = getResources().getString(R.string.login_uri);
+            String uri = getResources().getString(taller2.match_client.R.string.login_uri);
             SendLoginTask checkLogin = new SendLoginTask();
             checkLogin.execute("POST",url, uri, data.toString());
         } else {
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* When user registers, RegisterActivity is created */
     private void registerOnClick(View v) {
-        ipServer = ((EditText)findViewById(R.id.ip)).getText().toString(); //TODO: SACAR
+        ipServer = ((EditText)findViewById(taller2.match_client.R.id.ip)).getText().toString(); //TODO: SACAR
 
         Log.i(TAG, "Create RegisterActivity");
         Intent startRegisterActivity = new Intent(this, RegisterActivity.class);
@@ -178,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_main, menu);
         return true;
     }
 
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == taller2.match_client.R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -212,29 +215,29 @@ public class MainActivity extends AppCompatActivity {
         String responseCode = response.split(":", 2)[0];
         String profile = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_login))) {
+        if (responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_login))) {
             // update profile
             JSONObject profileJson = null;
             String profileComplete = "";
             try {
                 profileJson = new JSONObject(profile);
-                profileComplete = profileJson.getString(getResources().getString(R.string.user)).toString();
+                profileComplete = profileJson.getString(getResources().getString(taller2.match_client.R.string.user)).toString();
             } catch (JSONException e) {
                 Log.e(TAG, "Can't get Profile from Server response");
             }
 
             try {
-                FileManager.writeFile(getResources().getString(R.string.profile_filename), profileComplete, getApplicationContext());
+                FileManager.writeFile(getResources().getString(taller2.match_client.R.string.profile_filename), profileComplete, getApplicationContext());
             } catch (IOException e) {
                 Log.e(TAG, "Can't write Profile File");
             }
             // start principal aplication
             Log.i(TAG, "Create Principal Activity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
-            startAppActivity.putExtra(getResources().getString(R.string.email), String.valueOf(userEmail));
+            startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.email), String.valueOf(userEmail));
             startActivity(startAppActivity);
             this.finish();
-        } else if (responseCode.equals(getResources().getString(R.string.existing_user_code))) {
+        } else if (responseCode.equals(getResources().getString(taller2.match_client.R.string.existing_user_code))) {
             badLoginWindow.show();
         } else {
             unavailableServiceWindow.show();

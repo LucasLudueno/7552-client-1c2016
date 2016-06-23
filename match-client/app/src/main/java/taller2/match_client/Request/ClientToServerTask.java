@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Request;
 
 import android.os.AsyncTask;
 import android.util.Log;

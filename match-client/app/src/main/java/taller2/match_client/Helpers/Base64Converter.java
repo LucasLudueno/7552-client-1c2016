@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Helpers;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

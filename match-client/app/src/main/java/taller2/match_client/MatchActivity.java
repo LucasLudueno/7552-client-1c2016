@@ -15,6 +15,9 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import org.json.JSONException;
 
+import taller2.match_client.Match_Manage.MatchList;
+import taller2.match_client.Match_Manage.MatchManagerProxy;
+
 /* Match Activity show matches and open chat Activity when some match is clecked */
 public class MatchActivity extends AppCompatActivity {
     private MatchList matchList;
@@ -27,10 +30,10 @@ public class MatchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_match);
+        setContentView(taller2.match_client.R.layout.activity_match);
 
         // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.matchToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(taller2.match_client.R.id.matchToolbar);
         setSupportActionBar(toolbar);
 
         // Add back activity button in the toolbar
@@ -42,7 +45,7 @@ public class MatchActivity extends AppCompatActivity {
 
         // MatchList
         matchList = matchManager.getMatchList();
-        matchListView = (ListView) findViewById(R.id.matchList);
+        matchListView = (ListView) findViewById(taller2.match_client.R.id.matchList);
         matchListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         matchListView.setAdapter(matchList);
 
@@ -65,20 +68,20 @@ public class MatchActivity extends AppCompatActivity {
         Log.i(TAG, "Create ChatActivity");
         String alias = "";
         try {
-            alias = matchManager.getMatch(email).getString(getResources().getString(R.string.alias));
+            alias = matchManager.getMatch(email).getString(getResources().getString(taller2.match_client.R.string.alias));
         } catch (JSONException e) {
             Log.w(TAG, "Can't get match from matchManager");
         }
         Intent startChatActivity = new Intent(this, ChatActivity.class);
-        startChatActivity.putExtra(getResources().getString(R.string.email), String.valueOf(email));
-        startChatActivity.putExtra(getResources().getString(R.string.alias), String.valueOf(alias));
+        startChatActivity.putExtra(getResources().getString(taller2.match_client.R.string.email), String.valueOf(email));
+        startChatActivity.putExtra(getResources().getString(taller2.match_client.R.string.alias), String.valueOf(alias));
         startActivity(startChatActivity);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_match, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_match, menu);
         return true;
     }
 

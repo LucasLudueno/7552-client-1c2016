@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Match_Manage;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,11 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+
+import taller2.match_client.R;
 
 /* Match Manager, manage user matches and conversations (can save and get) */
 public class MatchManager implements MatchManagerInterface {

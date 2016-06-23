@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Match_Manage;
 
 /* This class represent a Chat Message that has a message and a boolean value that indicates if
  * the message was send from actual user or from a match */

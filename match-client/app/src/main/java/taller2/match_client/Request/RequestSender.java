@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Request;
 
 import android.util.Log;
 
@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import taller2.match_client.Request.ConnectionException;
 
 /* This class send GET and POST request to Server by an URL */
 public class RequestSender {
@@ -38,6 +40,7 @@ public class RequestSender {
 
     /* Send POST request to Server. Throws ConnectionExeption in case error */
     public String sendPOSTRequest(String urlString, String uriString, String data) throws ConnectionException {
+        String responseCode = "";
         try {
             Log.d(TAG, "POST Request");
             url = new URL(urlString + uriString);
@@ -57,12 +60,16 @@ public class RequestSender {
             httpWritter.flush();
             httpWritter.close();
 
-            String responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
+            responseCode = String.valueOf(httpConnection.getResponseCode()); // Get response code
             InputStream inputStream = httpConnection.getInputStream();              // Get response
             return responseCode + ":" + InputStreamToString(inputStream);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to send POST Request", e);
-            throw new ConnectionException("Failed to connect");
+        } catch (IOException e) {
+            if (responseCode.compareTo("") == 0) {
+                Log.e(TAG, "Failed to send POST Request", e);
+                throw new ConnectionException("Failed to connect");
+            } else {
+                return responseCode + ":" + "Error";
+            }
         } finally {
             httpConnection.disconnect();
         }

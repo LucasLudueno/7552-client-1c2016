@@ -1,7 +1,6 @@
-package taller2.match_client;
+package taller2.match_client.Match_Manage;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;

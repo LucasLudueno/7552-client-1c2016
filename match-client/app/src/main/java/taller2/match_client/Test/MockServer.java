@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Test;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +11,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import taller2.match_client.Helpers.Base64Converter;
+import taller2.match_client.R;
 
 /* This class represent the Application Server. Its a test class use to
   * Login, Register, GetConversations, GetPossibleMatches and GetMatches */

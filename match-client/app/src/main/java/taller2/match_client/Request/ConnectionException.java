@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Request;
 
 /* Connection Exception is thrown when send Request failed */
 public class ConnectionException extends Exception {

@@ -28,6 +28,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import taller2.match_client.Helpers.ActivityHelper;
+import taller2.match_client.Helpers.ActivityLocationListener;
+import taller2.match_client.Helpers.FileManager;
+import taller2.match_client.Request.ClientToServerTask;
+
 /* SettingsActivity has user interest. UserProfile can change its from differents categories and save changes
    (the new interests are send to Server) */
 public class SettingsActivity extends AppCompatActivity {
@@ -65,10 +70,10 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(taller2.match_client.R.layout.activity_settings);
 
         // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.settingsToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(taller2.match_client.R.id.settingsToolbar);
         setSupportActionBar(toolbar);
 
         // Add the back activity button in the toolbar
@@ -119,30 +124,30 @@ public class SettingsActivity extends AppCompatActivity {
     private void createHelpWindows() {
         // internetDisconnectWindows
         internetDisconnectWindow = new AlertDialog.Builder(this).create();
-        internetDisconnectWindow.setTitle(getResources().getString(R.string.internet_disconnect_error_title_en));
-        internetDisconnectWindow.setMessage(getResources().getString(R.string.internet_disconnect_error_en));
+        internetDisconnectWindow.setTitle(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_title_en));
+        internetDisconnectWindow.setMessage(getResources().getString(taller2.match_client.R.string.internet_disconnect_error_en));
 
         // loadingWindow
         loading = new ProgressDialog(this);
-        loading.setTitle(getResources().getString(R.string.please_wait_en));
-        loading.setMessage(getResources().getString(R.string.updating_profile_en));
+        loading.setTitle(getResources().getString(taller2.match_client.R.string.please_wait_en));
+        loading.setMessage(getResources().getString(taller2.match_client.R.string.updating_profile_en));
 
         // UnavailableServiceWindow
         unavailableServiceWindow = new AlertDialog.Builder(this).create();
-        unavailableServiceWindow.setTitle(getResources().getString(R.string.unavailable_service_title_en));
-        unavailableServiceWindow.setMessage(getResources().getString(R.string.unavailable_service_error_en));
+        unavailableServiceWindow.setTitle(getResources().getString(taller2.match_client.R.string.unavailable_service_title_en));
+        unavailableServiceWindow.setMessage(getResources().getString(taller2.match_client.R.string.unavailable_service_error_en));
     }
 
     /* Instantiate views inside Activity and keep it in attibutes */
     private void instantiateViews() {
         // Category List
-        categoryList = (Spinner)findViewById(R.id.categoriesList);
-        listCategoryAdapter = ArrayAdapter.createFromResource(this, R.array.category_list_items, android.R.layout.simple_spinner_item);
+        categoryList = (Spinner)findViewById(taller2.match_client.R.id.categoriesList);
+        listCategoryAdapter = ArrayAdapter.createFromResource(this, taller2.match_client.R.array.category_list_items, android.R.layout.simple_spinner_item);
         listCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categoryList.setAdapter(listCategoryAdapter);
 
         // Interest List
-        interestList = (Spinner)findViewById(R.id.interestList);
+        interestList = (Spinner)findViewById(taller2.match_client.R.id.interestList);
 
         // Music Band List
         List<String> musicBandListInterest = new ArrayList<String>();
@@ -175,24 +180,24 @@ public class SettingsActivity extends AppCompatActivity {
         listOutdoorsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Interest edit text
-        interest_edit = (EditText)findViewById(R.id.interestEdit);
+        interest_edit = (EditText)findViewById(taller2.match_client.R.id.interestEdit);
 
         // Add Button
-        addInterest = (Button)findViewById(R.id.AddInterestButton);
+        addInterest = (Button)findViewById(taller2.match_client.R.id.AddInterestButton);
         addInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { addInterest();  }
         });
 
         // Remove Button
-        removeInterest = (Button)findViewById(R.id.RemoveInterestButton);
+        removeInterest = (Button)findViewById(taller2.match_client.R.id.RemoveInterestButton);
         removeInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { removeInterest(); }
         });
 
         // Save changes button
-        saveChangesButton = (Button) findViewById(R.id.saveSettingButton);
+        saveChangesButton = (Button) findViewById(taller2.match_client.R.id.saveSettingButton);
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,11 +206,11 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         // CheckBoxs
-        menSelected = (CheckBox)findViewById(R.id.checkMen);
-        womenSelected = (CheckBox)findViewById(R.id.checkWomen);
+        menSelected = (CheckBox)findViewById(taller2.match_client.R.id.checkMen);
+        womenSelected = (CheckBox)findViewById(taller2.match_client.R.id.checkWomen);
 
         // profileCreated Toast
-        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(R.string.profile_uploaded_en), Toast.LENGTH_LONG);
+        profileCreated = Toast.makeText(getApplicationContext(), getResources().getString(taller2.match_client.R.string.profile_uploaded_en), Toast.LENGTH_LONG);
     }
 
     /* Add interest in actual spinner */
@@ -264,49 +269,49 @@ public class SettingsActivity extends AppCompatActivity {
     private void sendUpdateProfileToServer() {
         // Json Data
         String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
-        String uri = getResources().getString(R.string.update_profile_uri);
+        String uri = getResources().getString(taller2.match_client.R.string.update_profile_uri);
 
         // Latitude and longitude
         Double latitude = locationListener.getLatitude();
         Double longitude = locationListener.getLongitude();
 
         try {
-            profile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
+            profile = new JSONObject(FileManager.readFile(getResources().getString(taller2.match_client.R.string.profile_filename), getApplicationContext()));
             JSONArray interestArray = new JSONArray();
-            addInterestInJsonArray(getResources().getString(R.string.music_band_category), listMusicBandAdapter, interestArray);
-            addInterestInJsonArray(getResources().getString(R.string.outdooors_category), listOutdoorsAdapter, interestArray);
-            addInterestInJsonArray(getResources().getString(R.string.music_category), listMusicAdapter, interestArray);
-            addInterestInJsonArray(getResources().getString(R.string.sport_category), listSportAdapter, interestArray);
-            addInterestInJsonArray(getResources().getString(R.string.food_category), listFoodAdapter, interestArray);
-            addInterestInJsonArray(getResources().getString(R.string.travel_category), listTravelAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.music_band_category), listMusicBandAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.outdooors_category), listOutdoorsAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.music_category), listMusicAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.sport_category), listSportAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.food_category), listFoodAdapter, interestArray);
+            addInterestInJsonArray(getResources().getString(taller2.match_client.R.string.travel_category), listTravelAdapter, interestArray);
 
             if ( (menSelected.isChecked() && womenSelected.isChecked()) ||
                     (!menSelected.isChecked() && !womenSelected.isChecked())) {
                 JSONObject interest = new JSONObject();
-                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.any));
+                interest.put(getResources().getString(taller2.match_client.R.string.category), getResources().getString(taller2.match_client.R.string.sex_category));
+                interest.put(getResources().getString(taller2.match_client.R.string.value), getResources().getString(taller2.match_client.R.string.any));
                 interestArray.put(interest);
             } else if (womenSelected.isChecked()) {
                 JSONObject interest = new JSONObject();
-                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.women));
+                interest.put(getResources().getString(taller2.match_client.R.string.category), getResources().getString(taller2.match_client.R.string.sex_category));
+                interest.put(getResources().getString(taller2.match_client.R.string.value), getResources().getString(taller2.match_client.R.string.women));
                 interestArray.put(interest);
             } else if (menSelected.isChecked()) {
                 JSONObject interest = new JSONObject();
-                interest.put(getResources().getString(R.string.category), getResources().getString(R.string.sex_category));
-                interest.put(getResources().getString(R.string.value), getResources().getString(R.string.men));
+                interest.put(getResources().getString(taller2.match_client.R.string.category), getResources().getString(taller2.match_client.R.string.sex_category));
+                interest.put(getResources().getString(taller2.match_client.R.string.value), getResources().getString(taller2.match_client.R.string.men));
                 interestArray.put(interest);
             }
 
-            profile.remove(getResources().getString(R.string.interests));
-            profile.put(getResources().getString(R.string.interests), interestArray);
+            profile.remove(getResources().getString(taller2.match_client.R.string.interests));
+            profile.put(getResources().getString(taller2.match_client.R.string.interests), interestArray);
 
             if (! ((latitude == 0.0) || (longitude == 0.0)) )  {
                 JSONObject location = new JSONObject();
-                location.put(getResources().getString(R.string.latitude), latitude);
-                location.put(getResources().getString(R.string.longitude), longitude);
-                profile.remove(getResources().getString(R.string.location));
-                profile.put(getResources().getString(R.string.location), location);
+                location.put(getResources().getString(taller2.match_client.R.string.latitude), latitude);
+                location.put(getResources().getString(taller2.match_client.R.string.longitude), longitude);
+                profile.remove(getResources().getString(taller2.match_client.R.string.location));
+                profile.put(getResources().getString(taller2.match_client.R.string.location), location);
             }
 
         } catch (JSONException e) {
@@ -333,8 +338,8 @@ public class SettingsActivity extends AppCompatActivity {
             String interest = interestAdapter.getItem(i);
             JSONObject jsonInterest = new JSONObject();
             try {
-                jsonInterest.put(getResources().getString(R.string.category), category);
-                jsonInterest.put(getResources().getString(R.string.value), interest);
+                jsonInterest.put(getResources().getString(taller2.match_client.R.string.category), category);
+                jsonInterest.put(getResources().getString(taller2.match_client.R.string.value), interest);
                 data.put(jsonInterest);
             } catch (JSONException e) {
                 Log.w(TAG, "Can't add interest in JsonProfile");
@@ -345,20 +350,20 @@ public class SettingsActivity extends AppCompatActivity {
     /* When Activity is created, profile interest are included in spinner adapters */
     private void includeProfileInterest() {
         try {
-            JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(R.string.profile_filename), getApplicationContext()));
-            JSONArray interests = actualProfile.getJSONArray(getResources().getString(R.string.interests));
+            JSONObject actualProfile = new JSONObject(FileManager.readFile(getResources().getString(taller2.match_client.R.string.profile_filename), getApplicationContext()));
+            JSONArray interests = actualProfile.getJSONArray(getResources().getString(taller2.match_client.R.string.interests));
 
             for (int i = 0; i < interests.length(); ++i) {
                 JSONObject interest = interests.getJSONObject(i);
-                String category = interest.getString(getResources().getString(R.string.category));
-                String value = interest.getString(getResources().getString(R.string.value));
+                String category = interest.getString(getResources().getString(taller2.match_client.R.string.category));
+                String value = interest.getString(getResources().getString(taller2.match_client.R.string.value));
 
-                if (category.compareTo(getResources().getString(R.string.sex)) == 0) {
-                    if (value.compareTo(getResources().getString(R.string.men)) == 0) {
+                if (category.compareTo(getResources().getString(taller2.match_client.R.string.sex)) == 0) {
+                    if (value.compareTo(getResources().getString(taller2.match_client.R.string.men)) == 0) {
                         menSelected.setChecked(true);
-                    } else if (value.compareTo(getResources().getString(R.string.women)) == 0) {
+                    } else if (value.compareTo(getResources().getString(taller2.match_client.R.string.women)) == 0) {
                         womenSelected.setChecked(true);
-                    } else if (value.compareTo(getResources().getString(R.string.any)) == 0) {
+                    } else if (value.compareTo(getResources().getString(taller2.match_client.R.string.any)) == 0) {
                         womenSelected.setChecked(true);
                         menSelected.setChecked(true);
                     }
@@ -382,11 +387,11 @@ public class SettingsActivity extends AppCompatActivity {
         String responseCode = response.split(":", 2)[0];
         String responseMessage = response.split(":", 2)[1];
 
-        if (responseCode.equals(getResources().getString(R.string.ok_response_code_upload_profile))) {
+        if (responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_upload_profile))) {
             profileCreated.show();
             // Update Profile
             try {
-                FileManager.writeFile(getResources().getString(R.string.profile_filename), String.valueOf(profile), getApplicationContext());
+                FileManager.writeFile(getResources().getString(taller2.match_client.R.string.profile_filename), String.valueOf(profile), getApplicationContext());
             } catch (IOException e) {
                 Log.e(TAG, "Can't write Profile File");
             }
@@ -406,7 +411,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_settings, menu);
         return true;
     }
 
@@ -416,7 +421,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
-        } else if (item.getItemId() == R.id.action_settings) {
+        } else if (item.getItemId() == taller2.match_client.R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);

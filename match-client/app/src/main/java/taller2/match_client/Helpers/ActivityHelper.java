@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Helpers;
 
 import android.content.Context;
 import android.location.LocationManager;

@@ -28,26 +28,26 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(taller2.match_client.R.layout.activity_chat);
 
         // Get Match Email and Alias from Intent
         String alias = "";
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            matchEmail = bundle.getString(getResources().getString(R.string.email));
-            alias = bundle.getString(getResources().getString(R.string.alias));
+            matchEmail = bundle.getString(getResources().getString(taller2.match_client.R.string.email));
+            alias = bundle.getString(getResources().getString(taller2.match_client.R.string.alias));
         }
 
         // Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.chatToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(taller2.match_client.R.id.chatToolbar);
         toolbar.setTitle(alias);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (ViewPager) findViewById(taller2.match_client.R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(taller2.match_client.R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         Log.i(TAG, "ChatActivity is created");
@@ -57,15 +57,15 @@ public class ChatActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         Log.d(TAG, "Setup Chat and Match Tab");
         Bundle bundle = new Bundle();
-        bundle.putString(getResources().getString(R.string.email), matchEmail);
+        bundle.putString(getResources().getString(taller2.match_client.R.string.email), matchEmail);
         chatTab = new ChatTab();
         matchTab = new MatchTab();
         chatTab.setArguments(bundle);
         matchTab.setArguments(bundle);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(chatTab, getResources().getString(R.string.chat_tab_en));
-        adapter.addFragment(matchTab, getResources().getString(R.string.info_tab_en));
+        adapter.addFragment(chatTab, getResources().getString(taller2.match_client.R.string.chat_tab_en));
+        adapter.addFragment(matchTab, getResources().getString(taller2.match_client.R.string.info_tab_en));
         viewPager.setAdapter(adapter);
     }
 
@@ -102,7 +102,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_chat, menu);
+        getMenuInflater().inflate(taller2.match_client.R.menu.menu_chat, menu);
         return true;
     }
 
@@ -115,7 +115,7 @@ public class ChatActivity extends AppCompatActivity {
             chatTab.onDestroy();
             this.finish();
             return true;
-        } else if (item.getItemId() == R.id.action_settings) {
+        } else if (item.getItemId() == taller2.match_client.R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);

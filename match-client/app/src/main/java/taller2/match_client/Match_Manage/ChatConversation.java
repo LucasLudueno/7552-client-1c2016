@@ -1,4 +1,4 @@
-package taller2.match_client;
+package taller2.match_client.Match_Manage;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+
+import taller2.match_client.R;
 
 /* This class represent a Chat Array that is taken by a ListView to show the Chat Messages */
 public class ChatConversation extends ArrayAdapter<ChatMessage> {

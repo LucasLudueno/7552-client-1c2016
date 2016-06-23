@@ -1,8 +1,7 @@
-package taller2.match_client;
+package taller2.match_client.Match_Manage;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -19,6 +18,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+
+import taller2.match_client.Helpers.Base64Converter;
+import taller2.match_client.R;
 
 /* This class represent an List Adapter that have match items and show match alias and photo
  * when is used in a ListView */
