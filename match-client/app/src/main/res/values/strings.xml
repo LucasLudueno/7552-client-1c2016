@@ -25,6 +25,7 @@
     <string name="send_conversation_uri">/sendconversation</string>
     <string name="get_matches_uri">/getmatches</string>
     <string name="get_pos_matches_uri">/getpossiblematches</string>
+    <string name="send_check_token_uri">/checktoken</string>
     <string name="like_uri">/like</string>
     <string name="dont_like_uri">/dislike</string>
     <string name="ok_response_code_register">201</string>
@@ -35,6 +36,8 @@
     <string name="ok_response_code_get_conversation">201</string>
     <string name="ok_response_code_send_conversation">201</string>
     <string name="ok_response_code_send_pos_match_interest">201</string>
+    <string name="ok_response_code_check_token_interest">201</string>
+    <string name="invalid_token_response_code">412</string>
     <string name="existing_user_code">500</string>
     <string name="cant_connect_to_server">401:Cant connect with Server</string>
 
@@ -45,6 +48,7 @@
     <string name="password">password</string>
     <string name="birthday">birthday</string>
     <string name="age">age</string>
+    <string name="token">token</string>
     <string name="photoProfile">photo_profile</string>
     <string name="interest">interest</string>
     <string name="latitude">latitude</string>
@@ -144,6 +148,7 @@
     <string name="user_name_in_principal_app">Lucas</string>
     <string name="sending_interest_en">Sending Interest</string>
     <string name="no_match_found_alias_en">No Match Found</string>
+    <string name="session_expired_en">Session expired. Please Login Again</string>
     <string name="no_more_pos_matches_available_en">"You have no more possible matches, please come back tomorrow"</string>
     <string name="new_matches_en">YOU HAVE NEW MATCHES!</string>
     <string name="no_possible_matches_are_available_en">No possible matches are available. Please touch the heart to get more!</string>
@@ -158,12 +163,4 @@
     <string name="action_chat_en">Chat with your Match :O</string>
     <string name="action_match_en">Select a Match and chat now!</string>
     <string name="action_principal_en">Touch heart and meet people :P</string>
-
-    <!--<string name="action_interests_en">To add an interest please choose a category, write an interest and press Add Button</string>
-    <string name="action_profile_en">To Change Profile Photo please click the photo. To change Name and UserName just write it in the appropriate text box</string>
-    <string name="action_register_en">To Register please complete all fields and press Continue button</string>
-    <string name="action_login_en">To Login please enter your email and password. If you have not an acount, please press Register Now button</string>
-    <string name="action_chat_en">To Send a chat write it and press Send button. To see Match Information swipe the screen left</string>
-    <string name="action_match_en"></string>
-    <string name="action_principal_en"></string>-->
 </resources>

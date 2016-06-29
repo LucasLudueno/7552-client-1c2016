@@ -97,7 +97,7 @@ public class RegisterActivity extends AppCompatActivity {
         locationListenerGps = new ActivityLocationListener();
         try {
             locationManagerInternet.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTimeToRefresh, 0, locationListenerInternet);
-            locationManagerGps.requestLocationUpdates("gps", minTimeToRefresh, 0, locationListenerGps);
+            locationManagerGps.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTimeToRefresh, 0, locationListenerGps);
         } catch (SecurityException e) {
             Log.w(TAG, "Can't set LocationListener");
         }
@@ -352,10 +352,18 @@ public class RegisterActivity extends AppCompatActivity {
             } catch (IOException e) {
                 Log.e(TAG, "Can't write profile");
             }
+            // get token
+            String token = "";
+            try {
+                token = (new JSONObject(responseMessage)).getString(getResources().getString(R.string.token));
+            } catch (JSONException e) {
+                Log.w(TAG, "Can't get token from Server Response");
+            }
             // start principal activity
             Log.d(TAG, "Create PrincipalAppActivity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.email), String.valueOf(userEmail)); // Send user email to principal Activity
+            startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.token), token); // Send token to principal Activity
             startActivity(startAppActivity);
 
             // Finish actual activity

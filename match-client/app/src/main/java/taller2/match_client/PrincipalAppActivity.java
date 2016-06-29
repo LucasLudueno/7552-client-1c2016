@@ -2,6 +2,7 @@ package taller2.match_client;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.IntentCompat;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
@@ -70,21 +72,29 @@ public class PrincipalAppActivity extends AppCompatActivity
     private Thread getMatchTimer;
     private Thread getPosMatchTimer;
     private Thread getConversationTimer;
+    private Thread checkTokenTimer;
     private Thread updateConversationTimer;
 
     private String userEmail = "";
+    private String token = "";
     private boolean areConversationLoad = false;
     protected static final int GET_MATCH_SLEEP_TIME = 20000;           // 20 seg
     protected static final int GET_POS_MATCH_SLEEP_TIME = 10000;       // 10 seg
     protected static final int GET_CONVERSATION_SLEEP_TIME = 20000;    // 30 seg
     protected static final int UPDATE_CONVERSATION_SLEEP_TIME = 5000;  // 5 seg
+    protected static final int CHECK_TOKEN_SLEEP_TIME = 20000;         // 20 seg
     protected static final int GET_MATCH_CODE = 1;
     protected static final int GET_CONVERSATION_CODE = 2;
     protected static final int GET_POS_MATCH_CODE = 3;
     protected static final int UPDATE_CONVERSATIONS_CODE = 4;
+    protected static final int CHECK_TOKEN_CODE = 5;
     protected static final int MIN_POS_MATCHES_COUNT = 1;
     protected static final int POS_MATCH_COUNT_TO_REQUEST = 2;
     private static final String TAG = "PrincipalActivity";
+
+    ProfileActivity profileActivity;
+    SettingsActivity settingsActivity;
+    MatchActivity matchActivity;
 
     /*** MockServer ***/
     MockServer mockServer;
@@ -116,6 +126,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             userEmail = bundle.getString(getResources().getString(taller2.match_client.R.string.email));
+            token = bundle.getString(getResources().getString(taller2.match_client.R.string.token));
         }
 
         // Possible Matches
@@ -137,6 +148,8 @@ public class PrincipalAppActivity extends AppCompatActivity
         getMatchTimer.start();
         getPosMatchTimer = new Thread(new GetPossibleMatches());
         getPosMatchTimer.start();
+        checkTokenTimer = new Thread(new CheckToken());
+        checkTokenTimer.start();
 
         /*** Mock Server***/
         //mockServer = new MockServer(getApplicationContext());
@@ -144,8 +157,11 @@ public class PrincipalAppActivity extends AppCompatActivity
         Log.i(TAG, "Principal Activity is created");
 
         // load match activity
+        matchActivity = new MatchActivity();
+        profileActivity = new ProfileActivity();
+        settingsActivity = new SettingsActivity();
         Log.i(TAG, "Create Match Activity");
-        Intent startMatchActivity = new Intent(this, MatchActivity.class);
+        Intent startMatchActivity = new Intent(this, matchActivity.getClass());
         startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(startMatchActivity);
     }
@@ -342,19 +358,19 @@ public class PrincipalAppActivity extends AppCompatActivity
             getConversationTimer.interrupt();
             getPosMatchTimer.interrupt();
             updateConversationTimer.interrupt();
+            checkTokenTimer.interrupt();
             getMatchTimer.join();
             getConversationTimer.join();
             getPosMatchTimer.join();
             updateConversationTimer.join();
+            checkTokenTimer.join();
         } catch (InterruptedException e) {
             Log.w(TAG, "Can't join threads");
         }
-        this.finish();
-        Intent finishAplication = new Intent(Intent.ACTION_MAIN);
-        finishAplication.addCategory(Intent.CATEGORY_HOME);
-        finishAplication.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(finishAplication);
-        System.exit(0);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("EXIT", true);
+        startActivity(intent);
     }
 
     /* Inflate Menu when menu button is pressed */
@@ -377,7 +393,7 @@ public class PrincipalAppActivity extends AppCompatActivity
         if (id == taller2.match_client.R.id.action_settings) {
             return true;
         } else if (id == taller2.match_client.R.id.action_chat) {
-            Intent startMatchActivity = new Intent(this, MatchActivity.class);
+            Intent startMatchActivity = new Intent(this, matchActivity.getClass());
             startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startMatchActivity);
 
@@ -394,15 +410,15 @@ public class PrincipalAppActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == taller2.match_client.R.id.nav_settings) {
-            Intent startSettingActivity = new Intent(this, SettingsActivity.class);
+            Intent startSettingActivity = new Intent(this, settingsActivity.getClass());
             startSettingActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startSettingActivity);
         } else if (id == taller2.match_client.R.id.nav_perfil) {
-            Intent startProfileActivity = new Intent(this, ProfileActivity.class);
+            Intent startProfileActivity = new Intent(this, profileActivity.getClass());
             startProfileActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startProfileActivity);
         } else if (id == taller2.match_client.R.id.nav_chat) {
-            Intent startMatchActivity = new Intent(this, MatchActivity.class);
+            Intent startMatchActivity = new Intent(this, matchActivity.getClass());
             startMatchActivity.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(startMatchActivity);
 
@@ -564,6 +580,26 @@ public class PrincipalAppActivity extends AppCompatActivity
         }
     }
 
+    /* Send Check Token Request To Server */
+    private void sendCheckTokenRequestToServer() {
+        JSONObject tokenRequest = new JSONObject();
+        try {
+            tokenRequest.put(getResources().getString(R.string.email), userEmail);
+            tokenRequest.put(getResources().getString(R.string.token), token);
+        } catch (JSONException e) {
+            Log.w(TAG, "Can't create SendCheckToken Json Request");
+        }
+        if (ActivityHelper.checkConection(getApplicationContext())) {
+            Log.d(TAG, "Send CheckToken Request to Server: " + tokenRequest.toString());
+            String url = MainActivity.ipServer;//getResources().getString(R.string.server_ip); //TODO: SACAR
+            String uri = getResources().getString(R.string.send_check_token_uri);;
+            SendCheckTokenRequestToServerTask checkToken = new SendCheckTokenRequestToServerTask();
+            checkToken.execute("POST", url, uri, tokenRequest.toString());
+        } else {
+            // No hay internet
+        }
+    }
+
     /* Check response from Server after sending possible match interest. If response is ok
      * actual possible match is remove and updatePosMatch is called */
     private void checkInterestPosMatchResponseFromServer(String response) {
@@ -669,6 +705,21 @@ public class PrincipalAppActivity extends AppCompatActivity
         }
     }
 
+    /* Check response from Server after sending check Token request */
+    private void checkSendCheckTokenResponseFromServer(String response) {
+        Log.d(TAG, "Check Token Response from Server is received: " + response);
+        String responseCode = response.split(":", 2)[0];
+        String conversation = response.split(":", 2)[1];
+
+        if (responseCode.equals(getResources().getString(taller2.match_client.R.string.ok_response_code_check_token_interest))) {
+            // OK
+        } else if (responseCode.equals(getResources().getString(taller2.match_client.R.string.invalid_token_response_code))) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.session_expired_en),
+                    Toast.LENGTH_LONG).show();
+            finishAplication();
+        }
+    }
+
     /* Send Interest of possible match to Server */
     private class SendInterestOfPosMatchTask extends ClientToServerTask {
         @Override
@@ -702,6 +753,14 @@ public class PrincipalAppActivity extends AppCompatActivity
         }
     }
 
+    /* Send check token to Server */
+    private class SendCheckTokenRequestToServerTask extends ClientToServerTask {
+        @Override
+        protected void onPostExecute(String dataGetFromServer){
+            checkSendCheckTokenResponseFromServer(dataGetFromServer);
+        }
+    }
+
     /* Thread Handler, handle get match and get conversation events */
     Handler matchManagerHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -718,6 +777,9 @@ public class PrincipalAppActivity extends AppCompatActivity
                 case UPDATE_CONVERSATIONS_CODE: // Send Get Possible Match request to Server
                     String conversationsFileName =  getResources().getString(taller2.match_client.R.string.conversation_prefix_filename) + userEmail;
                     matchManager.updateConversationInFile(conversationsFileName);
+                    break;
+                case CHECK_TOKEN_CODE: // Send check Token request to Server
+                    sendCheckTokenRequestToServer();
                     break;
             }
             super.handleMessage(msg);
@@ -789,6 +851,24 @@ public class PrincipalAppActivity extends AppCompatActivity
 
                 try {
                     Thread.sleep(UPDATE_CONVERSATION_SLEEP_TIME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    /* Check Token to Server */
+    class CheckToken implements Runnable {
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                Log.i(TAG, "Check Token");
+                Message message = new Message();
+                message.what = CHECK_TOKEN_CODE;
+                PrincipalAppActivity.this.matchManagerHandler.sendMessage(message);
+
+                try {
+                    Thread.sleep(CHECK_TOKEN_SLEEP_TIME);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

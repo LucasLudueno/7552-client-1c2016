@@ -219,11 +219,17 @@ public class MainActivity extends AppCompatActivity {
             // update profile
             JSONObject profileJson = null;
             String profileComplete = "";
+            String token = "";
             try {
                 profileJson = new JSONObject(profile);
                 profileComplete = profileJson.getString(getResources().getString(taller2.match_client.R.string.user)).toString();
             } catch (JSONException e) {
                 Log.e(TAG, "Can't get Profile from Server response");
+            }
+            try {
+                token = profileJson.getString(getResources().getString(taller2.match_client.R.string.token)).toString();
+            } catch (JSONException e) {
+                Log.w(TAG, "Can't get token from Server Response");
             }
 
             try {
@@ -235,8 +241,9 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "Create Principal Activity");
             Intent startAppActivity = new Intent(this, PrincipalAppActivity.class);
             startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.email), String.valueOf(userEmail));
+            startAppActivity.putExtra(getResources().getString(taller2.match_client.R.string.token), token); // Send token to principal Activity
             startActivity(startAppActivity);
-            this.finish();
+            //this.finish();
         } else if (responseCode.equals(getResources().getString(taller2.match_client.R.string.existing_user_code))) {
             badLoginWindow.show();
         } else {
